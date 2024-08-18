@@ -47,4 +47,14 @@ RoleSchema.pre('save', function(next) {
     next();
 })
 
+RoleSchema.post('save', (doc, next) => {
+    require('../../../../config/authorization').mappingRoleActions();
+    next();
+});
+
+RoleSchema.post('updateMany', (doc, next) => {
+    require('../../../../config/authorization').mappingRoleActions();
+    next();
+});
+
 module.exports = systemDb.model('Role', RoleSchema);

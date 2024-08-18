@@ -65,4 +65,14 @@ PermissionSchema.pre('save', function(next) {
     next();
 })
 
+PermissionSchema.post('save', (doc, next) => {
+    require('../../../../config/authorization').mappingRoleActions();
+    next();
+})
+
+PermissionSchema.post('updateMany', (doc, next) => {
+    require('../../../../config/authorization').mappingRoleActions();
+    next();
+})
+
 module.exports = systemDb.model('Permission', PermissionSchema);

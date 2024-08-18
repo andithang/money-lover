@@ -72,6 +72,7 @@ const routes: Routes = [
     path: "error",
     loadChildren: () => import('./sessions/sessions.module').then(m => m.SessionsModule)
   },
+  { path: "", redirectTo: "money-lover", pathMatch: "full" },
   { path: '**', redirectTo: 'error' },
 ];
 

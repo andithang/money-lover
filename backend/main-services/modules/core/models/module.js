@@ -49,4 +49,14 @@ ModuleSchema.pre('save', function(next) {
     next();
 })
 
+ModuleSchema.post('save', (doc, next) => {
+    require('../../../../config/authorization').mappingRoleActions();
+    next();
+});
+
+ModuleSchema.post('updateMany', (doc, next) => {
+    require('../../../../config/authorization').mappingRoleActions();
+    next();
+});
+
 module.exports = systemDb.model('Module', ModuleSchema);

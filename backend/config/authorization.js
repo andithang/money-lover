@@ -163,3 +163,13 @@ exports.mappingRoleActions = async () => {
         winstonLogger.error(`Error when mapping roles and actions: `, error);
     }
 }
+
+/**
+ * check permission of the current user for an action
+ */
+async function checkCurrUserOnAction(user, action) {
+    const userRole = user.role;
+    const roleActionsStr = await redis.HGET(consts.redis_key.role_permission, userRole.toString());
+    const roleActions = JSON.parse(roleActionsStr);
+    
+}
