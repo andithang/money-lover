@@ -89,7 +89,7 @@ const addBudget = (req, returnData, callback) => {
 }
 
 const updateBudget = (req, returnData, callback) => {
-    let { name, icon, id } = req.params;
+    let { name, icon, _id } = req.params;
 
     if (validator.isNull(name)) {
         return callback('ERROR_CODE_MISSING');
@@ -103,12 +103,12 @@ const updateBudget = (req, returnData, callback) => {
 
     Budget
         .findOne()
-        .where({ _id: id })
+        .where({ _id })
         .exec((err, result) => {
             if (err) {
                 return callback(err);
             }
-            if (!result) {
+            if (!result && result._id.toString() != _id) {
                 return callback('ERROR_BUDGET_NOT_FOUND');
             }
             else {

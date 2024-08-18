@@ -117,7 +117,7 @@
 			"description": "",
 			"collectionId": "1dcb2d2d-c044-3bf2-5eb3-1244d822abf8",
 			"responses": [],
-			"rawModeData": "{\n\t\"username\": \"fog\",\n\t\"password\": \"fog\",\n\t\"api_name\": \"api.v1.systemuser.login\"\n}"
+			"rawModeData": "{\n\t\"username\": \"fog\",\n\t\"password\": \"fog\",\n\t\"api_name\": \"users:login\"\n}"
 		},
 		{
 			"id": "97bb5e89-f1e0-2534-4237-b7876f862b7c",

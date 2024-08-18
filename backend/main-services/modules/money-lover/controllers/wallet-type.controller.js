@@ -138,7 +138,7 @@ const updateWalletType = (req, returnData, callback) => {
             if (err) {
                 return callback(err);
             }
-            if (!result) {
+            if (!result && result._id.toString() != id) {
                 return callback('ERROR_WALLETTYPE_NOT_FOUND');
             }
             else {

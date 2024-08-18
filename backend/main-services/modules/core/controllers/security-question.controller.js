@@ -124,7 +124,7 @@ const updateSecurityQuestion = (req, returnData, callback) => {
                     if (err) {
                         return callback(err);
                     }
-                    if (!result) {
+                    if (!result && result._id.toString() != _id) {
                         return callback('ERROR_QUESTION_NOT_FOUND');
                     }
                     else {

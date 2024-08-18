@@ -169,7 +169,7 @@ const updateCategory = (req, returnData, callback) => {
             if (err) {
                 return callback(err);
             }
-            if (!result) {
+            if (!result && result._id.toString() != id) {
                 return callback('ERROR_CATEGORY_NOT_FOUND');
             }
             else {

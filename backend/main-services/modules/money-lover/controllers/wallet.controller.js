@@ -118,7 +118,7 @@ const updateWallet = (req, returnData, callback) => {
             if (err) {
                 return callback(err);
             }
-            if (!result) {
+            if (!result && result._id.toString() != _id) {
                 return callback('ERROR_WALLET_NOT_FOUND');
             }
             else {

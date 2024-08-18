@@ -133,7 +133,7 @@ const updateRole = (req, returnData, callback) => {
     Role.findOne({code}).exec((errFind, existCode) => {
         if(errFind) callback(errFind);
         else {
-            if(existCode) callback(consts.ERRORS.ERROR_ROLE_EXIST);
+            if(existCode && existCode._id.toString() != _id) callback(consts.ERRORS.ERROR_ROLE_EXIST);
             else {                
                 Role
                     .findOne()

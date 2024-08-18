@@ -133,7 +133,7 @@ const updateModule = (req, returnData, callback) => {
     Module.findOne({code}).exec((errFind, existCode) => {
         if(errFind) callback(errFind);
         else {
-            if(existCode) callback(consts.ERRORS.ERROR_MODULE_EXIST);
+            if(existCode && existCode._id.toString() != _id) callback(consts.ERRORS.ERROR_MODULE_EXIST);
             else {            
                 Module
                     .findOne()

@@ -133,7 +133,7 @@ const updateAction = (req, returnData, callback) => {
     Action.findOne({code}).exec((errFind, existCode) => {
         if(errFind) callback(errFind);
         else {
-            if(existCode) callback(consts.ERRORS.ERROR_ACTION_EXIST);
+            if(existCode && existCode._id.toString() != _id) callback(consts.ERRORS.ERROR_ACTION_EXIST);
             else {
                 Action
                     .findOne()
