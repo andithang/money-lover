@@ -4,6 +4,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { CONSTS } from 'app/consts';
 import { Module } from 'app/model/module.model';
 import { ModuleService } from '../module.service';
+import { checkIsCheckAll } from '@shared';
 
 @Component({
     selector: 'select-module',
@@ -86,7 +87,7 @@ export class SelectModuleComponent implements OnInit {
     }
 
     updateCheckAll(){        
-        this.isAllChecked = this.listChecked.size == this.total;
+        this.isAllChecked = checkIsCheckAll(Array.from(this.listChecked.values()), this.listModules);
     }
 
     toggleCheckItem(val: boolean, id: string){

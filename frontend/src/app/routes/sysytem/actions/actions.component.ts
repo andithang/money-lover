@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { PageEvent } from '@angular/material/paginator';
 import { ActionDialogComponent } from './action-dialog.component';
 import { ActionService } from './action.service';
+import { checkIsCheckAll } from '@shared';
 
 @Component({
     selector: 'actions',
@@ -133,7 +134,7 @@ export class ActionMngComponent implements OnInit {
     }
 
     updateCheckAll(){
-        this.isAllChecked = this.listChecked.size == this.total;
+        this.isAllChecked = checkIsCheckAll(Array.from(this.listChecked.keys()), this.listActions);
     }
 
     toggleCheckItem(val: boolean, id: string){

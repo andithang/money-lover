@@ -404,3 +404,14 @@ export function getResponseErrorMessage(message: string){
 export const trim = (control: AbstractControl) => {
   if(control) control.setValue(control.value ? control.value.trim(): '');
 }
+
+export const checkIsCheckAll = (ids: string[], items: Partial<{_id: string}>[]) => {
+  let isAllChecked: boolean = true;
+  for (let index = 0; index < items.length; index++) {
+    if(!ids.includes(items[index]._id)) {
+      isAllChecked = false;
+      break;
+    }
+  }
+  return isAllChecked;
+}

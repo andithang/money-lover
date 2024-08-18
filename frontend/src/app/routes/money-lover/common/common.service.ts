@@ -11,7 +11,7 @@ export class CommonService {
     constructor(private http: HttpClient) { }
 
     getListData(model: string, search: any) {
-        let api: string = `api.v1.${model}.list`;
+        let api: string = `icon:list`;
         return this.http.post<Icon[]>(environment.SERVER_URL, { ...search, api_name: api }, { observe: "body" });
     }
 

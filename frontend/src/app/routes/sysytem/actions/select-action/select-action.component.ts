@@ -4,6 +4,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { CONSTS } from 'app/consts';
 import { Action } from 'app/model/action.model';
 import { ActionService } from '../action.service';
+import { checkIsCheckAll } from '@shared';
 
 @Component({
     selector: 'select-action',
@@ -58,6 +59,7 @@ export class SelectActionComponent implements OnInit {
             this.loading = false;
             this.listActions = res.results;
             this.total = res.total;
+            this.updateCheckAll();
         }, err => {
             this.loading = false;
         })
@@ -85,7 +87,7 @@ export class SelectActionComponent implements OnInit {
     }
 
     updateCheckAll(){        
-        this.isAllChecked = this.listChecked.size == this.total;
+        this.isAllChecked = checkIsCheckAll(Array.from(this.listChecked.values()), this.listActions);
     }
 
     toggleCheckItem(val: boolean, id: string){

@@ -11,6 +11,7 @@ import { ModuleAction } from 'app/model/module-action';
 import { PermissionDialogComponent } from './permission-dialog.component';
 import { Module } from 'app/model/module.model';
 import { Action } from 'app/model/action.model';
+import { checkIsCheckAll } from '@shared';
 
 @Component({
     selector: 'permissions',
@@ -167,7 +168,7 @@ export class PermissionMngComponent implements OnInit {
     }
 
     updateCheckAll(){
-        this.isAllChecked = this.listChecked.size == this.total;
+        this.isAllChecked = checkIsCheckAll(Array.from(this.listChecked.keys()), this.listPermissions);
     }
 
     toggleCheckItem(val: boolean, id: string){

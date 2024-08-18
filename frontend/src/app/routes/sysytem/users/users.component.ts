@@ -8,6 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import { PageEvent } from '@angular/material/paginator';
 import { ChooseUserRoleComponent } from '../roles/choose-user-role/choose-user-role.component';
 import { Role } from 'app/model/role.model';
+import { checkIsCheckAll } from '@shared';
 
 @Component({
     selector: 'users-list',
@@ -116,7 +117,7 @@ export class UsersListComponent implements OnInit {
     }
 
     updateCheckAll(){
-        this.isAllChecked = this.listChecked.size == this.total;
+        this.isAllChecked = checkIsCheckAll(Array.from(this.listChecked.keys()), this.userList);
     }
 
     toggleCheckItem(val: boolean, id: string){

@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { PageEvent } from '@angular/material/paginator';
 import { RoleDialogComponent } from './role-dialog.component';
 import { RoleService } from './role.service';
+import { checkIsCheckAll } from '@shared';
 
 @Component({
     selector: 'roles',
@@ -134,7 +135,7 @@ export class RoleMngComponent implements OnInit {
     }
 
     updateCheckAll(){
-        this.isAllChecked = this.listChecked.size == this.total;
+        this.isAllChecked = checkIsCheckAll(Array.from(this.listChecked.keys()), this.listRoles);
     }
 
     toggleCheckItem(val: boolean, id: string){

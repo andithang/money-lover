@@ -4,6 +4,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { CONSTS } from 'app/consts';
 import { Role } from 'app/model/role.model';
 import { RoleService } from '../role.service';
+import { checkIsCheckAll } from '@shared';
 
 @Component({
     selector: 'select-role',
@@ -85,7 +86,7 @@ export class SelectRoleComponent implements OnInit {
     }
 
     updateCheckAll(){        
-        this.isAllChecked = this.listChecked.size == this.total;
+        this.isAllChecked = checkIsCheckAll(Array.from(this.listChecked.values()), this.listRoles);
     }
 
     toggleCheckItem(val: boolean, id: string){
