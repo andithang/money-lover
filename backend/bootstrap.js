@@ -21,6 +21,16 @@ module.exports = function (app) {
 
     // config middleware authentication
     app.use(require(__config_path + '/authorization').checkToken);
+    // detect environment
+    let mode = 'prod';
+    if (process.argv.length > 2) {
+        mode = process.argv[2];
+    }
+    mode = process.env.NODE_ENV || mode;
+    if(mode == 'prod') {
+        
+    }
+    else require('./config/authorization').mappingRoleActions();
     
     // config routes
     require('./routes')(app);

@@ -63,6 +63,7 @@ module.exports = {
         tfa: "redis_tfa_key", // two factor authentication
         forgot_password: "redis_forgot_password",
         change_password: "redis_change_password",
+        role_permission: "role_permission"
     },
 
     user_roles: {
