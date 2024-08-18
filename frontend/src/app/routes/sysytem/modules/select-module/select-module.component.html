@@ -1,5 +1,14 @@
 <h2 mat-dialog-title>{{ title }}</h2>
 <div class="select-module-container" mat-dialog-content>
+    <div>
+        <mat-form-field class="w-full">
+            <input matInput type="text" [(ngModel)]="searchKey" (keyup.enter)="searchModules()"
+                placeholder="Tìm kiếm" />
+            <button mat-icon-button matSuffix (click)="searchModules()">
+                <mat-icon>search</mat-icon>
+            </button>
+        </mat-form-field>
+    </div>
     <div class="table-container">
         <table mat-table [dataSource]="listModules" class="table-module" *ngIf="!loading; else loadingTpl">
             <ng-container [matColumnDef]="column" *ngFor="let column of columnProps; index as i">
