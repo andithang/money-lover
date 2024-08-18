@@ -15,7 +15,7 @@ export class ReportService {
         sumIncome: number,
         sumOutcome: number,
     }>{        
-        const api_name: string  = "api.v1.report.averageMonth";
+        const api_name: string  = "report:averageMonth";
         return this.http.post<{
             averageIncome: number,
             averageOutcome: number,
@@ -28,7 +28,7 @@ export class ReportService {
         income: number[],
         outcome: number[]
     }>{
-        const api_name: string = "api.v1.report.overall";
+        const api_name: string = "report:overall";
         return this.http.post<{
             income: number[],
             outcome: number[]

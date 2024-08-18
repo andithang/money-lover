@@ -40,7 +40,7 @@ export class NotificationService {
     }
 
     getListNotification(params: Partial<Notification & BaseSearch>){
-        const api_name: string = "api.v1.notification.list";
+        const api_name: string = "notification:get-list";
         return this.http.post<{results: Partial<Notification>[], totalUnread: number, totalAll: number}>(environment.SERVER_URL, { api_name, ...params }, { observe: "body" });
     }
 
@@ -52,12 +52,12 @@ export class NotificationService {
     }
 
     markRead(ids: string[]){
-        const api_name: string = "api.v1.notification.markread";
+        const api_name: string = "notification:mark-as-read";
         return this.http.post(environment.SERVER_URL, { api_name, ids }, { observe: "body" });
     }
 
     markNoRepeat(id: string){
-        const api_name: string = "api.v1.notification.norepeat";
+        const api_name: string = "notification:no-repeat";
         return this.http.post(environment.SERVER_URL, { api_name, id }, { observe: "body" });
     }
 }

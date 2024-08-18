@@ -6,10 +6,10 @@ module.exports = function () {
     // Root routing
     var controller = require('../controllers/icon.controller.js');
 
-    consts.registerApi('api.v1.icon.insert_all', controller.insertAllIcons);
-    consts.registerApi('api.v1.icon.delete', controller.deleteIcon);
-    consts.registerApi('api.v1.icon.get', controller.getIcon);
-    consts.registerApi('api.v1.icon.get_by_path', controller.getIconByPath);
-    consts.registerApi('api.v1.icon.list', controller.listIcons);
-    consts.registerApi('api.v1.icon.upload', controller.uploadIcon);
+    consts.registerApi('icon:insert-all', controller.insertAllIcons);
+    consts.registerApi('icon:delete', controller.deleteIcon);
+    consts.registerApi('icon:get-one', controller.getIcon);
+    consts.registerApi('icon:get-by-path', controller.getIconByPath);
+    consts.registerApi('icon:list', controller.listIcons);
+    consts.registerApi('icon:upload', controller.uploadIcon);
 };

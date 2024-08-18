@@ -6,11 +6,11 @@ module.exports = function() {
     // Root routing
     var controller = require('../controllers/module.controller.js');
 
-    consts.registerApi('api.v1.module.delete', controller.deleteModule, { systemApi: true });
-    consts.registerApi('api.v1.module.list', controller.listModules, { systemApi: true });
-    consts.registerApi('api.v1.module.add', controller.addModule, { systemApi: true });
-    consts.registerApi('api.v1.module.get', controller.getModule, { systemApi: true });
-    consts.registerApi('api.v1.module.update', controller.updateModule, { systemApi: true });
-    consts.registerApi('api.v1.module.getbyids', controller.getModulesByIds, { systemApi: true });
-    consts.registerApi('api.v1.module.changestatus', controller.changeStatusModule, { systemApi: true });
+    consts.registerApi('module:delete-many', controller.deleteModule, { systemApi: true });
+    consts.registerApi('module:get-list', controller.listModules, { systemApi: true });
+    consts.registerApi('module:create', controller.addModule, { systemApi: true });
+    consts.registerApi('module:get-one', controller.getModule, { systemApi: true });
+    consts.registerApi('module:update', controller.updateModule, { systemApi: true });
+    consts.registerApi('module:get-many', controller.getModulesByIds, { systemApi: true });
+    consts.registerApi('module:update-status', controller.changeStatusModule, { systemApi: true });
 };

@@ -17,56 +17,56 @@ export class CommonService {
 
     /* #region Category */
     getListCategories(search: string, page: number = 0, size: number = CONSTS.page_size_get_all) {
-        const api_name: string = "api.v1.category.list";
+        const api_name: string = "category:list";
         return this.http.post<{results: Category[], total: number}>(environment.SERVER_URL, { api_name, search, page, size }, { observe: "body" });
     }
 
     insertCategory(data: { name: string, icon: string, transactionType: number, isDefault?: number }) {
-        const api_name: string = "api.v1.category.add";
+        const api_name: string = "category:create";
         return this.http.post(environment.SERVER_URL, { api_name, ...data }, { observe: "body" });
     }
 
     updateCategory(data: { name: string, icon: string, id: string, transactionType: number }) {
-        const api_name: string = "api.v1.category.update";
+        const api_name: string = "category:update";
         return this.http.post<Category[]>(environment.SERVER_URL, { api_name, ...data }, { observe: "body" });
     }
 
     deleteCategories(data: { ids: string[] }) {
-        const api_name: string = "api.v1.category.delete";
+        const api_name: string = "category:delete";
         return this.http.post(environment.SERVER_URL, { api_name, ...data }, { observe: "body" });
     }
     /* #endregion */
 
     /* #region Icon */
     saveIconData(data: { file: string }) {
-        const api_name: string = "api.v1.icon.upload";
+        const api_name: string = "icon:upload";
         return this.http.post(environment.SERVER_URL, { api_name, ...data }, { observe: "body" });
     }
 
     deleteIcon(data: { ids: string[], paths: string[] }) {
-        const api_name: string = "api.v1.icon.delete";
+        const api_name: string = "icon:delete";
         return this.http.post(environment.SERVER_URL, { api_name, ...data }, { observe: "body" });
     }
     /* #endregion */
 
     /* #region Wallet type */
     getListWalletTypes(search: any) {
-        const api_name: string = "api.v1.wallet-type.list";
+        const api_name: string = "wallettype:list";
         return this.http.post<{results: Category[], total: number }>(environment.SERVER_URL, { api_name, ...search }, { observe: "body" });
     }
 
     insertWalletType(data: { name: string, icon: string }) {
-        const api_name: string = "api.v1.wallet-type.add";
+        const api_name: string = "wallettype:create";
         return this.http.post(environment.SERVER_URL, { api_name, ...data }, { observe: "body" });
     }
 
     updateWalletType(data: { name: string, icon: string, id: string }) {
-        const api_name: string = "api.v1.wallet-type.update";
+        const api_name: string = "wallettype:update";
         return this.http.post<Category[]>(environment.SERVER_URL, { api_name, ...data }, { observe: "body" });
     }
 
     deleteWalletTypes(data: { ids: string[] }) {
-        const api_name: string = "api.v1.wallet-type.delete";
+        const api_name: string = "wallettype:delete";
         return this.http.post(environment.SERVER_URL, { api_name, ...data }, { observe: "body" });
     }
     /* #endregion */

@@ -11,37 +11,37 @@ export class RoleService {
     ) { }
 
     getListRoles(search: string = "", page: number = 0, size: number = CONSTS.page_size, params?: {[key: string]: any}){
-        const api_name: string = "api.v1.role.list";
+        const api_name: string = "role:get-list";
         return this.http.post<{results: Role[], total: number}>(environment.SERVER_URL, { api_name, search, page, size, ...params }, { observe: "body" });
     }
 
     addRole(role: Partial<Role>){
-        const api_name: string = "api.v1.role.add";
+        const api_name: string = "role:create";
         return this.http.post<Role>(environment.SERVER_URL, { api_name, ...role }, { observe: "body" });
     }
 
     updateRole(role: Partial<Role>){
-        const api_name: string = "api.v1.role.update";
+        const api_name: string = "role:update";
         return this.http.post<Role>(environment.SERVER_URL, { api_name, ...role }, { observe: "body" });
     }
 
     deleteRole(ids: string[]){
-        const api_name: string = "api.v1.role.delete";
+        const api_name: string = "role:delete-many";
         return this.http.post<Role[]>(environment.SERVER_URL, { api_name, ids }, { observe: "body" });
     }
 
     changeStatusRole(ids: string[], status: 0 | 1){
-        const api_name: string = "api.v1.role.changestatus";
+        const api_name: string = "role:update-status";
         return this.http.post<Role[]>(environment.SERVER_URL, { api_name, ids, status }, { observe: "body" });
     }
 
     getRole(id: string){
-        const api_name: string = "api.v1.role.get";
+        const api_name: string = "role:get-one";
         return this.http.post<Role>(environment.SERVER_URL, { api_name, id }, { observe: "body" });
     }
 
     getRolesByIds(ids: string[]){
-        const api_name: string = "api.v1.role.getbyids";
+        const api_name: string = "role:get-many";
         return this.http.post<{results: Role[]}>(environment.SERVER_URL, { api_name, ids }, { observe: "body" });
     }
     

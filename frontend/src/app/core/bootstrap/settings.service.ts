@@ -49,14 +49,14 @@ export class SettingsService {
   }
 
   setNewSetting(options: AppSettings){
-    let api: string = `api.v1.systemuser.usersetting.set`;
+    let api: string = `usersetting:set`;
     this.http.post<AppSettings>(environment.SERVER_URL, {api_name: api, setting: options}, {observe: 'body'}).subscribe((data) => {
       console.log('User setting updated: ', data);
     });
   }
 
   getUserSetting(){
-    let api: string = `api.v1.systemuser.usersetting.get`;
+    let api: string = `usersetting:get`;
     this.http.post<AppSettings>(environment.SERVER_URL, {api_name: api}, {observe: 'body'}).subscribe((data) => {
       this._options = data;
       this.settingChange$.next(this._options);

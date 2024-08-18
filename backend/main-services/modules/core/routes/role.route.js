@@ -6,11 +6,11 @@ module.exports = function() {
     // Root routing
     var controller = require('../controllers/role.controller.js');
 
-    consts.registerApi('api.v1.role.delete', controller.deleteRole, { systemApi: true });
-    consts.registerApi('api.v1.role.changestatus', controller.changeStatusRole, { systemApi: true });
-    consts.registerApi('api.v1.role.list', controller.listRoles, { systemApi: true });
-    consts.registerApi('api.v1.role.add', controller.addRole, { systemApi: true });
-    consts.registerApi('api.v1.role.get', controller.getRole, { systemApi: true });
-    consts.registerApi('api.v1.role.getbyids', controller.getRolesByIds, { systemApi: true });
-    consts.registerApi('api.v1.role.update', controller.updateRole, { systemApi: true });
+    consts.registerApi('role:delete-many', controller.deleteRole, { systemApi: true });
+    consts.registerApi('role:update-status', controller.changeStatusRole, { systemApi: true });
+    consts.registerApi('role:get-list', controller.listRoles, { systemApi: true });
+    consts.registerApi('role:create', controller.addRole, { systemApi: true });
+    consts.registerApi('role:get-one', controller.getRole, { systemApi: true });
+    consts.registerApi('role:get-many', controller.getRolesByIds, { systemApi: true });
+    consts.registerApi('role:update', controller.updateRole, { systemApi: true });
 };

@@ -16,7 +16,7 @@ export class IconService {
     }
 
     getIconByPath(path: string): Observable<Icon>{
-        const api_name: string = "api.v1.icon.get_by_path";
+        const api_name: string = "icon:get_by_path";
         return this.http.post<Icon>(environment.SERVER_URL, {api_name, path}, {observe: "body"});
     }
 }

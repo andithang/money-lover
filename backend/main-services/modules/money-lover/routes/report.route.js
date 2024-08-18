@@ -6,6 +6,6 @@ module.exports = function () {
     // Root routing
     var controller = require('../controllers/report.controller.js');
 
-    consts.registerApi('api.v1.report.averagemonth', controller.getAveragePerMonth, { anyAuth: true });
-    consts.registerApi('api.v1.report.overall', controller.getOverallEveryMonth, { anyAuth: true });
+    consts.registerApi('report:average-month', controller.getAveragePerMonth, { anyAuth: true });
+    consts.registerApi('report:overall', controller.getOverallEveryMonth, { anyAuth: true });
 };

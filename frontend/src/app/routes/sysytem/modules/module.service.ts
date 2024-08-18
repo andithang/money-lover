@@ -11,37 +11,37 @@ export class ModuleService {
     ) { }
 
     getListModules(search: string = "", page: number = 0, size: number = CONSTS.page_size){
-        const api_name: string = "api.v1.module.list";
+        const api_name: string = "module:get-list";
         return this.http.post<{results: Module[], total: number}>(environment.SERVER_URL, { api_name, search, page, size }, { observe: "body" });
     }
 
     addModule(module: Partial<Module>){
-        const api_name: string = "api.v1.module.add";
+        const api_name: string = "module:create";
         return this.http.post<Module>(environment.SERVER_URL, { api_name, ...module }, { observe: "body" });
     }
 
     updateModule(module: Partial<Module>){
-        const api_name: string = "api.v1.module.update";
+        const api_name: string = "module:update";
         return this.http.post<Module>(environment.SERVER_URL, { api_name, ...module }, { observe: "body" });
     }
 
     deleteModule(ids: string[]){
-        const api_name: string = "api.v1.module.delete";
+        const api_name: string = "module:delete-many";
         return this.http.post<Module[]>(environment.SERVER_URL, { api_name, ids }, { observe: "body" });
     }
 
     changeStatusModule(ids: string[], status: 0 | 1){
-        const api_name: string = "api.v1.module.changestatus";
+        const api_name: string = "module:update-status";
         return this.http.post<Module[]>(environment.SERVER_URL, { api_name, ids, status }, { observe: "body" });
     }
 
     getModule(id: string){
-        const api_name: string = "api.v1.module.get";
+        const api_name: string = "module:get-one";
         return this.http.post<Module>(environment.SERVER_URL, { api_name, id }, { observe: "body" });
     }
 
     getModulesByIds(ids: string[]){
-        const api_name: string = "api.v1.module.getbyids";
+        const api_name: string = "module:get-many";
         return this.http.post<{results: Module[]}>(environment.SERVER_URL, { api_name, ids }, { observe: "body" });
     }
     
