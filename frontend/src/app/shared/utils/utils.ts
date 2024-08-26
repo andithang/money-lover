@@ -396,6 +396,8 @@ export function getResponseErrorMessage(message: string){
       return "Tham số truyền lên không phải là số. Vui lòng thử lại.";
     case "ERRROR_EMAIL_EXIST": 
       return "Email đã được sử dụng. Vui lòng sử dụng một email khác.";
+    case "UNAUTHORIZED":
+      return "my-ml.common.unauthorized";
     default:
       return message;
   }

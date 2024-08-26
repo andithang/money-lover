@@ -90,7 +90,7 @@ const getCategory = (req, returnData, callback) => {
 }
 
 const addCategory = (req, returnData, callback) => {
-    let { name, icon, isDefault, transactionType } = req.params;
+    let { name, icon, isDefault, transactionType, api_name } = req.params;
     const creator = req.user;
 
     if (validator.isNull(name)) {
@@ -99,7 +99,7 @@ const addCategory = (req, returnData, callback) => {
     if (validator.isNull(icon)) {
         return callback('ERROR_PATH_MISSING');
     }
-    if (validator.isNull(isDefault)) {
+    if (api_name == 'category:create-admin') {
         isDefault = 1;
     }
     else isDefault = 0;
@@ -147,7 +147,7 @@ const addCategory = (req, returnData, callback) => {
 }
 
 const updateCategory = (req, returnData, callback) => {
-    let { name, icon, id, transactionType } = req.params;
+    let { name, icon, id, transactionType, api_name } = req.params;
 
     if (validator.isNull(name)) {
         return callback('ERROR_CODE_MISSING');
@@ -173,6 +173,7 @@ const updateCategory = (req, returnData, callback) => {
                 return callback('ERROR_CATEGORY_NOT_FOUND');
             }
             else {
+                if(api_name != 'category:update-admin' && result.isDefault) return callback(consts.ERRORS.UNAUTHORIZED);
                 utils.merge(result, { name, icon, transactionType });
                 result.save(function (error, data) {
                     if (error) return callback(error);
@@ -184,23 +185,29 @@ const updateCategory = (req, returnData, callback) => {
 }
 
 const deleteCategory = (req, returnData, callback) => {
-    let { ids } = req.params;
+    let { ids, api_name } = req.params;
 
     if (validator.isNull(ids)) {
         return callback('ERROR_ID_MISSING');
     }
-
     Category
-        .update({
-            _id: { $in: ids.map(id => ObjectId(id)) }
-        }, {
-            $set: {
-                isDelete: true
-            }
-        }, (err, data) => {
-            if (err) return callback(err);
-            callback();
-        })
+    .findOne()
+    .where({ _id: id })
+    .exec((errGet, result) => {
+        if(errGet) return callback(errGet)
+        if(api_name != 'category:delete-admin' && result.isDefault) return callback(consts.ERRORS.UNAUTHORIZED);
+        Category
+            .update({
+                _id: { $in: ids.map(id => ObjectId(id)) }
+            }, {
+                $set: {
+                    isDelete: true
+                }
+            }, (err, data) => {
+                if (err) return callback(err);
+                callback();
+            })
+    })
 }
 
 exports.deleteCategory = deleteCategory;

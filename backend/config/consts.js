@@ -195,6 +195,7 @@ module.exports = {
         ERROR_PERMISSION_MODULE_ACTION_MISSING: 'ERROR_PERMISSION_MODULE_ACTION_MISSING',
         ERROR_NOT_A_NUMBER: 'ERROR_NOT_A_NUMBER',
         ERRROR_EMAIL_EXIST: 'ERRROR_EMAIL_EXIST',
-        ERROR_NOT_AN_ID: (field) => `${field.toUpperCase()}_IS_NOT_A_VALID_ID`
+        ERROR_NOT_AN_ID: (field) => `${field.toUpperCase()}_IS_NOT_A_VALID_ID`,
+        UNAUTHORIZED: 'UNAUTHORIZED'
     }
 }
