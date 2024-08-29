@@ -32,6 +32,7 @@ import { SecurityQuestionComponent } from './components/security-question/securi
 import { FormErrorPipe } from './pipes/form-error.pipe';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { CalendarRangeComponent } from './components/calendar-range/calendar-range.component';
+import { AccessCheckerDirective } from './directives/has-access.directive';
 
 const THIRD_MODULES = [
   MaterialModule,
@@ -48,7 +49,7 @@ const THIRD_MODULES = [
 ];
 const COMPONENTS = [BreadcrumbComponent, PageHeaderComponent, ErrorCodeComponent, MLIconComponent, ConfirmDeletionComponent, AppLoadingComponent, UploadComponent, EmptyComponent, AuthByQuestionComponent, ChangeSecurityQuestionComponent, SecurityQuestionComponent, CalendarRangeComponent];
 const COMPONENTS_DYNAMIC = [];
-const DIRECTIVES = [NumberFormatDirective,];
+const DIRECTIVES = [NumberFormatDirective, AccessCheckerDirective];
 const PIPES = [FormatNumberPipe, LevelRolePipe, FormErrorPipe];
 
 @NgModule({

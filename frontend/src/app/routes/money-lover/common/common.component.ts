@@ -154,7 +154,7 @@ export class MoneyCommonComponent implements OnInit {
             })
             this.confirmDeletionDialog.afterClosed().subscribe((isConfirmed: boolean | undefined) => {
                 if (isConfirmed) {
-                    this.commonService.deleteCategories({ ids: catesToDelete.map((c: Category) => c._id) }).subscribe(res => {
+                    this.commonService.deleteCategories({ ids: catesToDelete.map((c: Category) => c._id), isAdmin: true }).subscribe(res => {
                         this.toast.success(CONSTS.messages.delete_category_success);
                         // trigger reload list categories
                         if (this.searchCategoryKey.trim()) {

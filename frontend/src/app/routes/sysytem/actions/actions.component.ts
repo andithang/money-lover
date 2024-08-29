@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Action } from 'app/model/action.model';
 import { CONSTS } from 'app/consts';
@@ -8,6 +8,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { ActionDialogComponent } from './action-dialog.component';
 import { ActionService } from './action.service';
 import { checkIsCheckAll } from '@shared';
+import { AuthorizationService } from '@shared/services/authorization.service';
 
 @Component({
     selector: 'actions',
@@ -15,15 +16,24 @@ import { checkIsCheckAll } from '@shared';
     styleUrls: ['actions.component.scss']
 })
 
-export class ActionMngComponent implements OnInit {
+export class ActionMngComponent implements OnInit, AfterViewInit {
     constructor(
         private actionService: ActionService,
         private dialogService: MatDialog,
-        private toast: ToastrService
-    ) { }
+        private toast: ToastrService,
+        private authorService: AuthorizationService
+    ) { 
+        this.authorService.getAllowActionsOnModule(location.pathname).subscribe(({actions}) => {
+            this.authorService.allowActionsChange$.next(actions);
+        })
+    }
 
     ngOnInit() { 
         this.searchActions()
+    }
+
+    ngAfterViewInit(): void {
+        this.renderFinished = true;
     }
 
     listActions: Partial<Action>[] = [];
@@ -37,6 +47,7 @@ export class ActionMngComponent implements OnInit {
     page: number = 0;
     isAllChecked: boolean = false;
     pageSizeOptions: number[] = CONSTS.page_size_options;
+    renderFinished: boolean = false;
 
     getListActions(){
         this.actionService.getListActions(this.searchKey, this.page, this.pageSize).subscribe(res => {

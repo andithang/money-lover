@@ -191,11 +191,12 @@ const deleteCategory = (req, returnData, callback) => {
         return callback('ERROR_ID_MISSING');
     }
     Category
-    .findOne()
-    .where({ _id: id })
+    .find()
+    .where({ _id: { $in: ids.map(id => ObjectId(id)) } })
     .exec((errGet, result) => {
         if(errGet) return callback(errGet)
-        if(api_name != 'category:delete-admin' && result.isDefault) return callback(consts.ERRORS.UNAUTHORIZED);
+        if(api_name == 'category:delete-admin' && result.find(c => !c.isDefault)) return callback(consts.ERRORS.ERROR_DELETE_USER_CATEGORY);
+        if(api_name == 'category:delete' && result.find(c => c.isDefault)) return callback(consts.ERRORS.ERROR_DELETE_DEFAULT_CATEGORY);
         Category
             .update({
                 _id: { $in: ids.map(id => ObjectId(id)) }

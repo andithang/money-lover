@@ -197,7 +197,7 @@ export class UserCategoryComponent implements OnInit {
             })
             this.confirmDeletionDialog.afterClosed().subscribe((isConfirmed: boolean | undefined) => {
                 if (isConfirmed) {
-                    this.commonService.deleteCategories({ ids: catesToDelete.map((c: Category) => c._id) }).subscribe(res => {
+                    this.commonService.deleteCategories({ ids: catesToDelete.map((c: Category) => c._id), isAdmin: false }).subscribe(res => {
                         this.toastService.success(CONSTS.messages.delete_category_success);
                         this.getDataCategories();
                     }, err => {

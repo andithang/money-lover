@@ -13,19 +13,19 @@
                 </button>
             </mat-form-field>
             <mat-card-actions>
-                <button mat-button color="primary" (click)="open()">
+                <button mat-button color="primary" (click)="open()" *accessCheck="'action:create'; renderFinished: renderFinished" data-permission="action:create">
                     <mat-icon>add</mat-icon>
                     Thêm mới
                 </button>
-                <button mat-button *ngIf="isShowLockButton()" color="accent" (click)="changeStatusSelected(1)">
+                <button mat-button *ngIf="isShowLockButton()" color="accent" (click)="changeStatusSelected(1)" data-permission="action:update-status">
                     <mat-icon>block</mat-icon>
                     Khóa
                 </button>
-                <button mat-button *ngIf="isShowUnlockButton()" color="success" class="mat-success-outlined" (click)="changeStatusSelected(0)">
+                <button mat-button *ngIf="isShowUnlockButton()" color="success" class="mat-success-outlined" (click)="changeStatusSelected(0)" data-permission="action:update-status">
                     <mat-icon>lock_open</mat-icon>
                     Mở khóa
                 </button>
-                <button mat-button *ngIf="isShowDeleteButton()" color="warn" (click)="delete()">
+                <button mat-button *ngIf="isShowDeleteButton()" color="warn" (click)="delete()" data-permission="action:delete">
                     <mat-icon>delete</mat-icon>
                     Xóa
                 </button>

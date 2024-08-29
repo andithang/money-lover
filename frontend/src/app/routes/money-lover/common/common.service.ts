@@ -22,17 +22,17 @@ export class CommonService {
     }
 
     insertCategory(data: { name: string, icon: string, transactionType: number, isDefault?: number }) {
-        const api_name: string = "category:create";
+        const api_name: string = data.isDefault ? "category:create-admin": "category:create";
         return this.http.post(environment.SERVER_URL, { api_name, ...data }, { observe: "body" });
     }
 
-    updateCategory(data: { name: string, icon: string, id: string, transactionType: number }) {
-        const api_name: string = "category:update";
+    updateCategory(data: { name: string, icon: string, id: string, transactionType: number, isDefault?: number }) {
+        const api_name: string = data.isDefault ? "category:update-admin": "category:update";
         return this.http.post<Category[]>(environment.SERVER_URL, { api_name, ...data }, { observe: "body" });
     }
 
-    deleteCategories(data: { ids: string[] }) {
-        const api_name: string = "category:delete";
+    deleteCategories(data: { ids: string[], isAdmin: boolean }) {
+        const api_name: string = data.isAdmin ? "category:delete-admin": "category:delete";
         return this.http.post(environment.SERVER_URL, { api_name, ...data }, { observe: "body" });
     }
     /* #endregion */
