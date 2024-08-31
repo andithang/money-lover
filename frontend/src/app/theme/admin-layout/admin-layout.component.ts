@@ -91,7 +91,6 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     // TODO: Scroll top to container
     this.router.events.pipe(takeUntil(this.destroy$)).subscribe(evt => {
       if (evt instanceof NavigationEnd) {
-        this.getUserPermission();
         this.content.scrollTo({ top: 0 });
       }
     });
@@ -100,6 +99,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   ngOnInit() {
+    this.getUserPermission();
     if(this.localStorage.get("user") && this.localStorage.get("user").token){
       this.startUpService.load();
       this.wsLambda.initClient();

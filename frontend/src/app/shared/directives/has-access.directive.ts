@@ -6,6 +6,8 @@ export class AccessCheckerDirective implements OnChanges {
     constructor(private authorService: AuthorizationService, private viewContainerRef: ViewContainerRef, private templateRef: TemplateRef<HTMLElement>) { 
         this.authorService.allowActionsReady$.subscribe(isReady => {
             if(isReady) {
+                this.authorReady = true;
+                console.log('author check is ready: '+ this.accessCheck);
                 if(this.waitingForReady) {
                     this.checkAuthorized();
                     this.waitingForReady = false;
@@ -15,7 +17,8 @@ export class AccessCheckerDirective implements OnChanges {
     }
     
     ngOnChanges(changes: SimpleChanges): void {        
-        if(changes['accessCheckRenderFinished'] && this.accessCheckRenderFinished) {
+        if(changes['accessCheck'] && this.accessCheck) {
+            console.log('author ready? ' + this.authorReady + '. need check author: ' + this.accessCheck);
             if(this.authorReady) {
                 this.checkAuthorized();
             } else {
@@ -24,7 +27,6 @@ export class AccessCheckerDirective implements OnChanges {
         }
     }
 
-    @Input() accessCheckRenderFinished: boolean = false;
     @Input() accessCheck: string = '';
 
     private authorReady: boolean = false;

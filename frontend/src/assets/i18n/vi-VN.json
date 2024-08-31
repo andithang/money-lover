@@ -90,6 +90,16 @@
     "my-ml": {
         "common": {
             "unauthorized": "Bạn không có quyền để thực hiện hành động này!"
+        },
+        "actions": {
+          "message": {
+            "not-allow-get-list": "Bạn không có quyền thực hiện tìm kiếm hành động trên trang này",
+            "not-allow-get-one": "Bạn không có quyền lấy thông tin hành động trên trang này",
+            "not-allow-update": "Bạn không có quyền cập nhật hành động trên trang này",
+            "not-allow-create": "Bạn không có quyền thêm mới hành động trên trang này",
+            "not-allow-update-status": "Bạn không có quyền chuyển trạng thái hành động trên trang này",
+            "not-allow-delete": "Bạn không có quyền xóa hành động trên trang này"
+          }
         }
     }
   }

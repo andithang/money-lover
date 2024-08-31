@@ -5,6 +5,9 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActionService } from './action.service';
 import { ToastrService } from 'ngx-toastr';
 import { trim } from '@shared';
+import { AuthorizationService } from '@shared/services/authorization.service';
+import { TranslateService } from '@ngx-translate/core';
+import { APP_ACTIONS } from 'app/actions';
 
 @Component({
     selector: 'action-dialog',
@@ -17,22 +20,28 @@ export class ActionDialogComponent implements OnInit {
         @Inject(MAT_DIALOG_DATA) public data: { id?: string },
         private actionService: ActionService,
         private toast: ToastrService,
-        private dialogRef: MatDialogRef<ActionDialogComponent>
+        private dialogRef: MatDialogRef<ActionDialogComponent>,
+        private authorService: AuthorizationService,
+        private translate: TranslateService
     ) { }
 
     ngOnInit() {
         // update
         if(this.data && this.data.id){
-            this.actionService.getAction(this.data.id).subscribe(res => {
-                this.action = res;
-                this.actionForm.setValue({
-                    title: res.title,
-                    code: res.code,                    
-                    description: res.description,                    
+            if(this.authorService.isAuthorized(APP_ACTIONS.action['get-one'])) {
+                this.actionService.getAction(this.data.id).subscribe(res => {
+                    this.action = res;
+                    this.actionForm.setValue({
+                        title: res.title,
+                        code: res.code,                    
+                        description: res.description,                    
+                    })
+                }, (err) => {
+                    console.error(err);
                 })
-            }, (err) => {
-                console.error(err);
-            })
+            } else {
+                this.toast.error(this.translate.instant('my-ml.actions.message.not-allow-get-one'))
+            }
         }
         // create
         else {
@@ -67,18 +76,24 @@ export class ActionDialogComponent implements OnInit {
 
     save(){
         if(this.data && this.data.id){
-            this.actionService.updateAction(this.getCurrentData())
-            .subscribe(res => {
-                this.toast.success("Cập nhật hành động thành công");
-                this.close(res);
-            })
+            if(this.authorService.isAuthorized(APP_ACTIONS.action['update'])) {
+                this.actionService.updateAction(this.getCurrentData())
+                .subscribe(res => {
+                    this.toast.success("Cập nhật hành động thành công");
+                    this.close(res);
+                })
+            } else {
+                this.toast.error(this.translate.instant('my-ml.actions.message.not-allow-update'));
+            }
         }
         else {
-            this.actionService.addAction(this.getCurrentData())
-            .subscribe(res => {
-                this.toast.success("Thêm hành động thành công");
-                this.close(res);
-            })
+            if(this.authorService.isAuthorized(APP_ACTIONS.action['update'])) {
+                this.actionService.addAction(this.getCurrentData())
+                .subscribe(res => {
+                    this.toast.success("Thêm hành động thành công");
+                    this.close(res);
+                })
+            } else this.toast.error(this.translate.instant('my-ml.actions.message.not-allow-create'));
         }
     }
 

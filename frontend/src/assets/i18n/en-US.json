@@ -90,6 +90,12 @@
   "my-ml": {
       "common": {
           "unauthorized": "You are not authorized to execute this action!"
+      },
+      "actions": {
+        "message": {
+          "not-allow-get-list": "You are unauthorized to search actions on this page",
+          "not-allow-get-one": "You are unauthorized to get action's information on this page"
+        }
       }
   }
 }

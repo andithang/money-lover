@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Action } from 'app/model/action.model';
 import { CONSTS } from 'app/consts';
@@ -9,6 +9,9 @@ import { ActionDialogComponent } from './action-dialog.component';
 import { ActionService } from './action.service';
 import { checkIsCheckAll } from '@shared';
 import { AuthorizationService } from '@shared/services/authorization.service';
+import { TranslateService } from '@ngx-translate/core';
+import { Subject, takeUntil } from 'rxjs';
+import { APP_ACTIONS } from 'app/actions';
 
 @Component({
     selector: 'actions',
@@ -16,24 +19,29 @@ import { AuthorizationService } from '@shared/services/authorization.service';
     styleUrls: ['actions.component.scss']
 })
 
-export class ActionMngComponent implements OnInit, AfterViewInit {
+export class ActionMngComponent implements OnInit, OnDestroy {
     constructor(
         private actionService: ActionService,
         private dialogService: MatDialog,
         private toast: ToastrService,
-        private authorService: AuthorizationService
+        private authorService: AuthorizationService,
+        private translate: TranslateService
     ) { 
         this.authorService.getAllowActionsOnModule(location.pathname).subscribe(({actions}) => {
             this.authorService.allowActionsChange$.next(actions);
-        })
+            this.permissionChecked.next(true);
+        }, () => this.permissionChecked.next(true))
     }
 
     ngOnInit() { 
-        this.searchActions()
+        this.permissionChecked.pipe(takeUntil(this.destroy$)).subscribe((checked) => {
+            if(checked) this.searchActions()
+        })
     }
 
-    ngAfterViewInit(): void {
-        this.renderFinished = true;
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     listActions: Partial<Action>[] = [];
@@ -47,18 +55,25 @@ export class ActionMngComponent implements OnInit, AfterViewInit {
     page: number = 0;
     isAllChecked: boolean = false;
     pageSizeOptions: number[] = CONSTS.page_size_options;
-    renderFinished: boolean = false;
+    permissionChecked = new Subject<boolean>();
+    readonly APP_ACTIONS = APP_ACTIONS;
+    private destroy$ = new Subject<void>();
 
     getListActions(){
-        this.actionService.getListActions(this.searchKey, this.page, this.pageSize).subscribe(res => {
+        if(this.authorService.isAuthorized(APP_ACTIONS.action['get-list'])) {
+            this.actionService.getListActions(this.searchKey, this.page, this.pageSize).subscribe(res => {
+                this.loading = false;
+                this.listActions = res.results;
+                this.total = res.total;
+                this.updateCheckAll();
+                if(!this.listActions.length) this.isAllChecked = false;
+            }, err => {
+                this.loading = false;
+            })
+        } else {
+            this.toast.error(this.translate.instant('my-ml.actions.message.not-allow-get-list'));
             this.loading = false;
-            this.listActions = res.results;
-            this.total = res.total;
-            this.updateCheckAll();
-            if(!this.listActions.length) this.isAllChecked = false;
-        }, err => {
-            this.loading = false;
-        })
+        }
     }
 
     resetListChecked(){
@@ -92,26 +107,28 @@ export class ActionMngComponent implements OnInit, AfterViewInit {
     }
 
     delete(){   
-        this.dialogService.open(ConfirmDeletionComponent, {
-            data: {
-                title: "Xác nhận xóa hành động?",
-                message: `Xóa vĩnh viễn ${this.getNumOfSelected()} hành động?`
-            }
-        })
-        .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
-            if (isConfirmed) {
-                this.loading = true;
-                this.actionService.deleteAction(Array.from(this.listChecked.keys()))
-                .subscribe(res => {
-                    this.loading = false;
-                    this.resetListChecked();
-                    this.toast.success("Xóa vĩnh viễn hành động thành công");
-                    this.searchActions();
-                }, err => {
-                    this.loading = false;
-                })                
-            }
-        })
+        if(this.authorService.isAuthorized(APP_ACTIONS.action['delete'])) {
+            this.dialogService.open(ConfirmDeletionComponent, {
+                data: {
+                    title: "Xác nhận xóa hành động?",
+                    message: `Xóa vĩnh viễn ${this.getNumOfSelected()} hành động?`
+                }
+            })
+            .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
+                if (isConfirmed) {
+                    this.loading = true;
+                    this.actionService.deleteAction(Array.from(this.listChecked.keys()))
+                    .subscribe(res => {
+                        this.loading = false;
+                        this.resetListChecked();
+                        this.toast.success("Xóa vĩnh viễn hành động thành công");
+                        this.searchActions();
+                    }, err => {
+                        this.loading = false;
+                    })                
+                }
+            })
+        } else this.toast.error(this.translate.instant('my-ml.actions.message.not-allow-delete'));
     }
 
     onChangePage(evt: PageEvent){
@@ -198,50 +215,54 @@ export class ActionMngComponent implements OnInit, AfterViewInit {
     }
 
     changeStatus(action: Partial<Action>){
-        this.dialogService.open(ConfirmDeletionComponent, {
-            data: {
-                title: `Xác nhận ${action.status ? '': 'mở'} khóa hành động?`,
-                message: `${action.status ? 'Khóa': 'Mở khóa'} hành động ${action.title}?`
-            }
-        })
-        .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
-            if (isConfirmed) {
-                this.loading = true;
-                const newStatus = action.status ? 0: 1;
-                this.actionService.changeStatusAction([action._id], newStatus)
-                .subscribe(res => {
-                    this.loading = false;
-                    this.toast.success(`${action.status ? 'Khóa': 'Mở khóa'} hành động thành công`);
-                    this.searchActions();
-                    this.updateListCheckedAfterStatusChanged([action._id], newStatus)
-                }, err => {
-                    this.loading = false;
-                })                
-            }
-        })
+        if(this.authorService.isAuthorized(APP_ACTIONS.action['update-status'])) {
+            this.dialogService.open(ConfirmDeletionComponent, {
+                data: {
+                    title: `Xác nhận ${action.status ? '': 'mở'} khóa hành động?`,
+                    message: `${action.status ? 'Khóa': 'Mở khóa'} hành động ${action.title}?`
+                }
+            })
+            .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
+                if (isConfirmed) {
+                    this.loading = true;
+                    const newStatus = action.status ? 0: 1;
+                    this.actionService.changeStatusAction([action._id], newStatus)
+                    .subscribe(res => {
+                        this.loading = false;
+                        this.toast.success(`${action.status ? 'Khóa': 'Mở khóa'} hành động thành công`);
+                        this.searchActions();
+                        this.updateListCheckedAfterStatusChanged([action._id], newStatus)
+                    }, err => {
+                        this.loading = false;
+                    })                
+                }
+            })
+        } else this.toast.error(this.translate.instant('my-ml.actions.message.not-allow-update-status'));
     }
 
     changeStatusSelected(currStatus: 0 | 1){
-        this.dialogService.open(ConfirmDeletionComponent, {
-            data: {
-                title: `Xác nhận ${currStatus ? '': 'mở'} khóa hành động?`,
-                message: `${currStatus ? 'Khóa': 'Mở khóa'} ${this.getNumOfSelected()} hành động?`
-            }
-        })
-        .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
-            if (isConfirmed) {
-                this.loading = true;
-                const newStatus = currStatus ? 0: 1;
-                this.actionService.changeStatusAction(Array.from(this.listChecked.keys()), newStatus)
-                .subscribe(res => {
-                    this.loading = false;
-                    this.toast.success(`${currStatus ? 'Khóa': 'Mở khóa'} hành động thành công`);
-                    this.searchActions();   
-                    this.resetListChecked();             
-                }, err => {
-                    this.loading = false;
-                })                
-            }
-        })
+        if(this.authorService.isAuthorized(APP_ACTIONS.action['update-status'])) {
+            this.dialogService.open(ConfirmDeletionComponent, {
+                data: {
+                    title: `Xác nhận ${currStatus ? '': 'mở'} khóa hành động?`,
+                    message: `${currStatus ? 'Khóa': 'Mở khóa'} ${this.getNumOfSelected()} hành động?`
+                }
+            })
+            .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
+                if (isConfirmed) {
+                    this.loading = true;
+                    const newStatus = currStatus ? 0: 1;
+                    this.actionService.changeStatusAction(Array.from(this.listChecked.keys()), newStatus)
+                    .subscribe(res => {
+                        this.loading = false;
+                        this.toast.success(`${currStatus ? 'Khóa': 'Mở khóa'} hành động thành công`);
+                        this.searchActions();   
+                        this.resetListChecked();             
+                    }, err => {
+                        this.loading = false;
+                    })                
+                }
+            })
+        } else this.toast.error(this.translate.instant('my-ml.actions.message.not-allow-update-status'));
     }
 }
