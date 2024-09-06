@@ -24,7 +24,7 @@ gpgkey=https://pgp.mongodb.com/server-6.0.asc
 ***************Replica sets**************
 * turn off authorization to create user and replica set
 * create keyfile with the owner is mongod: chown mongod:mongod keyfile, copy keyfile to other instances, give read write access to db path folder for mongod
-* rs.initate()
+* rs.initiate()
 * create root user in `admin` db
 db.createUser({user: "rootUser", pwd: "Khongcanhoi123!_rootUser", roles: [{ role: "root", db: "admin"}]})
 * create admin with userAdminAnyDatabase
@@ -61,3 +61,14 @@ DB test Local Windows:
 test/Khongcanhoi123%21_test: dbAdmin, readWrite
 -------------------------------------------------------------------------------------------------
 the 3 instances may not be stopped by the 'service mongod stop', because they are not assoociated with it.
+----------------------------------------------------
+If mongod fails to read securityFile due to Permission denied, move the keyFile to /etc/mongod/ folder (new folder), and give permission to mongod:
+- sudo chown mongod:mongod /etc/mongodb
+- sudo chown 400 /etc/mongodb/keyfile (should ONLY read (400), if not, 'permissions are too open' error will throw)
+-------------------------------------------
+Change Host in replica set:
+cfg = rs.conf()
+cfg.members[1].host = "mongodb1.example.net:27017"
+rs.reconfig(cfg)
+-----------------------------------------
+Restart mongod Cannot force the old instance listen to another port or change its network interfaces. You must kill the old one and create a new one.

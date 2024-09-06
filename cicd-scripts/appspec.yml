@@ -1,0 +1,16 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/ec2-user/money-lover/cicd
+permissions:
+  - object: /home/ec2-user/money-lover/cicd/scripts
+    mode: 777
+    pattern: "**"
+hooks:
+   AfterInstall:
+     - location: scripts/after-install.sh
+       runas: ec2-user
+   ApplicationStart:
+     - location: scripts/app-start.sh
+       runas: ec2-user

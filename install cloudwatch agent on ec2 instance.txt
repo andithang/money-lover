@@ -1,0 +1,11 @@
+1. use the wizard to create a configuration file:
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-config-wizard,
+copy that file to amazon-cloudwatch-agent.d/
+2. The output of the preceding step is a file named 'config.json'. Load the configuration file by running this command:
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:configuration-file-path
+3. If you choose not to install the collectd package when creating by wizard, you must create the file manually:
+- mkdir -p /usr/share/collectd/
+- touch /usr/share/collectd/types.db
+4. change the agent.runasuser to "root", and "agent.region" to the region of the console in the config.json to have permission to read the logs
+5. start the service:
+sudo service amazon-cloudwatch-agent start

@@ -1,0 +1,1 @@
+sudo mongodump -o money-lover/database-backup/$(date +%d_%m_%y) --uri 'mongodb://rwUser:Khongcanhoi123%21_rwUser@172.31.19.224:27018,172.31.19.224:27019,172.31.19.224:27017/my-money-lover?replicaSet=my_ml_rs&authSource=admin'
