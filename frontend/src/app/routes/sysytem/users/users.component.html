@@ -13,29 +13,42 @@
                 </button>
             </mat-form-field>
             <mat-card-actions>
-                <button mat-button color="primary" (click)="addUser()">
-                    <mat-icon>add</mat-icon>
-                    Thêm mới
-                </button>
-                <button mat-button *ngIf="isShowLockButton()" color="accent" (click)="deactivate()">
-                    <mat-icon>block</mat-icon>
-                    Khóa
-                </button>
-                <button mat-button *ngIf="isShowUnlockButton()" color="success" class="mat-success-outlined" (click)="openLock()">
-                    <mat-icon>lock_open</mat-icon>
-                    Mở khóa
-                </button>
-                <button mat-button *ngIf="isShowDeleteTempButton()" color="warn" (click)="delete()">
-                    <mat-icon>delete</mat-icon>
-                    Xóa
-                </button>
-                <button mat-button *ngIf="isShowRestoreButton()" (click)="restoreUser()">
-                    <mat-icon>refresh</mat-icon>
-                    Khôi phục
-                </button><button mat-button *ngIf="isShowDeletePermanentButton()" color="warn" (click)="deletePermanently()">
-                    <mat-icon>delete_forever</mat-icon>
-                    Xóa vĩnh viễn
-                </button>
+                <span>
+                    <button mat-button color="primary" (click)="addUser()" *accessCheck="APP_ACTIONS.users['create']">
+                        <mat-icon>add</mat-icon>
+                        Thêm mới
+                    </button>
+                </span>
+                <span *accessCheck="APP_ACTIONS.users['deactivate']">
+                    <button mat-button *ngIf="isShowLockButton()" color="accent" (click)="deactivate()">
+                        <mat-icon>block</mat-icon>
+                        Khóa
+                    </button>
+                </span>
+                <span *accessCheck="APP_ACTIONS.users['unlock']">
+                    <button mat-button *ngIf="isShowUnlockButton()" color="success" class="mat-success-outlined" (click)="openLock()">
+                        <mat-icon>lock_open</mat-icon>
+                        Mở khóa
+                    </button>
+                </span>
+                <span *accessCheck="APP_ACTIONS.users['delete-temp-many']">
+                    <button mat-button *ngIf="isShowDeleteTempButton()" color="warn" (click)="delete()">
+                        <mat-icon>delete</mat-icon>
+                        Xóa
+                    </button>
+                </span>
+                <span *accessCheck="APP_ACTIONS.users['restore-many']">
+                    <button mat-button *ngIf="isShowRestoreButton()" (click)="restoreUser()">
+                        <mat-icon>refresh</mat-icon>
+                        Khôi phục
+                    </button>
+                </span>
+                <span *accessCheck="APP_ACTIONS.users['delete-many-forever']">
+                    <button mat-button *ngIf="isShowDeletePermanentButton()" color="warn" (click)="deletePermanently()">
+                        <mat-icon>delete_forever</mat-icon>
+                        Xóa vĩnh viễn
+                    </button>
+                </span>
             </mat-card-actions>
         </div>
         <ng-container *ngIf="loading; else loaded">
@@ -86,11 +99,11 @@
                                     <div *ngSwitchCase="'actions'">
                                         <button mat-icon-button [matMenuTriggerFor]="menuActions"><mat-icon>more_vert</mat-icon></button>
                                         <mat-menu #menuActions="matMenu">
-                                            <button mat-menu-item *ngIf="element.status" (click)="resetPassword(element)"><mat-icon>repeat</mat-icon>Cài lại mật khẩu</button>
-                                            <button mat-menu-item *ngIf="element.status" (click)="chooseUserRole(element)"><mat-icon>book</mat-icon>Cấu hình vai trò</button>
-                                            <button mat-menu-item *ngIf="element.is_delete" (click)="restoreUser(element)"><mat-icon>refresh</mat-icon> Khôi phục</button>
-                                            <button mat-menu-item *ngIf="!element.is_delete" class="dropdown-item dropdown-item-accent" (click)="deleteSingleUser(element)"><mat-icon color="accent">delete</mat-icon>Xóa</button>
-                                            <button mat-menu-item *ngIf="element.is_delete" class="dropdown-item dropdown-item-warn" (click)="deletePermanently(element)"><mat-icon color="warn">delete_forever</mat-icon>Xóa vĩnh viễn</button>
+                                            <span *accessCheck="APP_ACTIONS.users['reset-password']"><button mat-menu-item *ngIf="element.status" (click)="resetPassword(element)"><mat-icon>repeat</mat-icon>Cài lại mật khẩu</button></span>
+                                            <span *accessCheck="APP_ACTIONS.users['update-user-role']"><button mat-menu-item *ngIf="element.status" (click)="chooseUserRole(element)"><mat-icon>book</mat-icon>Cấu hình vai trò</button></span>
+                                            <span *accessCheck="APP_ACTIONS.users['restore-many']"><button mat-menu-item *ngIf="element.is_delete" (click)="restoreUser(element)"><mat-icon>refresh</mat-icon> Khôi phục</button></span>
+                                            <span *accessCheck="APP_ACTIONS.users['delete-temp-one']"><button mat-menu-item *ngIf="!element.is_delete" class="dropdown-item dropdown-item-accent" (click)="deleteSingleUser(element)"><mat-icon color="accent">delete</mat-icon>Xóa</button></span>
+                                            <span *accessCheck="APP_ACTIONS.users['delete-many-forever']"><button mat-menu-item *ngIf="element.is_delete" class="dropdown-item dropdown-item-warn" (click)="deletePermanently(element)"><mat-icon color="warn">delete_forever</mat-icon>Xóa vĩnh viễn</button></span>
                                         </mat-menu>
                                     </div>
                                     <div *ngSwitchDefault>

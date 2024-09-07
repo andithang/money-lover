@@ -13,22 +13,30 @@
                 </button>
             </mat-form-field>
             <mat-card-actions>
-                <button mat-button color="primary" (click)="open()">
-                    <mat-icon>add</mat-icon>
-                    Thêm mới
-                </button>
-                <button mat-button *ngIf="isShowLockButton()" color="accent" (click)="changeStatusSelected(1)">
-                    <mat-icon>block</mat-icon>
-                    Khóa
-                </button>
-                <button mat-button *ngIf="isShowUnlockButton()" color="success" class="mat-success-outlined" (click)="changeStatusSelected(0)">
-                    <mat-icon>lock_open</mat-icon>
-                    Mở khóa
-                </button>
-                <button mat-button *ngIf="isShowDeleteButton()" color="warn" (click)="delete()">
-                    <mat-icon>delete</mat-icon>
-                    Xóa
-                </button>
+                <span>
+                    <button mat-button color="primary" (click)="open()" *accessCheck="APP_ACTIONS.permission['create']">
+                        <mat-icon>add</mat-icon>
+                        Thêm mới
+                    </button>
+                </span>
+                <span *accessCheck="APP_ACTIONS.permission['update-status']">
+                    <button mat-button *ngIf="isShowLockButton()" color="accent" (click)="changeStatusSelected(1)">
+                        <mat-icon>block</mat-icon>
+                        Khóa
+                    </button>
+                </span>
+                <span *accessCheck="APP_ACTIONS.permission['update-status']">
+                    <button mat-button *ngIf="isShowUnlockButton()" color="success" class="mat-success-outlined" (click)="changeStatusSelected(0)">
+                        <mat-icon>lock_open</mat-icon>
+                        Mở khóa
+                    </button>
+                </span>
+                <span *accessCheck="APP_ACTIONS.permission['delete']">
+                    <button mat-button *ngIf="isShowDeleteButton()" color="warn" (click)="delete()">
+                        <mat-icon>delete</mat-icon>
+                        Xóa
+                    </button>
+                </span>
             </mat-card-actions>
         </div>
         <ng-container *ngIf="loading; else loaded">
@@ -62,9 +70,9 @@
                             <!-- <mat-icon (click)="open(permission, $event)">edit</mat-icon> -->
                             <button mat-icon-button [matMenuTriggerFor]="menuActions" (click)="stopPropagation($event)" matTooltip="Hành động"><mat-icon>more_vert</mat-icon></button>
                             <mat-menu #menuActions="matMenu">
-                                <button mat-menu-item (click)="open(permission, $event)"><mat-icon>edit</mat-icon>Cập nhật</button>
-                                <button mat-menu-item (click)="changeStatus(permission)"><mat-icon>{{ permission.status ? 'block': 'lock_open' }}</mat-icon>{{ permission.status ? 'Khóa': 'Mở khóa' }}</button>
-                                <button mat-menu-item class="dropdown-item dropdown-item-accent" (click)="deleteSingle(permission)"><mat-icon color="accent">delete</mat-icon>Xóa</button>
+                                <button mat-menu-item (click)="open(permission, $event)" *accessCheck="APP_ACTIONS.permission['update']"><mat-icon>edit</mat-icon>Cập nhật</button>
+                                <button mat-menu-item (click)="changeStatus(permission)" *accessCheck="APP_ACTIONS.permission['update-status']"><mat-icon>{{ permission.status ? 'block': 'lock_open' }}</mat-icon>{{ permission.status ? 'Khóa': 'Mở khóa' }}</button>
+                                <button mat-menu-item class="dropdown-item dropdown-item-accent" (click)="deleteSingle(permission)" *accessCheck="APP_ACTIONS.permission['delete']"><mat-icon color="accent">delete</mat-icon>Xóa</button>
                             </mat-menu>
                           </mat-panel-description>
                         </mat-expansion-panel-header>

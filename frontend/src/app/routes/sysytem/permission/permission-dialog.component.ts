@@ -14,6 +14,9 @@ import { Role } from 'app/model/role.model';
 import { PageEvent } from '@angular/material/paginator';
 import { SelectModuleComponent } from '../modules/select-module/select-module.component';
 import { SelectActionComponent } from '../actions/select-action/select-action.component';
+import { TranslateService } from '@ngx-translate/core';
+import { AuthorizationService } from '@shared/services/authorization.service';
+import { APP_ACTIONS } from 'app/actions';
 
 @Component({
     selector: 'permission-dialog',
@@ -28,7 +31,9 @@ export class PermissionDialogComponent implements OnInit {
         private roleService: RoleService,
         private toast: ToastrService,
         private dialogService: MatDialog,
-        private dialogRef: MatDialogRef<PermissionDialogComponent>
+        private dialogRef: MatDialogRef<PermissionDialogComponent>,
+        private authorService: AuthorizationService,
+        private translate: TranslateService
     ) { }
 
     trim = trim;
@@ -37,19 +42,21 @@ export class PermissionDialogComponent implements OnInit {
         this.getListRoles();
         // update
         if(this.data && this.data.id){
-            this.permissionService.getPermission(this.data.id).subscribe(res => {
-                this.permission = res;
-                this.permissionForm.setValue({
-                    title: res.title,
-                    code: res.code,                    
-                    description: res.description || '',                    
-                    role: res.role._id,                    
-                    allow: res.allow,                    
+            if(this.authorService.isAuthorized(APP_ACTIONS.permission['get-one'])) {
+                this.permissionService.getPermission(this.data.id).subscribe(res => {
+                    this.permission = res;
+                    this.permissionForm.setValue({
+                        title: res.title,
+                        code: res.code,                    
+                        description: res.description || '',                    
+                        role: res.role._id,                    
+                        allow: res.allow,                    
+                    })
+                    this.setMapOfActions(res.moduleAction);
+                }, (err) => {
+                    console.error(err);
                 })
-                this.setMapOfActions(res.moduleAction);
-            }, (err) => {
-                console.error(err);
-            })
+            } else this.toast.error(this.translate.instant('my-ml.permission.message.not-allow-get-one'));
         }
         // create
         else {
@@ -127,18 +134,22 @@ export class PermissionDialogComponent implements OnInit {
 
     save(){
         if(this.data && this.data.id){
-            this.permissionService.updatePermission(this.getCurrentData())
-            .subscribe(res => {
-                this.toast.success("Cập nhật quyền thành công");
-                this.close(res);
-            })
+            if(this.authorService.isAuthorized(APP_ACTIONS.permission.update)) {
+                this.permissionService.updatePermission(this.getCurrentData())
+                .subscribe(res => {
+                    this.toast.success("Cập nhật quyền thành công");
+                    this.close(res);
+                })
+            } else this.toast.error(this.translate.instant('my-ml.permission.message.not-allow-update'));
         }
         else {
-            this.permissionService.addPermission(this.getCurrentData())
-            .subscribe(res => {
-                this.toast.success("Thêm quyền thành công");
-                this.close(res);
-            })
+            if(this.authorService.isAuthorized(APP_ACTIONS.permission.create)) {
+                this.permissionService.addPermission(this.getCurrentData())
+                .subscribe(res => {
+                    this.toast.success("Thêm quyền thành công");
+                    this.close(res);
+                })
+            } else this.toast.error(this.translate.instant('my-ml.permission.message.not-allow-create'));
         }
     }
 
@@ -206,9 +217,11 @@ export class PermissionDialogComponent implements OnInit {
     }
 
     getListRoles(){
-        this.roleService.getListRoles('', 0, 1000).subscribe(data => {
-            this.listRoles = data.results;
-        })
+        if(this.authorService.isAuthorized(APP_ACTIONS.role['get-list'])) {
+            this.roleService.getListRoles('', 0, 1000).subscribe(data => {
+                this.listRoles = data.results;
+            })
+        } else this.toast.error(this.translate.instant('my-ml.role.message.not-allow-get-list'));
     }
 
     onChangePageActions(key: string, evt: PageEvent){

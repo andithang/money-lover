@@ -1,10 +1,15 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { CONSTS } from 'app/consts';
 import { Action } from 'app/model/action.model';
 import { ActionService } from '../action.service';
 import { checkIsCheckAll } from '@shared';
+import { AuthorizationService } from '@shared/services/authorization.service';
+import { APP_ACTIONS } from 'app/actions';
+import { Subject, takeUntil } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'select-action',
@@ -16,12 +21,16 @@ import { checkIsCheckAll } from '@shared';
     `]
 })
 
-export class SelectActionComponent implements OnInit {
+export class SelectActionComponent implements OnInit, OnDestroy {
     constructor(
         private actionService: ActionService,
         @Inject(MAT_DIALOG_DATA) public data: { selectedActions: string[] },
+        private authorService: AuthorizationService,    
+        private toast: ToastrService,
+        private translate: TranslateService,
         private dialogRef: MatDialogRef<SelectActionComponent>
-    ) { }
+    ) { 
+    }
 
     listActions: Action[] = [];
     searchKey: string = "";
@@ -35,6 +44,8 @@ export class SelectActionComponent implements OnInit {
     isAllChecked: boolean = false;
     pageSizeOptions: number[] = CONSTS.page_size_options;
     title: string = "Chọn action";
+    readonly APP_ACTIONS = APP_ACTIONS;
+    private destroy$ = new Subject<void>();
 
     ngOnInit() { 
         this.getListActions();
@@ -42,27 +53,42 @@ export class SelectActionComponent implements OnInit {
             this.data.selectedActions.forEach(id => {
                 this.listChecked.add(id);
             })
-        }
+        }            
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     close(selectedActions?: Set<string>){
         if(selectedActions){
-            this.actionService.getActionsByIds(Array.from(selectedActions)).subscribe(res => {
-                this.dialogRef.close(res.results);   
-            })
+            if(this.authorService.isAuthorized(APP_ACTIONS.action['get-many'])) {
+                this.actionService.getActionsByIds(Array.from(selectedActions)).subscribe(res => {
+                    this.dialogRef.close(res.results);   
+                })
+            } else {
+                this.toast.error(this.translate.instant('my-ml.actions.message.not-allow-get-many'));
+                this.loading = false;
+            }
         }
         else this.dialogRef.close(selectedActions);
     }
 
     getListActions(){
-        this.actionService.getListActions(this.searchKey, this.page, this.pageSize).subscribe(res => {
+        if(this.authorService.isAuthorized(APP_ACTIONS.action['get-list'])) {
+            this.actionService.getListActions(this.searchKey, this.page, this.pageSize).subscribe(res => {
+                this.loading = false;
+                this.listActions = res.results;
+                this.total = res.total;
+                this.updateCheckAll();
+            }, err => {
+                this.loading = false;
+            })
+        } else {
+            this.toast.error(this.translate.instant('my-ml.actions.message.not-allow-get-list'));
             this.loading = false;
-            this.listActions = res.results;
-            this.total = res.total;
-            this.updateCheckAll();
-        }, err => {
-            this.loading = false;
-        })
+        }
     }
 
     getAllForCheckAll(){

@@ -94,11 +94,56 @@
         "actions": {
           "message": {
             "not-allow-get-list": "Bạn không có quyền thực hiện tìm kiếm hành động trên trang này",
+            "not-allow-get-many": "Bạn không có quyền thực hiện lấy thông tin nhiều hành động trên trang này",
             "not-allow-get-one": "Bạn không có quyền lấy thông tin hành động trên trang này",
             "not-allow-update": "Bạn không có quyền cập nhật hành động trên trang này",
             "not-allow-create": "Bạn không có quyền thêm mới hành động trên trang này",
             "not-allow-update-status": "Bạn không có quyền chuyển trạng thái hành động trên trang này",
             "not-allow-delete": "Bạn không có quyền xóa hành động trên trang này"
+          }
+        },
+        "module": {
+          "message": {
+            "not-allow-get-list": "Bạn không có quyền thực hiện tìm kiếm module trên trang này",
+            "not-allow-get-many": "Bạn không có quyền thực hiện lấy thông tin nhiều module trên trang này",
+            "not-allow-get-one": "Bạn không có quyền lấy thông tin module trên trang này",
+            "not-allow-update": "Bạn không có quyền cập nhật module trên trang này",
+            "not-allow-create": "Bạn không có quyền thêm mới module trên trang này",
+            "not-allow-update-status": "Bạn không có quyền chuyển trạng thái module trên trang này",
+            "not-allow-delete": "Bạn không có quyền xóa module trên trang này"
+          }
+        },
+        "role": {
+          "message": {
+            "not-allow-get-list": "Bạn không có quyền thực hiện tìm kiếm vai trò trên trang này",
+            "not-allow-get-many": "Bạn không có quyền thực hiện lấy thông tin nhiều vai trò trên trang này",
+            "not-allow-get-one": "Bạn không có quyền lấy thông tin vai trò trên trang này",
+            "not-allow-update": "Bạn không có quyền cập nhật vai trò trên trang này",
+            "not-allow-create": "Bạn không có quyền thêm mới vai trò trên trang này",
+            "not-allow-update-status": "Bạn không có quyền chuyển trạng thái vai trò trên trang này",
+            "not-allow-delete": "Bạn không có quyền xóa vai trò trên trang này"
+          }
+        },
+        "permission": {
+          "message": {
+            "not-allow-get-list": "Bạn không có quyền thực hiện tìm kiếm quyền trên trang này",
+            "not-allow-get-many": "Bạn không có quyền thực hiện lấy thông tin nhiều quyền trên trang này",
+            "not-allow-get-one": "Bạn không có quyền lấy thông tin quyền trên trang này",
+            "not-allow-update": "Bạn không có quyền cập nhật quyền trên trang này",
+            "not-allow-create": "Bạn không có quyền thêm mới quyền trên trang này",
+            "not-allow-update-status": "Bạn không có quyền chuyển trạng thái quyền trên trang này",
+            "not-allow-delete": "Bạn không có quyền xóa quyền trên trang này"
+          }
+        },
+        "users": {
+          "message": {
+            "not-allow-get-list": "Bạn không có quyền thực hiện tìm kiếm người dùng trên trang này",
+            "not-allow-get-many": "Bạn không có quyền thực hiện lấy thông tin nhiều người dùng trên trang này",
+            "not-allow-get-one": "Bạn không có quyền lấy thông tin người dùng trên trang này",
+            "not-allow-update": "Bạn không có quyền cập nhật người dùng trên trang này",
+            "not-allow-create": "Bạn không có quyền thêm mới người dùng trên trang này",
+            "not-allow-update-status": "Bạn không có quyền chuyển trạng thái người dùng trên trang này",
+            "not-allow-delete": "Bạn không có quyền xóa người dùng trên trang này"
           }
         }
     }

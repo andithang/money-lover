@@ -12,7 +12,7 @@ export class AuthorizationService {
             actions.forEach(act => {
                 cache[act.code] = true;
             });
-            this.actionCache = cache; // DO NOT CACHE THE PREIVOUS PAGE PERMISSION
+            this.actionCache = cache; // DO NOT CACHE THE PREVIOUS PAGE PERMISSION
             this.allowActionsReady$.next(true);
         });
     }

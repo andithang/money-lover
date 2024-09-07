@@ -42,6 +42,7 @@ export class ActionMngComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
+        this.authorService.allowActionsReady$.next(false);
     }
 
     listActions: Partial<Action>[] = [];
@@ -184,23 +185,25 @@ export class ActionMngComponent implements OnInit, OnDestroy {
     }
 
     deleteSingle(action: Partial<Action>){
-        this.dialogService.open(ConfirmDeletionComponent, {
-            data: {
-                title: `Xác nhận xóa hành động`,
-                message: `Xóa hành động '${action.title}'?`
-            }
-        })
-        .afterClosed().subscribe((isConfirmed?: boolean) => {
-            if(isConfirmed){
-                this.loading = true;
-                this.actionService.deleteAction([action._id]).subscribe(() => {
-                    this.toast.success(`Xóa hành động thành công`);
-                    this.loading = false;
-                    this.searchActions();
-                    if(this.listChecked.has(action._id)) this.listChecked.delete(action._id);
-                }, () => this.loading = false)
-            }
-        })
+        if(this.authorService.isAuthorized(APP_ACTIONS.action['delete'])) {
+            this.dialogService.open(ConfirmDeletionComponent, {
+                data: {
+                    title: `Xác nhận xóa hành động`,
+                    message: `Xóa hành động '${action.title}'?`
+                }
+            })
+            .afterClosed().subscribe((isConfirmed?: boolean) => {
+                if(isConfirmed){
+                    this.loading = true;
+                    this.actionService.deleteAction([action._id]).subscribe(() => {
+                        this.toast.success(`Xóa hành động thành công`);
+                        this.loading = false;
+                        this.searchActions();
+                        if(this.listChecked.has(action._id)) this.listChecked.delete(action._id);
+                    }, () => this.loading = false)
+                }
+            })
+        } else this.toast.error(this.translate.instant('my-ml.actions.message.not-allow-delete'));
     }
 
     updateListCheckedAfterStatusChanged(ids: string[], status: 0 | 1){

@@ -63,7 +63,14 @@ export const APP_ACTIONS = {
         "signup": "users:signup",
         "get-one": "users:get-one",
         "check-email-exist": "users:check-email-exist",
-        "unlock": "users:unlock"
+        "unlock": "users:unlock",
+        "deactivate": "users:deactivate",
+        "delete-temp-one": "users:delete-temp-one",
+        "delete-temp-many": "users:delete-temp-many",
+        "delete-many-forever": "users:delete-many-forever",
+        "get-list": "users:get-list",
+        "restore-many": "users:restore-many",
+        "reset-password": "users:reset-password"
     },
     "category": {
         "create-admin": "category:create-admin",

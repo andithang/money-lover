@@ -5,6 +5,9 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModuleService } from './module.service';
 import { ToastrService } from 'ngx-toastr';
 import { trim } from '@shared';
+import { TranslateService } from '@ngx-translate/core';
+import { AuthorizationService } from '@shared/services/authorization.service';
+import { APP_ACTIONS } from 'app/actions';
 
 @Component({
     selector: 'module-dialog',
@@ -17,22 +20,28 @@ export class ModuleDialogComponent implements OnInit {
         @Inject(MAT_DIALOG_DATA) public data: { id?: string },
         private moduleService: ModuleService,
         private toast: ToastrService,
+        private authorService: AuthorizationService,
+        private translate: TranslateService,
         private dialogRef: MatDialogRef<ModuleDialogComponent>
     ) { }
 
     ngOnInit() {
         // update
         if(this.data && this.data.id){
-            this.moduleService.getModule(this.data.id).subscribe(res => {
-                this.module = res;
-                this.moduleForm.setValue({
-                    title: res.title,
-                    code: res.code,                    
-                    description: res.description,                    
+            if(this.authorService.isAuthorized(APP_ACTIONS.module['get-one'])) {
+                this.moduleService.getModule(this.data.id).subscribe(res => {
+                    this.module = res;
+                    this.moduleForm.setValue({
+                        title: res.title,
+                        code: res.code,                    
+                        description: res.description,                    
+                    })
+                }, (err) => {
+                    console.error(err);
                 })
-            }, (err) => {
-                console.error(err);
-            })
+            } else {
+                this.toast.error(this.translate.instant('my-ml.module.message.not-allow-get-one'))
+            }
         }
         // create
         else {
@@ -67,18 +76,24 @@ export class ModuleDialogComponent implements OnInit {
 
     save(){
         if(this.data && this.data.id){
-            this.moduleService.updateModule(this.getCurrentData())
-            .subscribe(res => {
-                this.toast.success("Cập nhật module thành công");
-                this.close(res);
-            })
+            if(this.authorService.isAuthorized(APP_ACTIONS.action['update'])) {
+                this.moduleService.updateModule(this.getCurrentData())
+                .subscribe(res => {
+                    this.toast.success("Cập nhật module thành công");
+                    this.close(res);
+                })
+            } else {
+                this.toast.error(this.translate.instant('my-ml.module.message.not-allow-update'));
+            }
         }
         else {
-            this.moduleService.addModule(this.getCurrentData())
-            .subscribe(res => {
-                this.toast.success("Thêm module thành công");
-                this.close(res);
-            })
+            if(this.authorService.isAuthorized(APP_ACTIONS.module['create'])) {
+                this.moduleService.addModule(this.getCurrentData())
+                .subscribe(res => {
+                    this.toast.success("Thêm module thành công");
+                    this.close(res);
+                })
+            } else this.toast.error(this.translate.instant('my-ml.module.message.not-allow-create'));
         }
     }
 

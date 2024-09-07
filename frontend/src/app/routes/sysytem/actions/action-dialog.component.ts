@@ -87,7 +87,7 @@ export class ActionDialogComponent implements OnInit {
             }
         }
         else {
-            if(this.authorService.isAuthorized(APP_ACTIONS.action['update'])) {
+            if(this.authorService.isAuthorized(APP_ACTIONS.action['create'])) {
                 this.actionService.addAction(this.getCurrentData())
                 .subscribe(res => {
                     this.toast.success("Thêm hành động thành công");

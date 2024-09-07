@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Permission } from 'app/model/permission.model';
 import { CONSTS } from 'app/consts';
@@ -12,6 +12,10 @@ import { PermissionDialogComponent } from './permission-dialog.component';
 import { Module } from 'app/model/module.model';
 import { Action } from 'app/model/action.model';
 import { checkIsCheckAll } from '@shared';
+import { TranslateService } from '@ngx-translate/core';
+import { AuthorizationService } from '@shared/services/authorization.service';
+import { APP_ACTIONS } from 'app/actions';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'permissions',
@@ -19,15 +23,30 @@ import { checkIsCheckAll } from '@shared';
     styleUrls: ['permissions.component.scss']
 })
 
-export class PermissionMngComponent implements OnInit {
+export class PermissionMngComponent implements OnInit, OnDestroy {
     constructor(
         private permissionService: PermissionService,
         private dialogService: MatDialog,
-        private toast: ToastrService
-    ) { }
+        private toast: ToastrService,
+        private authorService: AuthorizationService,
+        private translate: TranslateService
+    ) { 
+        this.authorService.getAllowActionsOnModule(location.pathname).subscribe(({actions}) => {
+            this.authorService.allowActionsChange$.next(actions);
+            this.permissionChecked.next(true);
+        }, () => this.permissionChecked.next(true))
+    }
 
-    ngOnInit() { 
-        this.searchPermissions()
+    ngOnInit() {       
+        this.permissionChecked.pipe(takeUntil(this.destroy$)).subscribe((checked) => {
+            if(checked) this.searchPermissions()
+        })
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+        this.authorService.allowActionsReady$.next(false);
     }
 
     listPermissions: Partial<Permission>[] = [];
@@ -48,17 +67,25 @@ export class PermissionMngComponent implements OnInit {
     window = window;
     displayedColumns: string[] = ['Tên hành động', 'Mã hành động', 'Trạng thái'];
     columnProps: string[] = ['title','code', 'status'];
+    permissionChecked = new Subject<boolean>();
+    readonly APP_ACTIONS = APP_ACTIONS;
+    private destroy$ = new Subject<void>();
 
     getListPermissions(){
-        this.permissionService.getListPermissions(this.searchKey, this.page, this.pageSize).subscribe(res => {
+        if(this.authorService.isAuthorized(APP_ACTIONS.permission['get-list'])) {
+            this.permissionService.getListPermissions(this.searchKey, this.page, this.pageSize).subscribe(res => {
+                this.loading = false;
+                this.listPermissions = res.results;
+                this.total = res.total;
+                this.updateCheckAll();
+                if(!this.listPermissions.length) this.isAllChecked = false;
+            }, err => {
+                this.loading = false;
+            })
+        } else {
+            this.toast.error(this.translate.instant('my-ml.permission.message.not-allow-get-list'));
             this.loading = false;
-            this.listPermissions = res.results;
-            this.total = res.total;
-            this.updateCheckAll();
-            if(!this.listPermissions.length) this.isAllChecked = false;
-        }, err => {
-            this.loading = false;
-        })
+        }
     }
 
     setMapOfActions(permissionId: string, moduleActions: Partial<ModuleAction>[]){
@@ -114,27 +141,32 @@ export class PermissionMngComponent implements OnInit {
     }
 
     delete(){   
-        this.dialogService.open(ConfirmDeletionComponent, {
-            data: {
-                title: "Xác nhận xóa quyền?",
-                message: `Xóa vĩnh viễn ${this.getNumOfSelected()} quyền?`
-            }
-        })
-        .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
-            if (isConfirmed) {
-                this.loading = true;
-                this.permissionService.deletePermission(Array.from(this.listChecked.keys()))
-                .subscribe(res => {
-                    this.loading = false;
-                    this.resetListChecked();
-                    this.toast.success("Xóa vĩnh viễn quyền thành công");
-                    this.searchPermissions();
-                }, err => {
-                    this.loading = false;
-                    this.toast.error("Xóa vĩnh viễn quyền thất bại")
-                })                
-            }
-        })
+        if(this.authorService.isAuthorized(APP_ACTIONS.permission['delete-many'])) {
+            this.dialogService.open(ConfirmDeletionComponent, {
+                data: {
+                    title: "Xác nhận xóa quyền?",
+                    message: `Xóa vĩnh viễn ${this.getNumOfSelected()} quyền?`
+                }
+            })
+            .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
+                if (isConfirmed) {
+                    this.loading = true;
+                    this.permissionService.deletePermission(Array.from(this.listChecked.keys()))
+                    .subscribe(res => {
+                        this.loading = false;
+                        this.resetListChecked();
+                        this.toast.success("Xóa vĩnh viễn quyền thành công");
+                        this.searchPermissions();
+                    }, err => {
+                        this.loading = false;
+                        this.toast.error("Xóa vĩnh viễn quyền thất bại")
+                    })                
+                }
+            })
+        } else {
+            this.toast.error(this.translate.instant('my-ml.permission.message.not-allow-delete'));
+            this.loading = false;
+        }
     }
 
     onChangePage(evt: PageEvent){
@@ -190,23 +222,28 @@ export class PermissionMngComponent implements OnInit {
     }
 
     deleteSingle(permission: Partial<Permission>){
-        this.dialogService.open(ConfirmDeletionComponent, {
-            data: {
-                title: `Xác nhận xóa quyền`,
-                message: `Xóa quyền '${permission.title}'?`
-            }
-        })
-        .afterClosed().subscribe((isConfirmed?: boolean) => {
-            if(isConfirmed){
-                this.loading = true;
-                this.permissionService.deletePermission([permission._id]).subscribe(() => {
-                    this.toast.success(`Xóa quyền thành công`);
-                    this.loading = false;
-                    this.searchPermissions();
-                    if(this.listChecked.has(permission._id)) this.listChecked.delete(permission._id);
-                }, () => this.loading = false)
-            }
-        })
+        if(this.authorService.isAuthorized(APP_ACTIONS.permission['delete-one'])) {
+            this.dialogService.open(ConfirmDeletionComponent, {
+                data: {
+                    title: `Xác nhận xóa quyền`,
+                    message: `Xóa quyền '${permission.title}'?`
+                }
+            })
+            .afterClosed().subscribe((isConfirmed?: boolean) => {
+                if(isConfirmed){
+                    this.loading = true;
+                    this.permissionService.deletePermission([permission._id]).subscribe(() => {
+                        this.toast.success(`Xóa quyền thành công`);
+                        this.loading = false;
+                        this.searchPermissions();
+                        if(this.listChecked.has(permission._id)) this.listChecked.delete(permission._id);
+                    }, () => this.loading = false)
+                }
+            })
+        } else {
+            this.toast.error(this.translate.instant('my-ml.permission.message.not-allow-delete'));
+            this.loading = false;
+        }
     }
 
     updateListCheckedAfterStatusChanged(ids: string[], status: 0 | 1){
@@ -221,72 +258,92 @@ export class PermissionMngComponent implements OnInit {
     }
 
     changeStatus(permission: Partial<Permission>){
-        this.dialogService.open(ConfirmDeletionComponent, {
-            data: {
-                title: `Xác nhận ${permission.status ? '': 'mở'} khóa quyền?`,
-                message: `${permission.status ? 'Khóa': 'Mở khóa'} quyền ${permission.title}?`
-            }
-        })
-        .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
-            if (isConfirmed) {
-                this.loading = true;
-                const newStatus = permission.status ? 0: 1;
-                this.permissionService.changeStatusPermission([permission._id], newStatus)
-                .subscribe(res => {
-                    this.loading = false;
-                    this.toast.success(`${permission.status ? 'Khóa': 'Mở khóa'} quyền thành công`);
-                    this.searchPermissions();
-                    this.updateListCheckedAfterStatusChanged([permission._id], newStatus)
-                }, err => {
-                    this.loading = false;
-                })                
-            }
-        })
+        if(this.authorService.isAuthorized(APP_ACTIONS.permission['update-status'])) {
+            this.dialogService.open(ConfirmDeletionComponent, {
+                data: {
+                    title: `Xác nhận ${permission.status ? '': 'mở'} khóa quyền?`,
+                    message: `${permission.status ? 'Khóa': 'Mở khóa'} quyền ${permission.title}?`
+                }
+            })
+            .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
+                if (isConfirmed) {
+                    this.loading = true;
+                    const newStatus = permission.status ? 0: 1;
+                    this.permissionService.changeStatusPermission([permission._id], newStatus)
+                    .subscribe(res => {
+                        this.loading = false;
+                        this.toast.success(`${permission.status ? 'Khóa': 'Mở khóa'} quyền thành công`);
+                        this.searchPermissions();
+                        this.updateListCheckedAfterStatusChanged([permission._id], newStatus)
+                    }, err => {
+                        this.loading = false;
+                    })                
+                }
+            })
+        } else {
+            this.toast.error(this.translate.instant('my-ml.permission.message.not-allow-update-status'));
+            this.loading = false;
+        }
     }
 
     changeStatusSelected(currStatus: 0 | 1){
-        this.dialogService.open(ConfirmDeletionComponent, {
-            data: {
-                title: `Xác nhận ${currStatus ? '': 'mở'} khóa quyền?`,
-                message: `${currStatus ? 'Khóa': 'Mở khóa'} ${this.getNumOfSelected()} quyền?`
-            }
-        })
-        .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
-            if (isConfirmed) {
-                this.loading = true;
-                const newStatus = currStatus ? 0: 1;
-                this.permissionService.changeStatusPermission(Array.from(this.listChecked.keys()), newStatus)
-                .subscribe(res => {
-                    this.loading = false;
-                    this.toast.success(`${currStatus ? 'Khóa': 'Mở khóa'} quyền thành công`);
-                    this.searchPermissions();     
-                    this.resetListChecked(); 
-                }, err => {
-                    this.loading = false;
-                })                
-            }
-        })
+        if(this.authorService.isAuthorized(APP_ACTIONS.permission['update-status'])) {
+            this.dialogService.open(ConfirmDeletionComponent, {
+                data: {
+                    title: `Xác nhận ${currStatus ? '': 'mở'} khóa quyền?`,
+                    message: `${currStatus ? 'Khóa': 'Mở khóa'} ${this.getNumOfSelected()} quyền?`
+                }
+            })
+            .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
+                if (isConfirmed) {
+                    this.loading = true;
+                    const newStatus = currStatus ? 0: 1;
+                    this.permissionService.changeStatusPermission(Array.from(this.listChecked.keys()), newStatus)
+                    .subscribe(res => {
+                        this.loading = false;
+                        this.toast.success(`${currStatus ? 'Khóa': 'Mở khóa'} quyền thành công`);
+                        this.searchPermissions();     
+                        this.resetListChecked(); 
+                    }, err => {
+                        this.loading = false;
+                    })                
+                }
+            }) 
+        } else {
+            this.toast.error(this.translate.instant('my-ml.permission.message.not-allow-update-status'));
+            this.loading = false;
+        }
     }
 
     expandPermission(permission: Partial<Permission>){
-        this.mapOfExpandedPermission.set(permission._id, {loading: true});
-        this.permissionService.getPermission(permission._id!).subscribe(per => {
-            this.mapOfExpandedPermission.set(permission._id, {data: per, loading: false});
-            this.mapOfModuleActions.set(permission._id, {loading: true, page: 0, size: CONSTS.page_size});
-            this.getListModuleActions(permission._id)
-        }, () => {
-            this.mapOfExpandedPermission.set(permission._id, {loading: false});
-        })
+        if(this.authorService.isAuthorized(APP_ACTIONS.permission['get-one'])) {
+            this.mapOfExpandedPermission.set(permission._id, {loading: true});
+            this.permissionService.getPermission(permission._id!).subscribe(per => {
+                this.mapOfExpandedPermission.set(permission._id, {data: per, loading: false});
+                this.mapOfModuleActions.set(permission._id, {loading: true, page: 0, size: CONSTS.page_size});
+                this.getListModuleActions(permission._id)
+            }, () => {
+                this.mapOfExpandedPermission.set(permission._id, {loading: false});
+            })
+        } else {
+            this.toast.error(this.translate.instant('my-ml.permission.message.not-allow-get-one'));
+            this.loading = false;
+        }
     }
     
     getListModuleActions(id: string, page: number = 0, size: number = CONSTS.page_size){
         const curr = this.mapOfModuleActions.get(id);
-        this.permissionService.getModuleActionsPermission(id, page, size).subscribe(data => {
-            this.mapOfModuleActions.set(id, {loading: false, page: 0, size: CONSTS.page_size, total: data.total, list: data.results, displayList: data.results.filter((_, ind) => ind >= 0 && ind < CONSTS.page_size)});
-            this.setMapOfActions(id, data.results);
-        }, () => {
-            this.mapOfModuleActions.set(id, {...curr, loading: false}); // only set loading, keep current data
-        })        
+        if(this.authorService.isAuthorized(APP_ACTIONS.permission['get-moduleactions-by-permission'])) {
+            this.permissionService.getModuleActionsPermission(id, page, size).subscribe(data => {
+                this.mapOfModuleActions.set(id, {loading: false, page: 0, size: CONSTS.page_size, total: data.total, list: data.results, displayList: data.results.filter((_, ind) => ind >= 0 && ind < CONSTS.page_size)});
+                this.setMapOfActions(id, data.results);
+            }, () => {
+                this.mapOfModuleActions.set(id, {...curr, loading: false}); // only set loading, keep current data
+            })        
+        }  else {
+            this.toast.error(this.translate.instant('my-ml.permission.message.not-allow-get-moduleactions-by-permission'));
+            this.loading = false;
+        }
     }
 
     collapsePermission(permission: Partial<Permission>){

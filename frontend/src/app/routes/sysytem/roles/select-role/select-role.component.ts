@@ -5,6 +5,10 @@ import { CONSTS } from 'app/consts';
 import { Role } from 'app/model/role.model';
 import { RoleService } from '../role.service';
 import { checkIsCheckAll } from '@shared';
+import { TranslateService } from '@ngx-translate/core';
+import { AuthorizationService } from '@shared/services/authorization.service';
+import { ToastrService } from 'ngx-toastr';
+import { APP_ACTIONS } from 'app/actions';
 
 @Component({
     selector: 'select-role',
@@ -20,6 +24,9 @@ export class SelectRoleComponent implements OnInit {
     constructor(
         private roleService: RoleService,
         @Inject(MAT_DIALOG_DATA) public data: { selectedRoles: string[] },
+        private authorService: AuthorizationService,  
+        private toast: ToastrService,  
+        private translate: TranslateService,
         private dialogRef: MatDialogRef<SelectRoleComponent>
     ) { }
 
@@ -55,13 +62,18 @@ export class SelectRoleComponent implements OnInit {
     }
 
     getListRoles(){
-        this.roleService.getListRoles(this.searchKey, this.page, this.pageSize).subscribe(res => {
+        if(this.authorService.isAuthorized(APP_ACTIONS.role['get-list'])) {
+            this.roleService.getListRoles(this.searchKey, this.page, this.pageSize).subscribe(res => {
+                this.loading = false;
+                this.listRoles = res.results;
+                this.total = res.total;
+            }, err => {
+                this.loading = false;
+            })
+        } else {
+            this.toast.error(this.translate.instant('my-ml.role.message.not-allow-get-list'));
             this.loading = false;
-            this.listRoles = res.results;
-            this.total = res.total;
-        }, err => {
-            this.loading = false;
-        })
+        }
     }
 
     getAllForCheckAll(){

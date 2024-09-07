@@ -69,11 +69,11 @@
     "money-lover": "Money Lover",
     "money-lover.admin": "Admin",
     "money-lover.admin.common": "Danh mục",
-    "money-lover.system.user-list": "Người dùng",
-    "money-lover.system.role": "Vai trò",
+    "money-lover.system.user-list": "users",
+    "money-lover.system.role": "role",
     "money-lover.system.action": "Hành động",
     "money-lover.system.module": "Module",
-    "money-lover.system.permission": "Quyền",
+    "money-lover.system.permission": "permission",
     "money-lover.system.security-question": "Câu hỏi bảo mật",
     "money-lover.system": "Hệ thống",
     "money-lover.user-category": "Chủng loại",
@@ -94,7 +94,56 @@
       "actions": {
         "message": {
           "not-allow-get-list": "You are unauthorized to search actions on this page",
-          "not-allow-get-one": "You are unauthorized to get action's information on this page"
+          "not-allow-get-many": "You are unauthorized to get information of many actions on this page",
+          "not-allow-get-one": "You are unauthorized to get action's information on this page",
+          "not-allow-update": "You are unauthorized to update action on this page",
+          "not-allow-create": "You are unauthorized to create action on this page",
+          "not-allow-update-status": "You are unauthorized to update status of action on this page",
+          "not-allow-delete": "You are unauthorized to delete action on this page"
+        }
+      },
+      "module": {
+        "message": {
+          "not-allow-get-list": "You are unauthorized to search modules on this page",
+          "not-allow-get-many": "You are unauthorized to get information of many module on this page",
+          "not-allow-get-one": "You are unauthorized to get module's information on this page",
+          "not-allow-update": "You are unauthorized to update module on this page",
+          "not-allow-create": "You are unauthorized to create module on this page",
+          "not-allow-update-status": "You are unauthorized to update status of module on this page",
+          "not-allow-delete": "You are unauthorized to delete module on this page"
+        }
+      },
+      "role": {
+        "message": {
+          "not-allow-get-list": "You are unauthorized to search roles on this page",
+          "not-allow-get-many": "You are unauthorized to get information of many rolew on this page",
+          "not-allow-get-one": "You are unauthorized to get vai's information trò on this page",
+          "not-allow-update": "You are unauthorized to update role on this page",
+          "not-allow-create": "You are unauthorized to create role on this page",
+          "not-allow-update-status": "You are unauthorized to update status of role on this page",
+          "not-allow-delete": "You are unauthorized to delete role on this page"
+        }
+      },
+      "permission": {
+        "message": {
+          "not-allow-get-list": "You are unauthorized to search permissions on this page",
+          "not-allow-get-many": "You are unauthorized to get information of many permissions on this page",
+          "not-allow-get-one": "You are unauthorized to get permission's information on this page",
+          "not-allow-update": "You are unauthorized to update permission on this page",
+          "not-allow-create": "You are unauthorized to create permission on this page",
+          "not-allow-update-status": "You are unauthorized to update status of permission on this page",
+          "not-allow-delete": "You are unauthorized to delete permission on this page"
+        }
+      },
+      "users": {
+        "message": {
+          "not-allow-get-list": "You are unauthorized to search users on this page",
+          "not-allow-get-many": "You are unauthorized to get information of many users on this page",
+          "not-allow-get-one": "You are unauthorized to get user's information on this page",
+          "not-allow-update": "You are unauthorized to update users on this page",
+          "not-allow-create": "You are unauthorized to create users on this page",
+          "not-allow-update-status": "You are unauthorized to update status of users on this page",
+          "not-allow-delete": "You are unauthorized to delete users on this page"
         }
       }
   }
