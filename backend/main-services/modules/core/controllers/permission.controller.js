@@ -419,7 +419,7 @@ const getActionsOnModule = (req, returnData, callback) => {
                     // if the action was added to allowed, but appeared in denied, delete it
                     allowActions = allowActions.filter(action => !deniedActions.find(act => act._id == action._id));
             
-                    returnData.set({ actions: allowActions })
+                    returnData.set({ actions: allowActions.filter(act => act.status) })
                     callback();
                 })
         } else {
