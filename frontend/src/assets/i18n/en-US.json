@@ -102,6 +102,41 @@
           "not-allow-delete": "You are unauthorized to delete action on this page"
         }
       },
+      "wallettype": {
+        "message": {
+          "not-allow-get-list": "You are unauthorized to search wallet types on this page",
+          "not-allow-get-many": "You are unauthorized to get information of many wallet types on this page",
+          "not-allow-get-one": "You are unauthorized to get wallet type's information on this page",
+          "not-allow-update": "You are unauthorized to update wallet type on this page",
+          "not-allow-create": "You are unauthorized to create wallet type on this page",
+          "not-allow-update-status": "You are unauthorized to update status of wallet type on this page",
+          "not-allow-delete": "You are unauthorized to delete wallet type on this page"
+        }
+      },
+      "icon": {
+        "message": {
+          "not-allow-upload": "You are unauthorized to upload icon on this page",
+          "not-allow-list": "You are unauthorized to search icon on this page",
+          "not-allow-get-by-path": "You are unauthorized to get icon by path",
+          "not-allow-get-one": "You are unauthorized to get icon on this page",
+          "not-allow-delete": "You are unauthorized to delete icon on this page",
+          "not-allow-insert-all": "You are unauthorized to insert icons on this page"
+        }
+      },
+      "category": {
+        "message": {
+          "not-allow-get-list": "You are unauthorized to search categories on this page",
+          "not-allow-get-many": "You are unauthorized to get information of many categories on this page",
+          "not-allow-get-one": "You are unauthorized to get category's information on this page",
+          "not-allow-update": "You are unauthorized to update category on this page",
+          "not-allow-update-admin": "You are unauthorized to update a default category on this page",
+          "not-allow-create": "You are unauthorized to create category on this page",
+          "not-allow-create-admin": "You are unauthorized to create a new default category on this page",
+          "not-allow-update-status": "You are unauthorized to update status of category on this page",
+          "not-allow-delete": "You are unauthorized to delete category on this page",
+          "not-allow-delete-admin": "You are unauthorized to delete default categories on this page"
+        }
+      },
       "module": {
         "message": {
           "not-allow-get-list": "You are unauthorized to search modules on this page",

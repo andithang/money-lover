@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CONSTS } from 'app/consts';
 import { Category } from 'app/model/category.model';
@@ -7,6 +7,10 @@ import { ToastrService } from 'ngx-toastr';
 import { CommonService } from '../common.service';
 import { IconSelectionComponent } from '../../icon-selection/icon-selection.component';
 import { PageEvent } from '@angular/material/paginator';
+import { TranslateService } from '@ngx-translate/core';
+import { AuthorizationService } from '@shared/services/authorization.service';
+import { APP_ACTIONS } from 'app/actions';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'ml-category',
@@ -14,8 +18,14 @@ import { PageEvent } from '@angular/material/paginator';
     styleUrls: ['./category.component.scss']
 })
 
-export class CategoryComponent implements OnInit, OnChanges {
-    constructor(private iconSelectDialog: MatDialog, private commonService: CommonService, private toastService: ToastrService) { }
+export class CategoryComponent implements OnInit, OnChanges, OnDestroy {
+    constructor(
+        private iconSelectDialog: MatDialog, 
+        private commonService: CommonService, 
+        private toast: ToastrService,
+        private authorService: AuthorizationService,
+        private translate: TranslateService
+    ) { }
 
     listCategories: Category[] = [];
     listCategoriesSaved: Category[] = [];
@@ -28,7 +38,10 @@ export class CategoryComponent implements OnInit, OnChanges {
     page: number = 0;
     total: number = 0;
     iconSelectionDialogRef: MatDialogRef<IconSelectionComponent>;
-    loading: boolean = false;
+    loading: boolean = true;
+    @Input() permissionChecked = new Subject<boolean>();
+    readonly APP_ACTIONS = APP_ACTIONS;
+    private destroy$ = new Subject<void>();
 
     @ViewChild("editInput") editInput: ElementRef;
 
@@ -39,13 +52,21 @@ export class CategoryComponent implements OnInit, OnChanges {
     @Input() search: string;
 
     ngOnInit() {
-        this.getDataCategories();
+        this.permissionChecked.pipe(takeUntil(this.destroy$)).subscribe((checked) => {
+            if(checked) this.getDataCategories()
+        })
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes.search) {
+        if (changes.search && !changes.search.isFirstChange()) {
             this.getDataCategories();
         }
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+        this.authorService.allowActionsReady$.next(false);
     }
 
     /* #region UI handler */
@@ -86,9 +107,9 @@ export class CategoryComponent implements OnInit, OnChanges {
             transactionType: this.listCategories[index].transactionType
         }).subscribe(res => {
             this.getDataCategories();
-            this.toastService.success(CONSTS.messages.update_category_success);
+            this.toast.success(CONSTS.messages.update_category_success);
         }, error => {
-            this.toastService.error(CONSTS.messages.update_category_fail);
+            this.toast.error(CONSTS.messages.update_category_fail);
             console.error(error);
         })
     }
@@ -102,19 +123,24 @@ export class CategoryComponent implements OnInit, OnChanges {
     }
 
     getDataCategories() {
-        this.loading = true;
-        this.commonService.getListCategories(this.search, this.page, this.pageSize).subscribe(res => {
+        if(this.authorService.isAuthorized(APP_ACTIONS.category.list)) {
+            this.loading = true;
+            this.commonService.getListCategories(this.search, this.page, this.pageSize).subscribe(res => {
+                this.listCategories = [...res.results];
+                this.total = res.total;
+                setTimeout(() => {
+                    this.renewListChecked();
+                    this.updatePreviousState();
+                });            
+                this.loading = false;
+            }, () => {
+                this.loading = false;
+                this.listCategories = [];
+            })
+        } else {
+            this.toast.error(this.translate.instant('my-ml.category.message.not-allow-get-list'));
             this.loading = false;
-            this.listCategories = [...res.results];
-            this.total = res.total;
-            setTimeout(() => {
-                this.renewListChecked();
-                this.updatePreviousState();
-            });            
-        }, () => {
-            this.loading = false;
-            this.listCategories = [];
-        })
+        }
     }
 
     onPageEvent(evt: PageEvent){

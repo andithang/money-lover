@@ -102,6 +102,41 @@
             "not-allow-delete": "Bạn không có quyền xóa hành động trên trang này"
           }
         },
+        "wallettype": {
+          "message": {
+            "not-allow-get-list": "Bạn không có quyền thực hiện tìm kiếm loại ví trên trang này",
+            "not-allow-get-many": "Bạn không có quyền thực hiện lấy thông tin nhiều loại ví trên trang này",
+            "not-allow-get-one": "Bạn không có quyền lấy thông tin loại ví trên trang này",
+            "not-allow-update": "Bạn không có quyền cập nhật loại ví trên trang này",
+            "not-allow-create": "Bạn không có quyền thêm mới loại ví trên trang này",
+            "not-allow-update-status": "Bạn không có quyền chuyển trạng thái loại ví trên trang này",
+            "not-allow-delete": "Bạn không có quyền xóa loại ví trên trang này"
+          }
+        },
+        "icon": {
+          "message": {
+            "not-allow-upload": "Bạn không có quyền thêm icon trên trang này",
+            "not-allow-list": "Bạn không có quyền tìm kiếm icon trên trang này",
+            "not-allow-get-by-path": "Bạn không có quyền lấy thông tin icon bằng đường dẫn",
+            "not-allow-get-one": "Bạn không có quyền lấy thông tin icon trên trang này",
+            "not-allow-delete": "Bạn không có quyền xóa icon trên trang này",
+            "not-allow-insert-all": "Bạn không có quyền thêm mới hàng loại icon trên trang này"
+          }
+        },
+        "category": {
+          "message": {
+            "not-allow-get-list": "Bạn không có quyền thực hiện tìm kiếm chủng loại trên trang này",
+            "not-allow-get-many": "Bạn không có quyền thực hiện lấy thông tin nhiều chủng loại trên trang này",
+            "not-allow-get-one": "Bạn không có quyền lấy thông tin chủng loại trên trang này",
+            "not-allow-update": "Bạn không có quyền cập nhật chủng loại trên trang này",
+            "not-allow-update-admin": "Bạn không có quyền cập nhật chủng loại mặc định trên trang này",
+            "not-allow-create": "Bạn không có quyền thêm mới chủng loại trên trang này",
+            "not-allow-create-admin": "Bạn không có quyền thêm mới chủng loại mặc định trên trang này",
+            "not-allow-update-status": "Bạn không có quyền chuyển trạng thái chủng loại trên trang này",
+            "not-allow-delete": "Bạn không có quyền xóa chủng loại trên trang này",
+            "not-allow-delete-admin": "Bạn không có quyền xóa chủng loại mặc định trên trang này"
+          }
+        },
         "module": {
           "message": {
             "not-allow-get-list": "Bạn không có quyền thực hiện tìm kiếm module trên trang này",

@@ -10,45 +10,52 @@
         </mat-form-field>
     </div>
     <div class="table-container">
-        <table mat-table [dataSource]="listActions" class="table-action" *ngIf="!loading; else loadingTpl">
-            <ng-container [matColumnDef]="column" *ngFor="let column of columnProps; index as i">
-                <th mat-header-cell *matHeaderCellDef>
-                    <ng-container *ngIf="column == 'checkbox'; else notAction">
-                        <mat-checkbox [(ngModel)]="isAllChecked"
-                            (ngModelChange)="toggleCheckAllItems($event)"></mat-checkbox>
-                    </ng-container>
-                    <ng-template #notAction>
-                        {{displayedColumns[i]}}
-                    </ng-template>
-                </th>
-                <td mat-cell *matCellDef="let element">
-                    <div [ngSwitch]="column">
-                        <div *ngSwitchCase="'status'">
-                            <ng-container *ngIf="element[column]; else notActive">
-                                <mat-icon class="active" matTooltip="Đang hoạt động">lock_open</mat-icon>
+        <ng-container *ngIf="!loading; else loadingTpl">
+            <ng-container *ngIf="listActions.length; else noDataTpl">
+                <table mat-table [dataSource]="listActions" class="table-action">
+                    <ng-container [matColumnDef]="column" *ngFor="let column of columnProps; index as i">
+                        <th mat-header-cell *matHeaderCellDef>
+                            <ng-container *ngIf="column == 'checkbox'; else notAction">
+                                <mat-checkbox [(ngModel)]="isAllChecked"
+                                    (ngModelChange)="toggleCheckAllItems($event)"></mat-checkbox>
                             </ng-container>
-                            <ng-template #notActive>
-                                <mat-icon class="inactive" matTooltip="Bị khóa">block</mat-icon>
+                            <ng-template #notAction>
+                                {{displayedColumns[i]}}
                             </ng-template>
-                        </div>
-                        <div *ngSwitchCase="'checkbox'">
-                            <mat-checkbox [checked]="isChecked(element._id)"
-                            (change)="toggleCheckItem($event.checked, element._id)"></mat-checkbox>
-                        </div>
-                        <div *ngSwitchDefault class="item-prop">
-                            {{element[column]}}
-                        </div>
-                    </div>
-                </td>
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                            <div [ngSwitch]="column">
+                                <div *ngSwitchCase="'status'">
+                                    <ng-container *ngIf="element[column]; else notActive">
+                                        <mat-icon class="active" matTooltip="Đang hoạt động">lock_open</mat-icon>
+                                    </ng-container>
+                                    <ng-template #notActive>
+                                        <mat-icon class="inactive" matTooltip="Bị khóa">block</mat-icon>
+                                    </ng-template>
+                                </div>
+                                <div *ngSwitchCase="'checkbox'">
+                                    <mat-checkbox [checked]="isChecked(element._id)"
+                                    (change)="toggleCheckItem($event.checked, element._id)"></mat-checkbox>
+                                </div>
+                                <div *ngSwitchDefault class="item-prop">
+                                    {{element[column]}}
+                                </div>
+                            </div>
+                        </td>
+                    </ng-container>
+        
+                    <tr mat-header-row *matHeaderRowDef="columnProps"></tr>
+                    <tr mat-row *matRowDef="let row; columns: columnProps;"></tr>
+                </table>
+                <mat-paginator [length]="total" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" [pageIndex]="page" (page)="onChangePage($event)"
+                    aria-label="Select page">
+                </mat-paginator>
             </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="columnProps"></tr>
-            <tr mat-row *matRowDef="let row; columns: columnProps;"></tr>
-        </table>
+            <ng-template #noDataTpl>
+                <empty></empty>
+            </ng-template>
+        </ng-container>
     </div>
-    <mat-paginator [length]="total" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" [pageIndex]="page" (page)="onChangePage($event)"
-        aria-label="Select page">
-    </mat-paginator>
 </div>
 <div mat-dialog-actions align="end">
     <button mat-button mat-dialog-close (click)="close()">Đóng</button>

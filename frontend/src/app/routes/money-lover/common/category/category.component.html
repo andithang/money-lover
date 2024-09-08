@@ -6,7 +6,7 @@
                 <mat-checkbox fxFlex="20" [(ngModel)]="listChecked[i]"></mat-checkbox>
                 <div class="category-container p-b-4 p-t-32 position-relative" fxFlex="80" (mouseenter)="onMouseEnterEdit(i)"
                     (mouseleave)="onMouseLeaveEdit()">
-                    <div (click)="editCategoryIcon(i)">
+                    <div (click)="editCategoryIcon(i)" *accessCheck="APP_ACTIONS.category['update-admin']">
                         <ml-icon [path]="category.icon.path" matLine></ml-icon>
                     </div>
                     <div class="text-center" matLine *ngIf="indexEditting != i; else editting" [ngClass]="{'outcome-category-name': category.transactionType == 0, 'income-category-name': category.transactionType == 1}">

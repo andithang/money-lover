@@ -76,7 +76,7 @@ export class ModuleDialogComponent implements OnInit {
 
     save(){
         if(this.data && this.data.id){
-            if(this.authorService.isAuthorized(APP_ACTIONS.action['update'])) {
+            if(this.authorService.isAuthorized(APP_ACTIONS.module['update'])) {
                 this.moduleService.updateModule(this.getCurrentData())
                 .subscribe(res => {
                     this.toast.success("Cập nhật module thành công");

@@ -106,7 +106,8 @@ export const APP_ACTIONS = {
         "get-many": "wallettype:get-many",
         "get-one": "wallettype:get-one",
         "delete": "wallettype:delete",
-        "create": "wallettype:create"
+        "create": "wallettype:create",
+        "update": "wallettype:update",
     },
     "wallet": {
         "update": "wallet:update",

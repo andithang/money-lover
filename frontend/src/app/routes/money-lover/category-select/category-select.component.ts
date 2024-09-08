@@ -2,6 +2,10 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Category } from 'app/model/category.model';
 import { CommonService } from '../common/common.service';
+import { TranslateService } from '@ngx-translate/core';
+import { AuthorizationService } from '@shared/services/authorization.service';
+import { ToastrService } from 'ngx-toastr';
+import { APP_ACTIONS } from 'app/actions';
 
 interface SelectedCategory {
     categoryId: string
@@ -17,7 +21,10 @@ export class CategorySelectComponent implements OnInit {
     constructor(
         @Inject(MAT_DIALOG_DATA) public data: Partial<SelectedCategory>,
         private ref: MatDialogRef<CategorySelectComponent>,
-        private commonService: CommonService
+        private commonService: CommonService,
+        private toast: ToastrService,
+        private authorService: AuthorizationService,
+        private translate: TranslateService
     ) { }
 
     ngOnInit() { 
@@ -45,22 +52,27 @@ export class CategorySelectComponent implements OnInit {
     }
 
     getDataCategories() {
-        this.loading = true;
-        this.commonService.getListCategories(this.search).subscribe(res => {
-            this.allCategories = [...res.results];
-            this.filterCategories();
-            if(this.data && this.data.categoryId){
-                this.selectedCategory = res.results.find(x => x._id == this.data.categoryId) ? res.results.find(x => x._id == this.data.categoryId): {_id: ''}
-            }
-            else {
-                this.selectedCategory = {
-                    _id: ''
+        if(this.authorService.isAuthorized(APP_ACTIONS.category.list)) {
+            this.loading = true;
+            this.commonService.getListCategories(this.search).subscribe(res => {
+                this.allCategories = [...res.results];
+                this.filterCategories();
+                if(this.data && this.data.categoryId){
+                    this.selectedCategory = res.results.find(x => x._id == this.data.categoryId) ? res.results.find(x => x._id == this.data.categoryId): {_id: ''}
                 }
-            }
+                else {
+                    this.selectedCategory = {
+                        _id: ''
+                    }
+                }
+                this.loading = false;
+            }, (err) => {
+                this.loading = false;
+            })
+        } else {
+            this.toast.error(this.translate.instant('my-ml.category.message.not-allow-get-list'));
             this.loading = false;
-        }, (err) => {
-            this.loading = false;
-        })
+        }
     }
 
     filterCategories(){

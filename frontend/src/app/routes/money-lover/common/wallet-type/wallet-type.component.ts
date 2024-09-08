@@ -7,6 +7,10 @@ import { ToastrService } from 'ngx-toastr';
 import { CommonService } from '../common.service';
 import { IconSelectionComponent } from '../../icon-selection/icon-selection.component';
 import { PageEvent } from '@angular/material/paginator';
+import { TranslateService } from '@ngx-translate/core';
+import { AuthorizationService } from '@shared/services/authorization.service';
+import { APP_ACTIONS } from 'app/actions';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'ml-wallet-type',
@@ -15,7 +19,13 @@ import { PageEvent } from '@angular/material/paginator';
 })
 
 export class WalletTypeComponent implements OnInit, OnChanges {
-    constructor(private iconSelectDialog: MatDialog, private commonService: CommonService, private toastService: ToastrService) { }
+    constructor(
+        private iconSelectDialog: MatDialog, 
+        private commonService: CommonService, 
+        private toast: ToastrService,
+        private authorService: AuthorizationService,
+        private translate: TranslateService
+    ) { }
 
     listWalletTypes: WalletType[] = [];
     listWalletTypesSaved: WalletType[] = [];
@@ -28,7 +38,10 @@ export class WalletTypeComponent implements OnInit, OnChanges {
     pageSize: number = CONSTS.page_size;
     pageSizeOptions: number[] = CONSTS.page_size_options;
     iconSelectionDialogRef: MatDialogRef<IconSelectionComponent>;
-    loading: boolean = false;
+    loading: boolean = true;
+    @Input() permissionChecked = new Subject<boolean>();
+    readonly APP_ACTIONS = APP_ACTIONS;
+    private destroy$ = new Subject<void>();
 
     @ViewChild("editInput") editInput: ElementRef;
 
@@ -39,11 +52,13 @@ export class WalletTypeComponent implements OnInit, OnChanges {
     @Input() search: string;
 
     ngOnInit() {
-        this.getDataWalletTypes();
+        this.permissionChecked.pipe(takeUntil(this.destroy$)).subscribe((checked) => {
+            if(checked) this.getDataWalletTypes()
+        })
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes.search) {
+        if (changes.search && !changes.search.isFirstChange()) {
             this.getDataWalletTypes();
         }
     }
@@ -85,9 +100,9 @@ export class WalletTypeComponent implements OnInit, OnChanges {
             id: this.listWalletTypes[index]._id
         }).subscribe(res => {
             this.getDataWalletTypes();
-            this.toastService.success(CONSTS.messages.update_walettype_success);
+            this.toast.success(CONSTS.messages.update_walettype_success);
         }, error => {
-            this.toastService.error(CONSTS.messages.update_walettype_fail);
+            this.toast.error(CONSTS.messages.update_walettype_fail);
             console.error(error);
         })
     }
@@ -101,39 +116,46 @@ export class WalletTypeComponent implements OnInit, OnChanges {
     }
 
     getDataWalletTypes() {
-        this.loading = true;
-        this.commonService.getListWalletTypes({ search: this.search, page: this.page, size: this.pageSize }).subscribe(res => {
+        if(this.authorService.isAuthorized(APP_ACTIONS.wallettype['list'])) {
+            this.loading = true;
+            this.commonService.getListWalletTypes({ search: this.search, page: this.page, size: this.pageSize }).subscribe(res => {
+                this.loading = false;
+                this.listWalletTypes = [...res.results];
+                this.total = res.total;
+                setTimeout(() => {
+                    this.renewListChecked();
+                    this.updatePreviousState();
+                });            
+            }, () => {
+                this.loading = false;
+                this.listWalletTypes = [];
+            })
+        } else {
+            this.toast.error(this.translate.instant('my-ml.wallettype.message.not-allow-get-list'));
             this.loading = false;
-            this.listWalletTypes = [...res.results];
-            this.total = res.total;
-            setTimeout(() => {
-                this.renewListChecked();
-                this.updatePreviousState();
-            });            
-        }, () => {
-            this.loading = false;
-            this.listWalletTypes = [];
-        })
+        }
     }
 
     editWalletTypeIcon(index: number) {
-        if (this.indexEditting == index) {
-            let currentWalletType = this.listWalletTypes[index];
-            this.iconSelectionDialogRef = this.iconSelectDialog.open(IconSelectionComponent, {
-                data: {
-                    icons: [...this.icons],
-                    currentPath: currentWalletType.icon.path
-                }
-            });
-            this.iconSelectionDialogRef.afterClosed().subscribe((data: string) => {
-                if (data) {
-                    let tempList = JSON.parse(JSON.stringify(this.listWalletTypes));                    
-                    let icon = this.icons.filter(i => i.path === data)[0];
-                    tempList[index].icon = icon;
-                    this.listWalletTypes = [...tempList];
-                }
-            });
-        }
+        if(this.authorService.isAuthorized(APP_ACTIONS.wallettype.update)) {
+            if (this.indexEditting == index) {
+                let currentWalletType = this.listWalletTypes[index];
+                this.iconSelectionDialogRef = this.iconSelectDialog.open(IconSelectionComponent, {
+                    data: {
+                        icons: [...this.icons],
+                        currentPath: currentWalletType.icon.path
+                    }
+                });
+                this.iconSelectionDialogRef.afterClosed().subscribe((data: string) => {
+                    if (data) {
+                        let tempList = JSON.parse(JSON.stringify(this.listWalletTypes));                    
+                        let icon = this.icons.filter(i => i.path === data)[0];
+                        tempList[index].icon = icon;
+                        this.listWalletTypes = [...tempList];
+                    }
+                });
+            }
+        } else this.toast.error(this.translate.instant('my-ml.wallettype.message.not-allow-update'));
     }
 
     onChangePage(evt: PageEvent){

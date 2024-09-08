@@ -1,36 +1,43 @@
-<div class="matero-row" fxLayout="row wrap" *ngIf="!loading; else loadingTpl">
-    <div class="matero-col cursor-pointer m-y-8" fxFlex="50" fxFlex.gt-xs="25" fxFlex.gt-md="20" fxFlex.gt-xl="10"
-        fxLayout="row" *ngFor="let walletType of listWalletTypes; let i = index">
-        <mat-checkbox fxFlex="20" [(ngModel)]="listChecked[i]"></mat-checkbox>
-        <div class="wallet-type-container p-b-4 p-t-32 position-relative" fxFlex="80" (mouseenter)="onMouseEnterEdit(i)"
-            (mouseleave)="onMouseLeaveEdit()">
-            <div (click)="editWalletTypeIcon(i)">
-                <ml-icon [path]="walletType.icon.path" [loadingConfig]="{width: '200px', height: '200px'}" matLine></ml-icon>
-            </div>
-            <div class="text-center" matLine *ngIf="indexEditting != i; else editting">
-                {{walletType.name}}
-            </div>
-            <ng-template #editting>
-                <div class="text-center">
-                    <input #editInput matInput type="text" [(ngModel)]="nameEditting" />
+<ng-container *ngIf="!loading; else loadingTpl">
+    <ng-container *ngIf="listWalletTypes.length; else noDataTpl">
+        <div class="matero-row" fxLayout="row wrap">
+            <div class="matero-col cursor-pointer m-y-8" fxFlex="50" fxFlex.gt-xs="25" fxFlex.gt-md="20" fxFlex.gt-xl="10"
+                fxLayout="row" *ngFor="let walletType of listWalletTypes; let i = index">
+                <mat-checkbox fxFlex="20" [(ngModel)]="listChecked[i]"></mat-checkbox>
+                <div class="wallet-type-container p-b-4 p-t-32 position-relative" fxFlex="80" (mouseenter)="onMouseEnterEdit(i)"
+                    (mouseleave)="onMouseLeaveEdit()">
+                    <div (click)="editWalletTypeIcon(i)" *accessCheck="APP_ACTIONS.wallettype['update']">
+                        <ml-icon [path]="walletType.icon.path" [loadingConfig]="{width: '200px', height: '200px'}" matLine></ml-icon>
+                    </div>
+                    <div class="text-center" matLine *ngIf="indexEditting != i; else editting">
+                        {{walletType.name}}
+                    </div>
+                    <ng-template #editting>
+                        <div class="text-center">
+                            <input #editInput matInput type="text" [(ngModel)]="nameEditting" />
+                        </div>
+                    </ng-template>
+                    <button mat-icon-button *ngIf="indexHovering == i && indexEditting != i"
+                        class="position-absolute edit-wallet-type" (click)="editName(i)">
+                        <mat-icon color="accent">edit</mat-icon>
+                    </button>
+                    <button mat-icon-button *ngIf="indexEditting == i" class="position-absolute accept-wallet-type"
+                        (click)="finishEditName(i)">
+                        <mat-icon color="primary">check</mat-icon>
+                    </button>
+                    <button mat-icon-button *ngIf="indexEditting == i" class="position-absolute cancel-wallet-type"
+                        (click)="cancelExitEditName()">
+                        <mat-icon color="accent">cancel</mat-icon>
+                    </button>
                 </div>
-            </ng-template>
-            <button mat-icon-button *ngIf="indexHovering == i && indexEditting != i"
-                class="position-absolute edit-wallet-type" (click)="editName(i)">
-                <mat-icon color="accent">edit</mat-icon>
-            </button>
-            <button mat-icon-button *ngIf="indexEditting == i" class="position-absolute accept-wallet-type"
-                (click)="finishEditName(i)">
-                <mat-icon color="primary">check</mat-icon>
-            </button>
-            <button mat-icon-button *ngIf="indexEditting == i" class="position-absolute cancel-wallet-type"
-                (click)="cancelExitEditName()">
-                <mat-icon color="accent">cancel</mat-icon>
-            </button>
+            </div>
         </div>
-    </div>
-</div>
-<mat-paginator [length]="total" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" (page)="onChangePage($event)" [pageIndex]="page">
+        <mat-paginator [length]="total" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" (page)="onChangePage($event)" [pageIndex]="page"></mat-paginator>
+    </ng-container>
+</ng-container>
+<ng-template #noDataTpl>
+    <empty></empty>
+</ng-template>
 
 <!-- loading -->
 <ng-template #loadingTpl>

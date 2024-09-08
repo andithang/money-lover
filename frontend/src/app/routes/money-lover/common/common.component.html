@@ -18,17 +18,17 @@
                                 </button>
                             </mat-form-field>
                             <mat-card-actions>
-                                <button mat-button color="primary" (click)="openAddWalletTypeDialog()">
+                                <button mat-button color="primary" (click)="openAddWalletTypeDialog()" *accessCheck="APP_ACTIONS.wallettype['create']">
                                     <mat-icon>add</mat-icon>
                                     Thêm mới
                                 </button>
-                                <button mat-button color="accent" (click)="deleteWalletTypes()">
+                                <button mat-button color="accent" (click)="deleteWalletTypes()" *accessCheck="APP_ACTIONS.wallettype['delete']">
                                     <mat-icon>delete</mat-icon>
                                     Xóa
                                 </button>
                             </mat-card-actions>
                         </div>
-                        <ml-wallet-type #walletTypes [icons]="icons" [search]="searchType"></ml-wallet-type>
+                        <ml-wallet-type #walletTypes [icons]="icons" [search]="searchType" [permissionChecked]="permissionChecked"></ml-wallet-type>
                     </mat-card-content>
                 </mat-card>
             </mat-tab>
@@ -41,11 +41,11 @@
                     <mat-card-content>
                         <div class="p-y-4">
                             <mat-card-actions>
-                                <button mat-button color="primary" (click)="openAddIconDialog()">
+                                <button mat-button color="primary" (click)="openAddIconDialog()" *accessCheck="APP_ACTIONS.icon['upload']">
                                     <mat-icon>add</mat-icon>
                                     Thêm mới
                                 </button>
-                                <button mat-button color="accent" (click)="deleteIcon()">
+                                <button mat-button color="accent" (click)="deleteIcon()" *accessCheck="APP_ACTIONS.icon['delete']">
                                     <mat-icon>delete</mat-icon>
                                     Xóa
                                 </button>
@@ -71,17 +71,17 @@
                                 </button>
                             </mat-form-field>
                             <mat-card-actions>
-                                <button mat-button color="primary" (click)="openAddCategoryDialog()">
+                                <button mat-button color="primary" (click)="openAddCategoryDialog()" *accessCheck="APP_ACTIONS.category['create-admin']">
                                     <mat-icon>add</mat-icon>
                                     Thêm mới
                                 </button>
-                                <button mat-button color="accent" (click)="deleteCategories()">
+                                <button mat-button color="accent" (click)="deleteCategories()" *accessCheck="APP_ACTIONS.category['delete-admin']">
                                     <mat-icon>delete</mat-icon>
                                     Xóa
                                 </button>
                             </mat-card-actions>
                         </div>
-                        <ml-category #categories [icons]="icons" [search]="search"></ml-category>
+                        <ml-category #categories [icons]="icons" [search]="search" [permissionChecked]="permissionChecked"></ml-category>
                     </mat-card-content>
                 </mat-card>
             </mat-tab>
