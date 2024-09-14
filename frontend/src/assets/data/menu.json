@@ -59,6 +59,12 @@
               "level": ["ADMIN", "SYSTEM"]
             },
             {
+              "route": "tree-modules",
+              "type": "link",
+              "name": "tree-modules",
+              "level": ["ADMIN", "SYSTEM"]
+            },
+            {
               "route": "permission",
               "type": "link",
               "name": "permission",

@@ -16,6 +16,7 @@ import { SelectModuleComponent } from './modules/select-module/select-module.com
 import { SelectActionComponent } from './actions/select-action/select-action.component';
 import { SelectRoleComponent } from './roles/select-role/select-role.component';
 import { ChooseUserRoleComponent } from './roles/choose-user-role/choose-user-role.component';
+import { TreeModulesComponent } from './tree-modules/tree-modules.component';
 
 @NgModule({
     imports: [SharedModule, SystemRoutingModule],
@@ -35,7 +36,8 @@ import { ChooseUserRoleComponent } from './roles/choose-user-role/choose-user-ro
         SelectModuleComponent,
         SelectActionComponent,
         SelectRoleComponent,
-        ChooseUserRoleComponent
+        ChooseUserRoleComponent,
+        TreeModulesComponent
     ]
 })
 export class SystemModule { }

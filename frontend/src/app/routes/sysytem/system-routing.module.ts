@@ -7,6 +7,7 @@ import { RoleMngComponent } from './roles/roles.component';
 import { ActionMngComponent } from './actions/actions.component';
 import { ModuleMngComponent } from './modules/modules.component';
 import { PermissionMngComponent } from './permission/permissions.component';
+import { TreeModulesComponent } from './tree-modules/tree-modules.component';
 
 export const routes: Routes = [
     {
@@ -38,6 +39,12 @@ export const routes: Routes = [
         canActivate: [AdminAuthGuardService],
         component: ModuleMngComponent,
         data: {title: "Module hệ thống", titleI18n: "module"}
+    },
+    {
+        path: "tree-modules",
+        canActivate: [AdminAuthGuardService],
+        component: TreeModulesComponent,
+        data: {title: "Tree modules", titleI18n: "tree-modules"}
     },
     {
         path: "permission",

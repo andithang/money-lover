@@ -1,0 +1,38 @@
+<mat-tree cdkDropList (cdkDropListDropped)="drop($event)" class="mat-tree-droplist" [dataSource]="dataSource"
+    [treeControl]="treeControl">
+    <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding cdkDrag>
+        <button mat-icon-button disabled></button>
+        <mat-checkbox class="checklist-leaf-node" [checked]="checklistSelection.isSelected(node)"
+            (change)="todoLeafItemSelectionToggle(node)">{{node.module.title}}</mat-checkbox>
+            <button mat-icon-button (click)="addNewItem(node)">
+                <mat-icon>add</mat-icon>
+            </button>
+    </mat-tree-node>
+
+    <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding cdkDrag>
+        <button mat-icon-button disabled></button>
+        <mat-form-field appearance="fill">
+            <mat-select [ngModel]="node.tempModuleId" (ngModelChange)="onSelectModule($event, node)">
+                <mat-option *ngFor="let module of listModules" [value]="module._id">{{ module.title }}</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <button mat-button (click)="saveNode(node)">Save</button>
+    </mat-tree-node>
+
+    <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding cdkDrag>
+        <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.item">
+            <mat-icon class="mat-icon-rtl-mirror">
+                {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+            </mat-icon>
+        </button>
+        <mat-checkbox [checked]="descendantsAllSelected(node)" [indeterminate]="descendantsPartiallySelected(node)"
+            (change)="todoItemSelectionToggle(node)">{{ node.module.title }}</mat-checkbox>
+        <button mat-icon-button (click)="addNewItem(node)">
+            <mat-icon>add</mat-icon>
+        </button>
+    </mat-tree-node>
+</mat-tree>
+
+<button mat-icon-button (click)="addNewRoot()">
+    <mat-icon>add</mat-icon>
+</button>
