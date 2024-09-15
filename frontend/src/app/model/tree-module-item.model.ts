@@ -4,6 +4,7 @@ import { Module } from "./module.model";
 export interface TreeModuleItem extends Base {
     module: Module;
     children: TreeModuleItem[],
+    _id: string
 }
 
 export interface TreeModuleItemFlatNode {
@@ -14,5 +15,6 @@ export interface TreeModuleItemFlatNode {
     /**
      * use when editting or creating
      */
-    tempModuleId: string
+    tempModuleId: string,
+    _id: string | number
 }

@@ -12,6 +12,7 @@ import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
 import { ModuleService } from '../modules/module.service';
 import { CONSTS } from 'app/consts';
+import { randomString } from '@shared';
 
 @Component({
     selector: 'tree-modules',
@@ -29,9 +30,6 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
     /** A selected parent node to be inserted */
     selectedParent: TreeModuleItemFlatNode | null = null;
 
-    /** The new item's name */
-    newItemName = '';
-
     treeControl: FlatTreeControl<TreeModuleItemFlatNode>;
 
     treeFlattener: MatTreeFlattener<TreeModuleItem, TreeModuleItemFlatNode>;
@@ -42,10 +40,18 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
     checklistSelection = new SelectionModel<TreeModuleItemFlatNode>(
         true /* multiple */
     );
+    /**
+     * - the structureClone creates new nodes, so if the .expand() comes before that, the tree will not expand.
+     * - keep the expanding item after updating the tree data
+     */
+    expandItemAfterUpdate: string | number = '';
     /** keep a copy of data to update the dataSource when any item changed */
     private dataChange = new BehaviorSubject<TreeModuleItem[]>([]);
 
-    get data(): TreeModuleItem[] {
+    /**
+     * only use it when you want the hasChild directive to rerun
+     */
+    get dataClone(): TreeModuleItem[] {
         return structuredClone(this.dataSource.data);
     }
     listModules: Module[] = [];
@@ -74,7 +80,19 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
             this.treeFlattener
         );
         this.dataChange.pipe(takeUntil(this.destroy$)).subscribe(data => {
-            this.dataSource.data = data
+            this.dataSource.data = data;
+            if(this.expandItemAfterUpdate) {
+                let isFound: boolean = false;
+                this.treeControl.dataNodes.forEach(node => {
+                    if(node._id == this.expandItemAfterUpdate) {
+                        isFound = true;
+                        if(!this.treeControl.isExpanded(node)) this.treeControl.expand(node);
+                        this.expandItemAfterUpdate = '';
+                        return;
+                    }
+                })
+                console.log('Cannot find expanding node!');
+            }
         });
         this.authorService.getAllowActionsOnModule(location.pathname).subscribe(({actions}) => {
             this.authorService.allowActionsChange$.next(actions);
@@ -111,15 +129,16 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
      * Transformer to convert nested node to flat node. Record the nodes in maps for later use.
      */
     transformer = (node: TreeModuleItem, level: number) => {
-        const existingNode = this.nestedNodeMap.get(node);
+        const existingNode = this.nestedNodeMap.get(node);  
         const flatNode: TreeModuleItemFlatNode =
             existingNode && existingNode.module && existingNode.module._id === (node.module ? node.module._id : '')
                 ? existingNode
-                : { expandable: false, level: 0, module: null, moduleId: '', tempModuleId: '' };
+                : { expandable: false, level: 0, module: null, moduleId: '', tempModuleId: '', _id: '' };
         flatNode.module = node.module;
         flatNode.moduleId = node.module ? node.module._id: '';
         flatNode.tempModuleId = node.module ? node.module._id: '';
         flatNode.level = level;
+        flatNode._id = node._id;
         flatNode.expandable = !!node.children?.length;
         this.flatNodeMap.set(flatNode, node);
         this.nestedNodeMap.set(node, flatNode);
@@ -213,9 +232,9 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
     /** Select the category so we can insert the new item. */
     addNewItem(node: TreeModuleItemFlatNode) {
         const parentNode = this.flatNodeMap.get(node);
-        parentNode.children = [...parentNode.children, { module: null, children: [] }];
-        this.dataChange.next(this.data);
-        this.treeControl.expand(node);
+        parentNode.children = [...parentNode.children, { module: null, children: [], _id: randomString() }];
+        this.expandItemAfterUpdate = node._id;
+        this.dataChange.next(this.dataClone); // renew the child, now become a parent, need hasChild rerun
     }
 
     /** Save the node to database */
@@ -223,11 +242,11 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
         const nestedNode = this.flatNodeMap.get(node);
         node.moduleId = node.tempModuleId;
         nestedNode.module = this.listModules.find(m => m._id == node.moduleId);
-        this.dataChange.next(this.data);
+        this.dataChange.next([...this.dataSource.data]); // keep the expanded states
     }
 
     addNewRoot() {
-        this.dataChange.next([...this.data, { children: [], module: null }]);
+        this.dataChange.next([...this.dataClone, { children: [], module: null, _id: randomString() }]); // keep the expanded states
     }
 
     onSelectModule(moduleId: string, node: TreeModuleItemFlatNode) {

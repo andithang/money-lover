@@ -181,6 +181,9 @@
           "not-allow-update-status": "You are unauthorized to update status of users on this page",
           "not-allow-delete": "You are unauthorized to delete users on this page"
         }
+      },
+      "tree-modules": {
+        "choose-module": "Choose module"
       }
   }
 }

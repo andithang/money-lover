@@ -12,6 +12,7 @@
     <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding cdkDrag>
         <button mat-icon-button disabled></button>
         <mat-form-field appearance="fill">
+            <mat-label>{{ 'my-ml.tree-modules.choose-module' | translate }}</mat-label>
             <mat-select [ngModel]="node.tempModuleId" (ngModelChange)="onSelectModule($event, node)">
                 <mat-option *ngFor="let module of listModules" [value]="module._id">{{ module.title }}</mat-option>
             </mat-select>
