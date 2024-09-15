@@ -45,6 +45,7 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
      * - keep the expanding item after updating the tree data
      */
     expandItemAfterUpdate: string | number = '';
+    currentlyExpandedNodes: (string | number)[] = [];
     /** keep a copy of data to update the dataSource when any item changed */
     private dataChange = new BehaviorSubject<TreeModuleItem[]>([]);
 
@@ -81,16 +82,14 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
         );
         this.dataChange.pipe(takeUntil(this.destroy$)).subscribe(data => {
             this.dataSource.data = data;
-            if(this.expandItemAfterUpdate) {
-                let isFound: boolean = false;
+            if(this.expandItemAfterUpdate || this.currentlyExpandedNodes.length > 0) {
                 this.treeControl.dataNodes.forEach(node => {
-                    if(node._id == this.expandItemAfterUpdate) {
-                        isFound = true;
+                    if(node._id == this.expandItemAfterUpdate || this.currentlyExpandedNodes.includes(node._id)) {
                         if(!this.treeControl.isExpanded(node)) this.treeControl.expand(node);
-                        this.expandItemAfterUpdate = '';
-                        return;
                     }
                 })
+                this.expandItemAfterUpdate = '';
+                this.currentlyExpandedNodes = [];
                 console.log('Cannot find expanding node!');
             }
         });
@@ -234,6 +233,11 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
         const parentNode = this.flatNodeMap.get(node);
         parentNode.children = [...parentNode.children, { module: null, children: [], _id: randomString() }];
         this.expandItemAfterUpdate = node._id;
+        const expandingNodes: (string | number)[] = [];
+        this.treeControl.dataNodes.forEach(node => {
+            if(this.treeControl.isExpanded(node)) expandingNodes.push(node._id);
+        })
+        this.currentlyExpandedNodes = expandingNodes;
         this.dataChange.next(this.dataClone); // renew the child, now become a parent, need hasChild rerun
     }
 
@@ -246,7 +250,7 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
     }
 
     addNewRoot() {
-        this.dataChange.next([...this.dataClone, { children: [], module: null, _id: randomString() }]); // keep the expanded states
+        this.dataChange.next([...this.dataSource.data, { children: [], module: null, _id: randomString() }]); // keep the expanded states
     }
 
     onSelectModule(moduleId: string, node: TreeModuleItemFlatNode) {
