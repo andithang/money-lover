@@ -6,7 +6,7 @@
             <mat-form-field appearance="outline">
                 <mat-label>Tên module</mat-label>
                 <input matInput formControlName="title" (blur)="trim(moduleForm.get('title'))">
-                <mat-icon class="hover-item" matSuffix (click)="clearFormControl('title')">close</mat-icon>
+                <mat-icon class="hover-item" matSuffix (click)="clearFormControl('title')" *ngIf="!data.viewOnly">close</mat-icon>
                 <mat-error *ngIf="moduleForm.get('title').invalid">Tên module không hợp lệ</mat-error>
             </mat-form-field>
 
@@ -14,7 +14,7 @@
             <mat-form-field appearance="outline">
                 <mat-label>Mã module</mat-label>
                 <input matInput formControlName="code" (blur)="trim(moduleForm.get('code'))">
-                <mat-icon class="hover-item" matSuffix (click)="clearFormControl('code')">close</mat-icon>
+                <mat-icon class="hover-item" matSuffix (click)="clearFormControl('code')" *ngIf="!data.viewOnly">close</mat-icon>
                 <mat-error *ngIf="moduleForm.get('code').invalid">Mã module không hợp lệ</mat-error>
             </mat-form-field>
 
@@ -22,12 +22,12 @@
             <mat-form-field appearance="outline">
                 <mat-label>Mô tả</mat-label>
                 <textarea matInput placeholder="Mô tả" type="text" formControlName="description" cols="3" (blur)="trim(moduleForm.get('description'))"></textarea>
-                <mat-icon class="hover-item" matSuffix (click)="clearFormControl('description')">close</mat-icon>
+                <mat-icon class="hover-item" matSuffix (click)="clearFormControl('description')" *ngIf="!data.viewOnly">close</mat-icon>
             </mat-form-field>
         </form>
     </ng-container>
 </div>
-<div mat-dialog-actions align="end">
+<div mat-dialog-actions align="end" *ngIf="!data.viewOnly">
     <button mat-button mat-dialog-close (click)="close()">Đóng</button>
     <button mat-button [disabled]="!moduleForm.valid" color="primary" (click)="save()">Lưu</button>
 </div>

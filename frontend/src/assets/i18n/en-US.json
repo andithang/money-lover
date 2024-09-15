@@ -189,7 +189,14 @@
         "add-root-module": "Add root module",
         "save-new-node": "Save",
         "cancel-new-node": "Cancel",
-        "module-required": "Module is required"
+        "module-required": "Module is required",
+        "message": {
+          "confirm-delete-node": "Module remove confirmation",
+          "confirm-remove": "You sure to remove from the tree module with name '<strong>{{name}}</strong>'?",
+          "add-new-child": "Add new child",
+          "remove-from-tree": "Remove",
+          "view-infor": "View detail"
+        }
       }
   }
 }

@@ -5,3 +5,11 @@
 .module-selection-actions {
     height: 55px; // to center buttons vertically
 }
+
+mat-tree-node {
+    .module-name {
+        &:hover {
+            cursor: grab;
+        }
+    }
+}

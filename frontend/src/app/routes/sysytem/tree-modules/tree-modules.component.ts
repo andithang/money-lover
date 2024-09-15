@@ -14,6 +14,9 @@ import { ModuleService } from '../modules/module.service';
 import { CONSTS } from 'app/consts';
 import { randomString } from '@shared';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDeletionComponent } from '@shared/components/confirm-deletion/confirm-deletion.component';
+import { ModuleDialogComponent } from '../modules/module-dialog.component';
 
 @Component({
     selector: 'tree-modules',
@@ -64,6 +67,7 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
 
     constructor(
         private moduleService: ModuleService,
+        private dialogService: MatDialog,
         private authorService: AuthorizationService,
         private toast: ToastrService,
         private translate: TranslateService
@@ -280,6 +284,34 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
 
     onSelectModule(moduleId: string, node: TreeModuleItemFlatNode) {
         node.tempModuleId = moduleId;
+    }
+
+    deleteNode(node: TreeModuleItemFlatNode) {
+        this.dialogService.open(ConfirmDeletionComponent, {
+            data: {
+                title: this.translate.instant('my-ml.tree-modules.message.confirm-delete-node'),
+                message: `${this.translate.instant('my-ml.tree-modules.message.confirm-remove', {name: node.module.title})}`
+            }
+        })
+        .afterClosed().subscribe((isConfirmed?: boolean) => {
+            if(isConfirmed){
+                this.cancelNode(node);
+            }
+        })
+    }
+
+    viewInfor(node: TreeModuleItemFlatNode) {
+        if(this.authorService.isAuthorized(APP_ACTIONS.module['get-one'])) {
+            this.dialogService.open(ModuleDialogComponent, {
+                data: {
+                    id: node.module ? node.module._id: null,
+                    viewOnly: true
+                },
+                width: '400px'
+            })
+        } else {
+            this.toast.error(this.translate.instant('my-ml.module.message.not-allow-get-one'));
+        }
     }
 
     /** on drop an item into a position */

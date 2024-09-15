@@ -17,7 +17,7 @@ import { APP_ACTIONS } from 'app/actions';
 
 export class ModuleDialogComponent implements OnInit {
     constructor(
-        @Inject(MAT_DIALOG_DATA) public data: { id?: string },
+        @Inject(MAT_DIALOG_DATA) public data: { id?: string, viewOnly?: boolean },
         private moduleService: ModuleService,
         private toast: ToastrService,
         private authorService: AuthorizationService,
@@ -36,6 +36,7 @@ export class ModuleDialogComponent implements OnInit {
                         code: res.code,                    
                         description: res.description,                    
                     })
+                    if(this.data.viewOnly) this.moduleForm.disable();
                 }, (err) => {
                     console.error(err);
                 })
@@ -51,6 +52,7 @@ export class ModuleDialogComponent implements OnInit {
                 code: null,
                 description: null
             }
+            if(this.data.viewOnly) this.moduleForm.disable();
         }
     }
 
