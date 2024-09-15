@@ -183,7 +183,13 @@
         }
       },
       "tree-modules": {
-        "choose-module": "Choose module"
+        "choose-module": "Choose module",
+        "title": "Tree modules",
+        "description": "Modules in tree view",
+        "add-root-module": "Add root module",
+        "save-new-node": "Save",
+        "cancel-new-node": "Cancel",
+        "module-required": "Module is required"
       }
   }
 }

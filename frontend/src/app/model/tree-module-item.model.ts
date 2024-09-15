@@ -16,5 +16,5 @@ export interface TreeModuleItemFlatNode {
      * use when editting or creating
      */
     tempModuleId: string,
-    _id: string | number
+    _id: string
 }

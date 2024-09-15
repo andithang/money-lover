@@ -169,7 +169,6 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
 
   getUserPermission(){
     this.permissionService.getActionsOnModule(location.pathname).subscribe(res => {
-      console.log(res.actions)
       this.permissionService.actions = res.actions;
     })
   }

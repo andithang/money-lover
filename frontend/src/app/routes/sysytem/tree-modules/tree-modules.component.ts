@@ -13,6 +13,7 @@ import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
 import { ModuleService } from '../modules/module.service';
 import { CONSTS } from 'app/consts';
 import { randomString } from '@shared';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
     selector: 'tree-modules',
@@ -57,6 +58,7 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
     }
     listModules: Module[] = [];
     permissionChecked = new Subject<boolean>();
+    formGroupNewNodes = new FormGroup({});
     readonly APP_ACTIONS = APP_ACTIONS;
     private destroy$ = new Subject<void>();
 
@@ -135,7 +137,7 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
                 : { expandable: false, level: 0, module: null, moduleId: '', tempModuleId: '', _id: '' };
         flatNode.module = node.module;
         flatNode.moduleId = node.module ? node.module._id: '';
-        flatNode.tempModuleId = node.module ? node.module._id: '';
+        flatNode.tempModuleId = node.module ? node.module._id: node._id;
         flatNode.level = level;
         flatNode._id = node._id;
         flatNode.expandable = !!node.children?.length;
@@ -211,13 +213,10 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
     /* Get the parent node of a node */
     getParentNode(node: TreeModuleItemFlatNode): TreeModuleItemFlatNode | null {
         const currentLevel = this.getLevel(node);
-
         if (currentLevel < 1) {
             return null;
         }
-
         const startIndex = this.treeControl.dataNodes.indexOf(node) - 1;
-
         for (let i = startIndex; i >= 0; i--) {
             const currentNode = this.treeControl.dataNodes[i];
 
@@ -231,13 +230,11 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
     /** Select the category so we can insert the new item. */
     addNewItem(node: TreeModuleItemFlatNode) {
         const parentNode = this.flatNodeMap.get(node);
-        parentNode.children = [...parentNode.children, { module: null, children: [], _id: randomString() }];
+        const nodeId = randomString();
+        parentNode.children = [...parentNode.children, { module: null, children: [], _id: nodeId }];
+        this.formGroupNewNodes.addControl(nodeId, new FormControl('', [Validators.required]));
         this.expandItemAfterUpdate = node._id;
-        const expandingNodes: (string | number)[] = [];
-        this.treeControl.dataNodes.forEach(node => {
-            if(this.treeControl.isExpanded(node)) expandingNodes.push(node._id);
-        })
-        this.currentlyExpandedNodes = expandingNodes;
+        this.saveExpandingNodes();
         this.dataChange.next(this.dataClone); // renew the child, now become a parent, need hasChild rerun
     }
 
@@ -246,11 +243,39 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
         const nestedNode = this.flatNodeMap.get(node);
         node.moduleId = node.tempModuleId;
         nestedNode.module = this.listModules.find(m => m._id == node.moduleId);
-        this.dataChange.next([...this.dataSource.data]); // keep the expanded states
+        this.formGroupNewNodes.removeControl(node._id);
+        this.dataChange.next([...this.dataSource.data]); // keep the expanded nodes
+    }
+    
+    /** save the expanding nodes to reopen them after clone the tree */
+    private saveExpandingNodes() {
+        const expandingNodes: (string | number)[] = [];
+        this.treeControl.dataNodes.forEach(node => {
+            if(this.treeControl.isExpanded(node)) expandingNodes.push(node._id);
+        })
+        this.currentlyExpandedNodes = expandingNodes;
+    }
+
+    cancelNode(node: TreeModuleItemFlatNode) {
+        const parentNode = this.getParentNode(node);
+        if(parentNode) {
+            const parentItem = this.flatNodeMap.get(parentNode);
+            parentItem.children = parentItem.children.filter(n => n._id != node._id);
+            if(parentItem.children.length) this.dataChange.next([...this.dataSource.data]); // keep the expanded nodes
+            else {
+                this.saveExpandingNodes();
+                this.dataChange.next(this.dataClone); // renew the child, now become a parent, need hasChild rerun
+            }
+        } else {
+            this.dataChange.next(this.dataSource.data.filter(n => n._id != node._id)); // keep the expanded nodes
+        }
+        this.formGroupNewNodes.removeControl(node._id);
     }
 
     addNewRoot() {
-        this.dataChange.next([...this.dataSource.data, { children: [], module: null, _id: randomString() }]); // keep the expanded states
+        const nodeId = randomString();
+        this.formGroupNewNodes.addControl(nodeId, new FormControl('', [Validators.required])); // add the control before you modify the view
+        this.dataChange.next([...this.dataSource.data, { children: [], module: null, _id: nodeId }]); // keep the expanded nodes
     }
 
     onSelectModule(moduleId: string, node: TreeModuleItemFlatNode) {
