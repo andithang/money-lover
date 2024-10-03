@@ -196,7 +196,8 @@
           "add-new-child": "Add new child",
           "remove-from-tree": "Remove",
           "view-infor": "View detail"
-        }
+        },
+        "save-tree": "Save tree"
       }
   }
 }

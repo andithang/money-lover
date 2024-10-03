@@ -130,21 +130,40 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
 
     hasNoContent = (_: number, _nodeData: TreeModuleItemFlatNode) => _nodeData.module === null;
 
+    getFlatNode = (node: TreeModuleItemFlatNode) => {
+        const keys = this.flatNodeMap.keys();
+        let nextNode = keys.next();
+        while(!nextNode.done) {
+            if((<TreeModuleItemFlatNode>nextNode.value)._id == node._id)  return this.flatNodeMap.get(nextNode.value);
+            nextNode = keys.next();
+        }
+        return null;
+    }
+
     /**
      * Transformer to convert nested node to flat node. Record the nodes in maps for later use.
      */
     transformer = (node: TreeModuleItem, level: number) => {
         const existingNode = this.nestedNodeMap.get(node);  
         const flatNode: TreeModuleItemFlatNode =
-            existingNode && existingNode.module && existingNode.module._id === (node.module ? node.module._id : '')
-                ? existingNode
-                : { expandable: false, level: 0, module: null, moduleId: '', tempModuleId: '', _id: '' };
+            (existingNode && existingNode._id == node._id) ? existingNode: { expandable: false, level: 0, module: null, moduleId: '', tempModuleId: '', _id: '' };
         flatNode.module = node.module;
         flatNode.moduleId = node.module ? node.module._id: '';
         flatNode.tempModuleId = node.module ? node.module._id: node._id;
         flatNode.level = level;
         flatNode._id = node._id;
         flatNode.expandable = !!node.children?.length;
+        const keys = this.flatNodeMap.keys();
+        // becaue we clone the dataSource to a completely new one, so the flatNodeMap MAY NOT BE the same as before the update/add
+        // we need to find by _id and delete the old key manually
+        let nextKey = keys.next();
+        while(!nextKey.done) {
+            if(this.flatNodeMap.get(nextKey.value)._id == node._id) {
+                this.flatNodeMap.delete(nextKey.value)
+                break;
+            }
+            nextKey = keys.next();
+        }
         this.flatNodeMap.set(flatNode, node);
         this.nestedNodeMap.set(node, flatNode);
         return flatNode;
@@ -233,7 +252,7 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
 
     /** Select the category so we can insert the new item. */
     addNewItem(node: TreeModuleItemFlatNode) {
-        const parentNode = this.flatNodeMap.get(node);
+        const parentNode = this.getFlatNode(node);
         const nodeId = randomString();
         parentNode.children = [...parentNode.children, { module: null, children: [], _id: nodeId }];
         this.formGroupNewNodes.addControl(nodeId, new FormControl('', [Validators.required]));
@@ -244,11 +263,11 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
 
     /** Save the node to database */
     saveNode(node: TreeModuleItemFlatNode) {
-        const nestedNode = this.flatNodeMap.get(node);
+        const nestedNode = this.getFlatNode(node);
         node.moduleId = node.tempModuleId;
         nestedNode.module = this.listModules.find(m => m._id == node.moduleId);
         this.formGroupNewNodes.removeControl(node._id);
-        this.dataChange.next([...this.dataSource.data]); // keep the expanded nodes
+        this.dataChange.next(this.dataClone); // keep the expanded nodes
     }
     
     /** save the expanding nodes to reopen them after clone the tree */
@@ -263,7 +282,7 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
     cancelNode(node: TreeModuleItemFlatNode) {
         const parentNode = this.getParentNode(node);
         if(parentNode) {
-            const parentItem = this.flatNodeMap.get(parentNode);
+            const parentItem = this.getFlatNode(parentNode);
             parentItem.children = parentItem.children.filter(n => n._id != node._id);
             if(parentItem.children.length) this.dataChange.next([...this.dataSource.data]); // keep the expanded nodes
             else {
@@ -317,6 +336,10 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
     /** on drop an item into a position */
     drop(evt: CdkDragDrop<string[]>) {
         const { currentIndex, previousIndex } = evt;
+    }
+
+    saveTree() {
+        console.log(Array.from(this.flatNodeMap.values()));
     }
 
     //#endregion
