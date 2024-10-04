@@ -7,7 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { AuthorizationService } from '@shared/services/authorization.service';
 import { APP_ACTIONS } from 'app/actions';
 import { Module } from 'app/model/module.model';
-import { TreeModuleItem, TreeModuleItemFlatNode } from 'app/model/tree-module-item.model';
+import { TreeModuleItem, TreeModuleItemFlatNode, TreeModuleItemModel } from 'app/model/tree-module-item.model';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
 import { ModuleService } from '../modules/module.service';
@@ -17,6 +17,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDeletionComponent } from '@shared/components/confirm-deletion/confirm-deletion.component';
 import { ModuleDialogComponent } from '../modules/module-dialog.component';
+import { TreeModuleService } from './tree-module.service';
 
 @Component({
     selector: 'tree-modules',
@@ -67,6 +68,7 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
 
     constructor(
         private moduleService: ModuleService,
+        private treeModuleService: TreeModuleService,
         private dialogService: MatDialog,
         private authorService: AuthorizationService,
         private toast: ToastrService,
@@ -107,7 +109,10 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.permissionChecked.pipe(takeUntil(this.destroy$)).subscribe((checked) => {
-            if(checked) this.getListModules()
+            if(checked) {
+                this.getListModules();
+                this.getTreeModules();
+            }
         })
     }
 
@@ -154,7 +159,7 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
         flatNode._id = node._id;
         flatNode.expandable = !!node.children?.length;
         const keys = this.flatNodeMap.keys();
-        // becaue we clone the dataSource to a completely new one, so the flatNodeMap MAY NOT BE the same as before the update/add
+        // because we clone the dataSource to a completely new one, so the flatNodeMap MAY NOT BE the same as before the update/add
         // we need to find by _id and delete the old key manually
         let nextKey = keys.next();
         while(!nextKey.done) {
@@ -267,6 +272,7 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
         node.moduleId = node.tempModuleId;
         nestedNode.module = this.listModules.find(m => m._id == node.moduleId);
         this.formGroupNewNodes.removeControl(node._id);
+        this.saveExpandingNodes();
         this.dataChange.next(this.dataClone); // keep the expanded nodes
     }
     
@@ -321,13 +327,14 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
 
     viewInfor(node: TreeModuleItemFlatNode) {
         if(this.authorService.isAuthorized(APP_ACTIONS.module['get-one'])) {
-            this.dialogService.open(ModuleDialogComponent, {
+            const instanceRef = this.dialogService.open(ModuleDialogComponent, {
                 data: {
                     id: node.module ? node.module._id: null,
                     viewOnly: true
                 },
                 width: '400px'
-            })
+            });
+            (<ModuleDialogComponent>instanceRef.componentInstance).title = this.translate.instant('my-ml.module.title.view-detail');
         } else {
             this.toast.error(this.translate.instant('my-ml.module.message.not-allow-get-one'));
         }
@@ -339,7 +346,20 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
     }
 
     saveTree() {
-        console.log(Array.from(this.flatNodeMap.values()));
+        const dataFlatten: TreeModuleItemModel[] = [];
+        Array.from(this.flatNodeMap.keys()).forEach(node => {
+            dataFlatten.push({
+                level: node.level,
+                module: node.module,
+                children: this.flatNodeMap.get(node).children,
+                /** this _id is used to identify the relationship between nodes, not the _id saved in the DB */
+                _id: this.flatNodeMap.get(node)._id
+            })
+        });
+        this.treeModuleService.updateTree(dataFlatten).subscribe(() => {
+            this.toast.success(this.translate.instant('my-ml.tree-modules.message.update-tree-successfully'))
+        })
+        console.log(dataFlatten)
     }
 
     //#endregion
@@ -351,6 +371,16 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
             })
         } else {
             this.toast.error(this.translate.instant('my-ml.module.message.not-allow-get-list'));
+        }
+    }
+
+    private getTreeModules() {
+        if(this.authorService.isAuthorized(APP_ACTIONS['tree-modules']['get-tree'])) {
+            this.treeModuleService.getTree().subscribe(res => {
+                this.dataChange.next(res);
+            })
+        } else {
+            this.toast.error(this.translate.instant('my-ml.tree-modules.message.not-allow-get-tree'));
         }
     }
 }

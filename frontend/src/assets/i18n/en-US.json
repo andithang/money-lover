@@ -139,6 +139,9 @@
         }
       },
       "module": {
+        "title": {
+          "view-detail": "View module detail"
+        },
         "message": {
           "not-allow-get-list": "You are unauthorized to search modules on this page",
           "not-allow-get-many": "You are unauthorized to get information of many module on this page",
@@ -195,7 +198,10 @@
           "confirm-remove": "You sure to remove from the tree module with name '<strong>{{name}}</strong>'?",
           "add-new-child": "Add new child",
           "remove-from-tree": "Remove",
-          "view-infor": "View detail"
+          "view-infor": "View detail",
+          "not-allow-get-tree": "You are unauthorized to get tree modules on this page",
+          "not-allow-update-tree": "You are unauthorized to update tree modules on this page",
+          "update-tree-successfully": "Update tree modules successfully"
         },
         "save-tree": "Save tree"
       }

@@ -119,5 +119,9 @@ export const APP_ACTIONS = {
     "usersetting": {
         "set": "usersetting:set",
         "get": "usersetting:get"
+    },
+    "tree-modules": {
+        "get-tree": "tree-modules:get-tree",
+        "update-tree": "tree-modules:update-tree",
     }
 }

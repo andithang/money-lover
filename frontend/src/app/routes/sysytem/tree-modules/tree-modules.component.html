@@ -55,8 +55,11 @@
                 </mat-tree-node>
             </mat-tree>
 
-            <button mat-button color="primary" (click)="addNewRoot()">
+            <button mat-button (click)="addNewRoot()">
                 <mat-icon>add</mat-icon> {{ 'my-ml.tree-modules.add-root-module' | translate }}
+            </button>
+            <button mat-button color="primary" (click)="saveTree()">
+                <mat-icon>add</mat-icon> {{ 'my-ml.tree-modules.save-tree' | translate }}
             </button>
         </div>
     </mat-card-content>

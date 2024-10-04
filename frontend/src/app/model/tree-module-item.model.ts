@@ -18,3 +18,8 @@ export interface TreeModuleItemFlatNode {
     tempModuleId: string,
     _id: string
 }
+
+/** sync with the one saved in the DB */
+export interface TreeModuleItemModel extends TreeModuleItem {
+    level: number
+}
