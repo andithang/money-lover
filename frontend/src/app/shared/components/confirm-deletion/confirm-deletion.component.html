@@ -1,6 +1,6 @@
 <h1 mat-dialog-title>{{data.title}}</h1>
 <div mat-dialog-content>
-    {{data.message}}
+    <div class="confirm-deletion-content" [innerHTML]="data.message | translate: data.messageParams || {}"></div>
 </div>
 <div mat-dialog-actions align="end">
     <button mat-button (click)="close()">Đóng</button>

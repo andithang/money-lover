@@ -31,7 +31,7 @@
                         Mở khóa
                     </button>
                 </span>
-                <span *accessCheck="APP_ACTIONS.role['delete']">
+                <span *accessCheck="APP_ACTIONS.role['delete-many']">
                     <button mat-button *ngIf="isShowDeleteButton()" color="warn" (click)="delete()">
                         <mat-icon>delete</mat-icon>
                         Xóa
@@ -78,7 +78,7 @@
                                         <mat-menu #menuActions="matMenu">
                                             <button mat-menu-item (click)="open(element)" *accessCheck="APP_ACTIONS.role['update']"><mat-icon>edit</mat-icon>Cập nhật</button>
                                             <button mat-menu-item (click)="changeStatus(element)" *accessCheck="APP_ACTIONS.role['update-status']"><mat-icon>{{ element.status ? 'block': 'lock_open' }}</mat-icon>{{ element.status ? 'Khóa': 'Mở khóa' }}</button>
-                                            <button mat-menu-item class="dropdown-item dropdown-item-accent" (click)="deleteSingle(element)" *accessCheck="APP_ACTIONS.role['delete']"><mat-icon color="accent">delete</mat-icon>Xóa</button>
+                                            <button mat-menu-item class="dropdown-item dropdown-item-accent" (click)="deleteSingle(element)" *accessCheck="APP_ACTIONS.role['delete-one']"><mat-icon color="accent">delete</mat-icon>Xóa</button>
                                         </mat-menu>
                                     </div>
                                     <div *ngSwitchDefault>

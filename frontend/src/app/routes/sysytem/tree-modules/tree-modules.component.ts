@@ -315,7 +315,8 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
         this.dialogService.open(ConfirmDeletionComponent, {
             data: {
                 title: this.translate.instant('my-ml.tree-modules.message.confirm-delete-node'),
-                message: `${this.translate.instant('my-ml.tree-modules.message.confirm-remove', {name: node.module.title})}`
+                message: `my-ml.tree-modules.message.confirm-remove`,
+                messageParams: {name: node.module.title}
             }
         })
         .afterClosed().subscribe((isConfirmed?: boolean) => {

@@ -108,7 +108,7 @@ export class RoleMngComponent implements OnInit, OnDestroy {
     }
 
     delete(){  
-        if(this.authorService.isAuthorized(APP_ACTIONS.role['delete'])) { 
+        if(this.authorService.isAuthorized(APP_ACTIONS.role['delete-many'])) { 
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
                     title: "Xác nhận xóa vai trò?",
@@ -186,7 +186,7 @@ export class RoleMngComponent implements OnInit, OnDestroy {
     }
 
     deleteSingle(role: Partial<Role>){
-        if(this.authorService.isAuthorized(APP_ACTIONS.role['delete'])) {
+        if(this.authorService.isAuthorized(APP_ACTIONS.role['delete-one'])) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
                     title: `Xác nhận xóa vai trò`,
