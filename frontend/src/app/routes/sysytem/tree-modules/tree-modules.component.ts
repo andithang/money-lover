@@ -164,7 +164,9 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
         let nextKey = keys.next();
         while(!nextKey.done) {
             if(this.flatNodeMap.get(nextKey.value)._id == node._id) {
-                this.flatNodeMap.delete(nextKey.value)
+                // find in nestedNodeMap the key with the value equals to nextKey.value, and delete it BEFORE you delete nextKey.value from the flatNodeMap
+                this.nestedNodeMap.delete(this.flatNodeMap.get(nextKey.value));
+                this.flatNodeMap.delete(nextKey.value);
                 break;
             }
             nextKey = keys.next();
@@ -285,8 +287,21 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
         this.currentlyExpandedNodes = expandingNodes;
     }
 
+    private deleteFlatNodeById(id: string) {
+        const flatKeys = this.flatNodeMap.keys();
+        let currKey = flatKeys.next();
+        while(!currKey.done) {
+            if(currKey.value._id == id) {
+                this.flatNodeMap.delete(currKey.value);
+                break;
+            }
+            currKey = flatKeys.next();
+        }
+    }
+
     cancelNode(node: TreeModuleItemFlatNode) {
         const parentNode = this.getParentNode(node);
+        this.deleteFlatNodeById(node._id);
         if(parentNode) {
             const parentItem = this.getFlatNode(parentNode);
             parentItem.children = parentItem.children.filter(n => n._id != node._id);

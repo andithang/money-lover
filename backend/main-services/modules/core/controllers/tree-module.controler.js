@@ -39,6 +39,8 @@ const getTree = (req, returnData, cb) => {
 
 const validateDataFlatten = (dataFlatten) => {
     // level 0 exist?
+
+    // are there any children with ids that are not in the list?
     return true;
 }
 
@@ -82,13 +84,10 @@ const updateTree = (req, returnData, cb) => {
             const levels = Array.from(nodeLevelMap.keys()), asyncLevelInsertion = [];
             levels.sort((a,b) => a > b ? -1: 1);
             levels.forEach(level => {
-                asyncLevelInsertion.push(new Promise(async (resolve) => {
-                    await insertEachGroupLevel(level);
-                    resolve();
-                }));
+                asyncLevelInsertion.push(insertEachGroupLevel(level));
             })
             await Promise.all(asyncLevelInsertion);
-            returnData.set({data: nodeLevelMap});
+            returnData.set({data: Array.from(nodeLevelMap.values())});
             cb();
         }, err => cb(err));
     } else cb(consts.ERRORS.ERROR_DATA_TREE_INVALID);
