@@ -176,8 +176,9 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
         return flatNode;
     };
 
+    //#region NO USE
     /** Whether all the descendants of the node are selected. */
-    descendantsAllSelected(node: TreeModuleItemFlatNode): boolean {
+    private descendantsAllSelected(node: TreeModuleItemFlatNode): boolean {
         const descendants = this.treeControl.getDescendants(node);
         const descAllSelected =
             descendants.length > 0 &&
@@ -188,7 +189,7 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
     }
 
     /** Whether part of the descendants are selected */
-    descendantsPartiallySelected(node: TreeModuleItemFlatNode): boolean {
+    private descendantsPartiallySelected(node: TreeModuleItemFlatNode): boolean {
         const descendants = this.treeControl.getDescendants(node);
         const result = descendants.some((child) =>
             this.checklistSelection.isSelected(child)
@@ -197,7 +198,7 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
     }
 
     /** Toggle the to-do item selection. Select/deselect all the descendants node */
-    todoItemSelectionToggle(node: TreeModuleItemFlatNode): void {
+    private todoItemSelectionToggle(node: TreeModuleItemFlatNode): void {
         this.checklistSelection.toggle(node);
         const descendants = this.treeControl.getDescendants(node);
         this.checklistSelection.isSelected(node)
@@ -210,13 +211,13 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
     }
 
     /** Toggle a leaf to-do item selection. Check all the parents to see if they changed */
-    todoLeafItemSelectionToggle(node: TreeModuleItemFlatNode): void {
+    private todoLeafItemSelectionToggle(node: TreeModuleItemFlatNode): void {
         this.checklistSelection.toggle(node);
         this.checkAllParentsSelection(node);
     }
 
     /* Checks all the parents when a leaf node is selected/unselected */
-    checkAllParentsSelection(node: TreeModuleItemFlatNode): void {
+    private checkAllParentsSelection(node: TreeModuleItemFlatNode): void {
         let parent: TreeModuleItemFlatNode | null = this.getParentNode(node);
         while (parent) {
             this.checkRootNodeSelection(parent);
@@ -225,7 +226,7 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
     }
 
     /** Check root node checked state and change it accordingly */
-    checkRootNodeSelection(node: TreeModuleItemFlatNode): void {
+    private checkRootNodeSelection(node: TreeModuleItemFlatNode): void {
         const nodeSelected = this.checklistSelection.isSelected(node);
         const descendants = this.treeControl.getDescendants(node);
         const descAllSelected =
@@ -239,6 +240,7 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
             this.checklistSelection.select(node);
         }
     }
+    //#endregion
 
     /* Get the parent node of a node */
     getParentNode(node: TreeModuleItemFlatNode): TreeModuleItemFlatNode | null {
@@ -356,11 +358,6 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
         }
     }
 
-    /** on drop an item into a position */
-    drop(evt: CdkDragDrop<string[]>) {
-        const { currentIndex, previousIndex } = evt;
-    }
-
     saveTree() {
         const dataFlatten: TreeModuleItemModel[] = [];
         Array.from(this.flatNodeMap.keys()).forEach(node => {
@@ -378,6 +375,72 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
         console.log(dataFlatten)
     }
 
+    //#endregion
+
+    //#region Drag & drop
+    
+    private getVisibleNodes() {
+        const visibleNodes: TreeModuleItem[] = [];
+        const addExpandChildren = (node: TreeModuleItem) => {
+            visibleNodes.push(node);
+            // if this node is in the current expansion list, so all of its children are visible
+            if(this.treeControl.expansionModel.selected.find(n => n._id == node._id)) {
+                node.children.forEach(child => addExpandChildren(child));
+            }
+        }
+        this.dataSource.data.forEach(node => {
+            addExpandChildren(node);
+        });
+        return visibleNodes;
+    }
+
+    private findSiblingNodes(currIndex: number): { previous: TreeModuleItem | null, next: TreeModuleItem | null } {
+        const visibleNodes = this.getVisibleNodes();
+        if(currIndex == 0) {
+            return {
+                next: visibleNodes[visibleNodes.length - 1],
+                previous: null
+            }
+        } else {
+            if(currIndex == visibleNodes.length - 1) {
+                return {
+                    next: null,
+                    previous: visibleNodes[visibleNodes.length - 1]
+                }
+            } else {
+                return {
+                    previous: visibleNodes[currIndex - 1],
+                    next: visibleNodes[currIndex]
+                }
+            }
+        }
+    }
+
+    private findNewParentAfterDrop(node: TreeModuleItem, previous: TreeModuleItem | null, next: TreeModuleItem | null): TreeModuleItem {
+        const nodeLevel = this.nestedNodeMap.get(node).level, preNodeLevel = previous ? this.nestedNodeMap.get(previous).level: undefined, nextNodeLevel = next ? this.nestedNodeMap.get(next).level: undefined;
+        if(preNodeLevel < nextNodeLevel) {
+            return previous;
+        } else {
+            const flatNode = this.nestedNodeMap.get(previous);
+            const flatParentNode = this.getParentNode(flatNode);
+            return this.flatNodeMap.get(flatParentNode);
+        }
+    }
+
+    /** on drop an item into a position */
+    drop(evt: CdkDragDrop<string[]>) {
+        const { currentIndex, previousIndex, container, previousContainer, event } = evt;
+        const visibleNodes = this.getVisibleNodes();
+        const siblingNodes = this.findSiblingNodes(currentIndex);
+        const currNode = visibleNodes[previousIndex];
+        const parentNode = this.findNewParentAfterDrop(currNode, siblingNodes.previous, siblingNodes.next);
+        console.log(parentNode);
+        // find the new parent when moving to the new position
+        
+        // modify the dataSourceClone and fire change
+    }
+
+    
     //#endregion
 
     private getListModules() {
