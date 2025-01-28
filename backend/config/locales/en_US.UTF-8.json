@@ -1,0 +1,10 @@
+{
+	"system-user": {
+		"login-detect-description": "system-user.login-detect-description",
+		"login-detect-title": "system-user.login-detect-title",
+		"tfa": {
+			"otp-generate": "system-user.tfa.otp-generate",
+			"otp-generate-subject": "system-user.tfa.otp-generate-subject"
+		}
+	}
+}

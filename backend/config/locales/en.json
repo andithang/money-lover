@@ -1,0 +1,7 @@
+{
+	"system-user": {
+		"change-password": {
+			"change-password-description-link": "system-user.change-password.change-password-description-link"
+		}
+	}
+}

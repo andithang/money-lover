@@ -17,6 +17,7 @@ const consts = require('../../../../config/consts');
 const utils = require('../../../../libs/utils');
 const async = require('async');
 const { createDefaultUserSettingIfNeeded } = require('./user-setting.controller');
+const { translate } = require('../../../../libs/translate');
 
 const list = (req, returnData, callback) => {
     let { search, status, isDelete, page, size } = req.params;
@@ -180,8 +181,8 @@ const notifyLogin = (user, platform, connectionKey) => {
         user: user._id,
         type: "user",
         priority: 1,
-        description: `Phát hiện đăng nhập từ thiết bị ${platform ? platform.description: "Unknown"}`,
-        title: "Phát hiện đăng nhập",
+        description: translate('system-user.login-detect-description', process.env.SYSTEM_LANG, { platformName: `${platform ? platform.description: "Unknown"}` }),
+        title: translate('system-user.login-detect-title', process.env.SYSTEM_LANG),
         link: `${process.env.ML_MY_DOMAIN}/auth/session-management`,
         connectionKey
     })
@@ -210,7 +211,6 @@ const generateOTP = (req, returnData, callback) => {
                 return callback(consts.ERRORS.ERROR_USER_NOT_FOUND);
             }
             const secret = speakesay.generateSecret().base32;
-            winstonLogger.info('test secret: ' + secret);
             redis.DEL(rd);
             const token = speakesay.totp({secret, encoding: 'base32', window: 10}); // otp is valid within +-10*30secs from now
             // save user with key = secret
@@ -230,8 +230,8 @@ const generateOTP = (req, returnData, callback) => {
                 mailTransporter.sendMail({
                     from: process.env.MAIL_USERNAME,
                     to: user.email,
-                    text: `Mã xác thực tài khoản ${user.username} của bạn là: ${token}. Xin lưu ý: Mã sẽ hết hạn trong vòng 5 phút kể từ khi được gửi đi. Cảm ơn bạn đã sử dụng hệ thống của chúng tôi.`,
-                    subject: '[My ML] - Xác thực 2 lớp đăng nhập'
+                    text: translate('system-user.tfa.otp-generate', process.env.SYSTEM_LANG, { username: user.username, token }),
+                    subject: translate('system-user.tfa.otp-generate-subject', process.env.SYSTEM_LANG)
                 }).then(() => {
                     winstonLogger.info(`TFA token sent to email: ${user.email}`);
                 })
@@ -423,8 +423,11 @@ const sendEmailToChangePass = (req, returnData, callback) => {
                     mailTransporter.sendMail({
                         from: process.env.MAIL_USERNAME,
                         to: email,
-                        text: `Đường link đổi mật khẩu cho tài khoản có email ${email} của bạn là: ${process.env.ML_MY_DOMAIN}/auth/change-password?email=${email}&t=${token}. Xin lưu ý: Đường link chỉ có hiệu lực trong vòng 5 phút kể từ khi được gửi đi. Vui lòng không chia sẻ đuòng link này cho bất cứ ai. Cảm ơn bạn đã sử dụng hệ thống của chúng tôi.`,
-                        subject: '[My ML] - Yêu cầu reset mật khẩu'
+                        text: translate('system-user.change-password.change-password-description-link', process.env.SYSTEM_LANG, {
+                            email,
+                            link: `${process.env.ML_MY_DOMAIN}/auth/change-password?email=${email}&t=${token}`
+                        }),
+                        subject: translate('system-user.change-password.change-password-title', process.env.SYSTEM_LANG)
                     }).then(() => {
                         winstonLogger.info(`Change password token sent to email: ${email}`);
                     })

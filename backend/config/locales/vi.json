@@ -1,0 +1,14 @@
+{
+	"system-user": {
+		"login-detect-description": "Phát hiện đăng nhập từ thiết bị {{platformName}}",
+		"login-detect-title": "Phát hiện đăng nhập",
+		"tfa": {
+			"otp-generate-subject": "[My ML] - Xác thực 2 lớp đăng nhập",
+			"otp-generate": "Mã xác thực tài khoản {{username}} của bạn là: {{token}}. Xin lưu ý: Mã sẽ hết hạn trong vòng 5 phút kể từ khi được gửi đi. Cảm ơn bạn đã sử dụng hệ thống của chúng tôi."
+		},
+		"change-password": {
+			"change-password-title": "[My ML] - Yêu cầu reset mật khẩu",
+			"change-password-description-link": "Đường link đổi mật khẩu cho tài khoản có email {{email}} của bạn là: {{{link}}}. Xin lưu ý: Đường link chỉ có hiệu lực trong vòng 5 phút kể từ khi được gửi đi. Vui lòng không chia sẻ đuòng link này cho bất cứ ai. Cảm ơn bạn đã sử dụng hệ thống của chúng tôi."
+		}
+	}
+}
