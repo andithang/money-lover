@@ -7,7 +7,7 @@ export class AccessCheckerDirective implements OnChanges {
         this.authorService.allowActionsReady$.subscribe(isReady => {
             if(isReady) {
                 this.authorReady = true;
-                console.log('author check is ready: '+ this.accessCheck);
+                console.debug('author check is ready: '+ this.accessCheck);
                 if(this.waitingForReady) {
                     this.checkAuthorized();
                     this.waitingForReady = false;
@@ -17,8 +17,8 @@ export class AccessCheckerDirective implements OnChanges {
     }
     
     ngOnChanges(changes: SimpleChanges): void {        
-        if(changes['accessCheck'] && this.accessCheck) {
-            console.log('author ready? ' + this.authorReady + '. need check author: ' + this.accessCheck);
+        if(changes.accessCheck && this.accessCheck) {
+            console.debug('author ready? ' + this.authorReady + '. need check author: ' + this.accessCheck);
             if(this.authorReady) {
                 this.checkAuthorized();
             } else {

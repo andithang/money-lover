@@ -7,7 +7,7 @@
         <div class="p-y-4" [formGroup]="formGroupNewNodes">
             <mat-tree cdkDropList (cdkDropListDropped)="drop($event)" class="mat-tree-droplist" [dataSource]="dataSource"
                 [treeControl]="treeControl">
-                <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding cdkDrag>
+                <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding cdkDrag (cdkDragStarted)="handleDragStarted($event)">
                     <button mat-icon-button disabled></button>
                     <span class="module-name">{{node.module.title}}</span>
                     <button mat-icon-button (click)="viewInfor(node)" *accessCheck="APP_ACTIONS.module['get-one']" matTooltip="{{ 'my-ml.tree-modules.message.view-infor' | translate }}">
@@ -59,7 +59,7 @@
                 <mat-icon>add</mat-icon> {{ 'my-ml.tree-modules.add-root-module' | translate }}
             </button>
             <button mat-button color="primary" (click)="saveTree()">
-                <mat-icon>add</mat-icon> {{ 'my-ml.tree-modules.save-tree' | translate }}
+                <mat-icon>save</mat-icon> {{ 'my-ml.tree-modules.save-tree' | translate }}
             </button>
         </div>
     </mat-card-content>

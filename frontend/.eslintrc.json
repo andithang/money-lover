@@ -17,7 +17,7 @@
       "rules": {
         "dot-notation": ["warn"],
         "max-len": [
-          "warn",
+          "off",
           {
             "code": 100,
             "ignoreComments": true,
@@ -46,6 +46,8 @@
         "@typescript-eslint/no-empty-function": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-inferrable-types": "off",
+        "@typescript-eslint/direz": "off",
         "@angular-eslint/component-selector": [
           "error",
           {

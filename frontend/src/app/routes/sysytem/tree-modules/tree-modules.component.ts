@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDragStart } from '@angular/cdk/drag-drop';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { MatTreeFlattener, MatTreeFlatDataSource } from '@angular/material/tree';
@@ -242,7 +242,7 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
     }
     //#endregion
 
-    /* Get the parent node of a node */
+    /* Get the parent FLAT node of a FLAT node */
     getParentNode(node: TreeModuleItemFlatNode): TreeModuleItemFlatNode | null {
         const currentLevel = this.getLevel(node);
         if (currentLevel < 1) {
@@ -302,12 +302,12 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
     }
 
     cancelNode(node: TreeModuleItemFlatNode) {
-        const parentNode = this.getParentNode(node);
+        const parentFlatNode = this.getParentNode(node);
         this.deleteFlatNodeById(node._id);
-        if(parentNode) {
-            const parentItem = this.getFlatNode(parentNode);
-            parentItem.children = parentItem.children.filter(n => n._id != node._id);
-            if(parentItem.children.length) this.dataChange.next([...this.dataSource.data]); // keep the expanded nodes
+        if(parentFlatNode) {
+            const parentNode = this.getFlatNode(parentFlatNode);
+            parentNode.children = parentNode.children.filter(n => n._id != node._id);
+            if(parentNode.children.length) this.dataChange.next([...this.dataSource.data]); // keep the expanded nodes
             else {
                 this.saveExpandingNodes();
                 this.dataChange.next(this.dataClone); // renew the child, now become a parent, need hasChild rerun
@@ -394,50 +394,143 @@ export class TreeModulesComponent implements OnInit, OnDestroy {
         return visibleNodes;
     }
 
-    private findSiblingNodes(currIndex: number): { previous: TreeModuleItem | null, next: TreeModuleItem | null } {
+    private findSiblingNodes(newIndex: number, currIndex: number, draggingNode: TreeModuleItem): { previous: TreeModuleItem | null, next: TreeModuleItem | null } {
         const visibleNodes = this.getVisibleNodes();
-        if(currIndex == 0) {
+        if(newIndex == 0) {
             return {
-                next: visibleNodes[visibleNodes.length - 1],
+                next: visibleNodes[0],
                 previous: null
             }
         } else {
-            if(currIndex == visibleNodes.length - 1) {
+            if(newIndex == visibleNodes.length - 1) {
                 return {
                     next: null,
                     previous: visibleNodes[visibleNodes.length - 1]
                 }
             } else {
+                visibleNodes.splice(currIndex, 1);
+                visibleNodes.splice(newIndex, 0, draggingNode);
                 return {
-                    previous: visibleNodes[currIndex - 1],
-                    next: visibleNodes[currIndex]
+                    previous: visibleNodes[newIndex - 1],
+                    next: visibleNodes[newIndex + 1]
                 }
             }
         }
     }
 
-    private findNewParentAfterDrop(node: TreeModuleItem, previous: TreeModuleItem | null, next: TreeModuleItem | null): TreeModuleItem {
+    private findNewParentAfterDrop(node: TreeModuleItem, previous: TreeModuleItem | null, next: TreeModuleItem | null): {
+        parent: TreeModuleItem,
+        nodeLevel: number,
+        preNodeLevel: number,
+        nextNodeLevel: number
+    } {
         const nodeLevel = this.nestedNodeMap.get(node).level, preNodeLevel = previous ? this.nestedNodeMap.get(previous).level: undefined, nextNodeLevel = next ? this.nestedNodeMap.get(next).level: undefined;
+        let parent: TreeModuleItem;
         if(preNodeLevel < nextNodeLevel) {
-            return previous;
+            parent = previous || undefined; // in case of no previous node, this dragging node will not have a parent
         } else {
-            const flatNode = this.nestedNodeMap.get(previous);
-            const flatParentNode = this.getParentNode(flatNode);
-            return this.flatNodeMap.get(flatParentNode);
+            if(preNodeLevel == nextNodeLevel) { // drop between 2 children of the same parent
+                const flatNode = this.nestedNodeMap.get(previous);
+                const flatParentNode = this.getParentNode(flatNode);
+                parent = this.flatNodeMap.get(flatParentNode);
+            } else {
+                // drop between a child (C) of A (level n+m) and a B (level n)
+                const test = Math.random();
+                // case 1: You want the dragging node to be the sibling node of C ==> You drop the node into C
+                if(test > 0.5) {
+                    const flatNode = this.nestedNodeMap.get(previous);
+                    const flatParentNode = this.getParentNode(flatNode);
+                    parent = this.flatNodeMap.get(flatParentNode);
+                }
+                // case 2: You want the dragging node to be the sibling node of B ==> You drop the node into B
+                else {
+                    const flatNode = this.nestedNodeMap.get(next);
+                    const flatParentNode = this.getParentNode(flatNode);
+                    parent = this.flatNodeMap.get(flatParentNode);
+                }
+            }
         }
+        return { parent, nodeLevel, preNodeLevel, nextNodeLevel }
+    }
+
+    /** get parent node from node item. Neither the node nor the result parent a FLAT node */
+    private getParentNodeFromNode(node: TreeModuleItem): TreeModuleItem | undefined {
+        const currFlatNode = this.nestedNodeMap.get(node);
+        const oldParentFlatNode = this.getParentNode(currFlatNode);
+        return this.flatNodeMap.get(oldParentFlatNode);
     }
 
     /** on drop an item into a position */
     drop(evt: CdkDragDrop<string[]>) {
-        const { currentIndex, previousIndex, container, previousContainer, event } = evt;
+        const { currentIndex: newIndex, previousIndex, container, previousContainer, event } = evt;
+        // 1. find the new parent when moving to the new position
         const visibleNodes = this.getVisibleNodes();
-        const siblingNodes = this.findSiblingNodes(currentIndex);
         const currNode = visibleNodes[previousIndex];
-        const parentNode = this.findNewParentAfterDrop(currNode, siblingNodes.previous, siblingNodes.next);
-        console.log(parentNode);
-        // find the new parent when moving to the new position
-        
-        // modify the dataSourceClone and fire change
+        const siblingNodes = this.findSiblingNodes(newIndex, previousIndex, currNode);
+        const { parent: parentNode } = this.findNewParentAfterDrop(currNode, siblingNodes.previous, siblingNodes.next);        
+        // 2. drop inside a parent node        
+        if(parentNode) {
+            // 2.1. find the index for the new child
+            const parentNodeInd = visibleNodes.findIndex(node => node == parentNode);
+            const preNodeInd = visibleNodes.findIndex(node => node == siblingNodes.previous);
+            const currNodeInd = visibleNodes.findIndex(node => node == currNode);
+            const preNodeIndInChildren = preNodeInd - parentNodeInd - 1, 
+            currNodeIndInNewChildren = (currNodeInd < preNodeInd && currNodeInd > parentNodeInd) ?  preNodeIndInChildren: preNodeIndInChildren + 1;
+            // 2.2. remove the dragging node in old parent
+            const oldParent = this.getParentNodeFromNode(currNode);
+            // 2.2.1. the dragging node is a child node
+            if(oldParent) {
+                if(oldParent == parentNode) {
+                    // in this case we should have the currNode in 2 positions in the array of children.
+                    // remove the one at the old index
+                    for (let index = 0; index < parentNode.children.length; index++) {
+                        if(currNode == parentNode.children[index] && index != currNodeIndInNewChildren)  {
+                            parentNode.children.splice(index, 1);
+                            break;
+                        }
+                    }
+                } else {
+                    const currNodeIndInOldParent = oldParent.children.findIndex(n => n == currNode);
+                    oldParent.children.splice(currNodeIndInOldParent, 1);
+                }
+            }
+            // 2.2.2. the dragging node was a root node
+            else {
+                const currNodeInd = this.dataSource.data.findIndex(n => n == currNode);
+                this.dataSource.data.splice(currNodeInd, 1);    
+            }
+            // 2.3. insert the dragging node to the desired index
+            parentNode.children.splice(currNodeIndInNewChildren, 0, currNode);
+        } 
+        // 3. drop outside to be a root node
+        else {
+            // 3.1. remove the dragging node in old parent
+            const oldParent = this.getParentNodeFromNode(currNode);
+            // 3.1.1. the dragging node was a child node
+            if(oldParent) {
+                const currNodeIndInOldParent = oldParent.children.findIndex(n => n == currNode);
+                oldParent.children.splice(currNodeIndInOldParent, 1);
+            }
+            // 3.1.2. the dragging node was a root node
+            else {
+                const currNodeInd = this.dataSource.data.findIndex(n => n == currNode);
+                this.dataSource.data.splice(currNodeInd, 1);    
+            }
+            // 3.2. insert the dragging node into the desired index
+            if(siblingNodes.next) {
+                const nextInd = this.dataSource.data.findIndex(n => n == siblingNodes.next);
+                this.dataSource.data.splice(nextInd, 0, currNode);
+            } else if(siblingNodes.previous) {
+                const previousInd = this.dataSource.data.findIndex(n => n == siblingNodes.previous);
+                this.dataSource.data.splice(previousInd, 0, currNode);
+            } else console.log(`Nothing to do when both next and previous are empty`);
+        }
+        this.saveExpandingNodes();
+        this.dataChange.next(this.dataClone);
+    }
+
+    handleDragStarted(evt: CdkDragStart) {
+        console.log(evt);
     }
 
     
