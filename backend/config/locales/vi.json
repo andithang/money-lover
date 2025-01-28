@@ -7,8 +7,16 @@
 			"otp-generate": "Mã xác thực tài khoản {{username}} của bạn là: {{token}}. Xin lưu ý: Mã sẽ hết hạn trong vòng 5 phút kể từ khi được gửi đi. Cảm ơn bạn đã sử dụng hệ thống của chúng tôi."
 		},
 		"change-password": {
-			"change-password-title": "[My ML] - Yêu cầu reset mật khẩu",
+			"change-password-title": "[My ML] - Đổi mật khẩu",
 			"change-password-description-link": "Đường link đổi mật khẩu cho tài khoản có email {{email}} của bạn là: {{{link}}}. Xin lưu ý: Đường link chỉ có hiệu lực trong vòng 5 phút kể từ khi được gửi đi. Vui lòng không chia sẻ đuòng link này cho bất cứ ai. Cảm ơn bạn đã sử dụng hệ thống của chúng tôi."
-		}
+		},
+    "reset-password": {
+      "title": "[My ML] - Yêu cầu reset mật khẩu",
+      "description": "Bạn đã yêu cầu reset mật khẩu của tài khoản có email: {{email}}. Sử dụng đường link sau đây để lấy mật khẩu mới: {{{link}}}. Xin lưu ý: Đường link sẽ bị vô hiệu trong vòng 5 phút kể từ khi được gửi đi. Nếu đó không phải là bạn, vui lòng liên hệ quản trị viên để được hỗ trợ kịp thời."
+    },
+    "user-mng-reset-password": {
+      "title": "[My ML] - Reset mật khẩu",
+      "description": "Mật khẩu cho tài khoản có email {{email}} của bạn đã được reset. Mật khẩu mới là: {{newPassword}}. Xin lưu ý: Để đảm bảo bảo mật cho tài khoản của bạn, hãy thay đổi mật khẩu thành mật khẩu mới của bạn qua: Click icon avatar > Chọn Profile > Đổi mật khẩu . Cảm ơn bạn đã sử dụng hệ thống của chúng tôi."
+    }
 	}
 }

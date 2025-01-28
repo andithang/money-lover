@@ -928,8 +928,8 @@ const sentForgotPasswordRequest = (req, returnData, callback) => {
             mailTransporter.sendMail({
                 from: process.env.MAIL_USERNAME,
                 to: user.email,
-                text: `Bạn đã yêu cầu reset mật khẩu của tài khoản có email: ${user.email}. Sử dụng đường link sau đây để lấy mật khẩu mới: ${process.env.ML_MY_DOMAIN}/auth/forgot-password?email=${user.email}&t=${token}. Xin lưu ý: Đường link sẽ bị vô hiệu trong vòng 5 phút kể từ khi được gửi đi. Nếu đó không phải là bạn, vui lòng liên hệ quản trị viên để được hỗ trợ kịp thời.`,
-                subject: '[My ML] - Quên mật khẩu'
+                text: translate('system-user.reset-password.description', process.env.SYSTEM_LANG, {link: `${process.env.ML_MY_DOMAIN}/auth/forgot-password?email=${user.email}&t=${token}`}),
+                subject: translate('system-user.reset-password.title', process.env.SYSTEM_LANG)
             }).then(() => {
                 winstonLogger.info(`Forgot password request sent to email: ${user.email}`);
                 returnData.set({ email: user.email, t: token});
@@ -1026,8 +1026,8 @@ const resetPassword = (req, returnData, callback) => {
                 mailTransporter.sendMail({
                     from: process.env.MAIL_USERNAME,
                     to: data.email,
-                    text: `Mật khẩu cho tài khoản có email ${data.email} của bạn đã được reset. Mật khẩu mới là: ${newPassword}. Xin lưu ý: Để đảm bảo bảo mật cho tài khoản của bạn, hãy thay đổi mật khẩu thành mật khẩu mới của bạn qua: Click icon avatar > Chọn Profile > Đổi mật khẩu . Cảm ơn bạn đã sử dụng hệ thống của chúng tôi.`,
-                    subject: '[My ML] - Yêu cầu reset mật khẩu'
+                    text: translate('system-user.user-mng-reset-password.description', process.env.SYSTEM_LANG, { email: data.email, newPassword }),
+                    subject: translate('system-user.user-mng-reset-password.title', process.env.SYSTEM_LANG)
                 }).then(() => {
                     winstonLogger.info(`Reset password token sent to email: ${data.email}`);
                 })
