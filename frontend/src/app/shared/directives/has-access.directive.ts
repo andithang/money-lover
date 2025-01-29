@@ -13,7 +13,7 @@ export class AccessCheckerDirective implements OnChanges {
                     this.waitingForReady = false;
                 }
             }
-        })
+        });
     }
     
     ngOnChanges(changes: SimpleChanges): void {        
@@ -34,8 +34,8 @@ export class AccessCheckerDirective implements OnChanges {
 
     private checkAuthorized() {
         if(!this.authorService.isAuthorized(this.accessCheck)) {
-            this.viewContainerRef.clear()
-        } else this.viewContainerRef.createEmbeddedView(this.templateRef)
+            this.viewContainerRef.clear();
+        } else this.viewContainerRef.createEmbeddedView(this.templateRef);
     }
 
 }

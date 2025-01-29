@@ -30,13 +30,13 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
         this.authorService.getAllowActionsOnModule(location.pathname).subscribe(({actions}) => {
             this.authorService.allowActionsChange$.next(actions);
             this.permissionChecked.next(true);
-        }, () => this.permissionChecked.next(true))
+        }, () => this.permissionChecked.next(true));
     }
 
     ngOnInit() { 
         this.permissionChecked.pipe(takeUntil(this.destroy$)).subscribe((checked) => {
-            if(checked) this.searchModules()
-        })
+            if(checked) this.searchModules();
+        });
     }
 
     ngOnDestroy(): void {
@@ -46,7 +46,7 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
     }
 
     listModules: Partial<Module>[] = [];
-    searchKey: string = "";
+    searchKey: string = '';
     displayedColumns: string[] = ['checkbox', 'Tên module', 'Mã module', 'Mô tả', 'Ngày tạo', 'Trạng thái', 'Thao tác'];
     columnProps: string[] = ['checkbox', 'title','code', 'description', 'dateCreated', 'status', 'actions'];
     loading: boolean = false;
@@ -70,7 +70,7 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
                 if(!this.listModules.length) this.isAllChecked = false;
             }, err => {
                 this.loading = false;
-            })
+            });
         } else {
             this.toast.error(this.translate.instant('my-ml.module.message.not-allow-get-list'));
             this.loading = false;
@@ -83,7 +83,7 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
 
     searchModules(){
         this.loading = true;
-        this.getListModules()
+        this.getListModules();
     }
 
     open(module?: Partial<Module>, evt?: Event){
@@ -97,9 +97,9 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
             if(res){
                 this.searchModules();
             }
-        })
+        });
         if(evt){
-            evt.stopPropagation()
+            evt.stopPropagation();
         }
     }
 
@@ -108,10 +108,10 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
     }
 
     delete(){   
-        if(this.authorService.isAuthorized(APP_ACTIONS.module['delete'])) {
+        if(this.authorService.isAuthorized(APP_ACTIONS.module['delete-many'])) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: "Xác nhận xóa module?",
+                    title: 'Xác nhận xóa module?',
                     message: `Xóa vĩnh viễn ${this.getNumOfSelected()} module?`
                 }
             })
@@ -122,13 +122,13 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
                     .subscribe(res => {
                         this.loading = false;
                         this.resetListChecked();
-                        this.toast.success("Xóa vĩnh viễn module thành công");
+                        this.toast.success('Xóa vĩnh viễn module thành công');
                         this.searchModules();
                     }, err => {
                         this.loading = false;
-                    })                
+                    });                
                 }
-            })
+            });
         } else this.toast.error(this.translate.instant('my-ml.module.message.not-allow-delete'));
     }
 
@@ -176,7 +176,7 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
         if(val){
             this.listModules.forEach(role => {
                 if(!this.listChecked.has(role._id)) this.listChecked.set(role._id, role);
-            })
+            });
         } else this.resetListChecked();
     }
 
@@ -185,7 +185,7 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
     }
 
     deleteSingle(module: Partial<Module>){
-        if(this.authorService.isAuthorized(APP_ACTIONS.module['delete'])) {
+        if(this.authorService.isAuthorized(APP_ACTIONS.module['delete-one'])) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
                     title: `Xác nhận xóa module`,
@@ -200,9 +200,9 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
                         this.loading = false;
                         this.searchModules();
                         if(this.listChecked.has(module._id)) this.listChecked.delete(module._id);
-                    }, () => this.loading = false)
+                    }, () => this.loading = false);
                 }
-            })
+            });
         } else this.toast.error(this.translate.instant('my-ml.module.message.not-allow-delete'));
     }
 
@@ -212,9 +212,9 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
                 this.listChecked.set(id, {
                     ...this.listChecked.get(id),
                     status
-                })
+                });
             }
-        })
+        });
     }
 
     changeStatus(module: Partial<Module>){
@@ -234,12 +234,12 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
                         this.loading = false;
                         this.toast.success(`${module.status ? 'Khóa': 'Mở khóa'} module thành công`);
                         this.searchModules();
-                        this.updateListCheckedAfterStatusChanged([module._id], newStatus)
+                        this.updateListCheckedAfterStatusChanged([module._id], newStatus);
                     }, err => {
                         this.loading = false;
-                    })                
+                    });                
                 }
-            })
+            });
         } else this.toast.error(this.translate.instant('my-ml.module.message.not-allow-update-status'));
     }
 
@@ -263,9 +263,9 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
                         this.resetListChecked();    
                     }, err => {
                         this.loading = false;
-                    })                
+                    });                
                 }
-            })
+            });
         } else this.toast.error(this.translate.instant('my-ml.module.message.not-allow-update-status'));
     }
 }

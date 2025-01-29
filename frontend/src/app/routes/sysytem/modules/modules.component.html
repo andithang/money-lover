@@ -31,7 +31,7 @@
                         Mở khóa
                     </button>
                 </span>
-                <span *accessCheck="APP_ACTIONS.module['delete']">
+                <span *accessCheck="APP_ACTIONS.module['delete-many']">
                     <button mat-button *ngIf="isShowDeleteButton()" color="warn" (click)="delete()">
                         <mat-icon>delete</mat-icon>
                         Xóa
@@ -48,7 +48,7 @@
                     <table mat-table [dataSource]="listModules" class="table-module">
                         <ng-container [matColumnDef]="column" *ngFor="let column of columnProps; index as i">
                             <th mat-header-cell *matHeaderCellDef>
-                                <ng-container *ngIf="column == 'checkbox'; else notAction">
+                                <ng-container *ngIf="column === 'checkbox'; else notAction">
                                     <mat-checkbox [(ngModel)]="isAllChecked"
                                         (ngModelChange)="toggleCheckAllItems($event)"></mat-checkbox>
                                 </ng-container>
@@ -78,7 +78,7 @@
                                         <mat-menu #menuActions="matMenu">
                                             <button mat-menu-item (click)="open(element)" *accessCheck="APP_ACTIONS.module['update']"><mat-icon>edit</mat-icon>Cập nhật</button>
                                             <button mat-menu-item (click)="changeStatus(element)" *accessCheck="APP_ACTIONS.module['update-status']"><mat-icon>{{ element.status ? 'block': 'lock_open' }}</mat-icon>{{ element.status ? 'Khóa': 'Mở khóa' }}</button>
-                                            <button mat-menu-item class="dropdown-item dropdown-item-accent" (click)="deleteSingle(element)" *accessCheck="APP_ACTIONS.module['delete']"><mat-icon color="accent">delete</mat-icon>Xóa</button>
+                                            <button mat-menu-item class="dropdown-item dropdown-item-accent" (click)="deleteSingle(element)" *accessCheck="APP_ACTIONS.module['delete-one']"><mat-icon color="accent">delete</mat-icon>Xóa</button>
                                         </mat-menu>
                                     </div>
                                     <div *ngSwitchDefault>
