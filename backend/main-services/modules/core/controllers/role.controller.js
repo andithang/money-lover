@@ -5,6 +5,7 @@ const consts = require('../../../../config/consts');
 const { merge } = require('../../../../libs/utils');
 const User = require('../models/user');
 const Permission = require('../models/permission');
+const { translate } = require('../../../../libs/translate');
 
 const listRoles = (req, returnData, callback) => {
     const { search, status, page, size, is_delete } = req.params;
@@ -206,7 +207,10 @@ const checkDelete = (ids) => {
                     else if(users.length){
                         const usersWithDelRoles = users.filter(u => u.role && u.role._id);
                         const listRolesAttached = usersWithDelRoles.map(u => u.role);
-                        const message = `Các vai trò '${listRolesAttached.map(r => r.title).join(',')}' không thể bị xóa do đang được gán những người dùng sau: '${usersWithDelRoles.map(u => u.username).join(',')}'.`
+                        const message = translate('role.delete-roles-user-attached', process.env.SYSTEM_LANG, {
+                            roleNames: `${listRolesAttached.map(r => r.title).join(',')}`,
+                            userNames: `${usersWithDelRoles.map(u => u.username).join(',')}`
+                        })
                         cb(message);
                     } else {
                         cb();
@@ -220,7 +224,10 @@ const checkDelete = (ids) => {
                     else if(permissions.length){
                         const permissionsWithDelRoles = permissions.filter(p => p.role && p.role._id);
                         const listRolesAttached = permissionsWithDelRoles.map(p => p.role);
-                        const message = `Các vai trò '${listRolesAttached.map(r => r.title).join(',')}' không thể bị xóa do đang được gán những quyền sau: '${permissionsWithDelRoles.map(p => p.username).join(',')}'.`
+                        const message = translate('role.delete-roles-permission-attached', process.env.SYSTEM_LANG, {
+                            roleNames: `${listRolesAttached.map(r => r.title).join(', ')}`,
+                            permissionNames: `${permissionsWithDelRoles.map(u => u.title).join(', ')}`
+                        })
                         cb(message);
                     } else {
                         cb();

@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { IconService } from '@shared';
 import { ConfirmDeletionComponent } from '@shared/components/confirm-deletion/confirm-deletion.component';
@@ -16,6 +16,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { AuthorizationService } from '@shared/services/authorization.service';
 import { APP_ACTIONS } from 'app/actions';
 import { Subject, takeUntil } from 'rxjs';
+import { WalletTypeComponent } from './wallet-type/wallet-type.component';
+import { IconManagementComponent } from './icon-mng/icon-mng.component';
 
 @Component({
     selector: 'common',
@@ -34,20 +36,20 @@ export class MoneyCommonComponent implements OnInit {
         this.authorService.getAllowActionsOnModule(location.pathname).subscribe(({actions}) => {
             this.authorService.allowActionsChange$.next(actions);
             this.permissionChecked.next(true);
-        }, () => this.permissionChecked.next(true))
+        }, () => this.permissionChecked.next(true));
     }
 
     icons: Icon[] = [];
-    searchCategoryKey: string = "";
-    searchWalletTypeKey: string = "";
+    searchCategoryKey: string = '';
+    searchWalletTypeKey: string = '';
     /**
      * used to fire search evt to category comp
      */
-    search: string = "";
+    search: string = '';
     /**
      * used to fire search evt to wallet-type comp
      */
-    searchType: string = "";
+    searchType: string = '';
     newCategoryDialog: MatDialogRef<CategoryDialogComponent>;
     newWalletTypeDialog: MatDialogRef<WalletTypeDialogComponent>;
     confirmDeletionDialog: MatDialogRef<ConfirmDeletionComponent>;
@@ -56,19 +58,19 @@ export class MoneyCommonComponent implements OnInit {
     readonly APP_ACTIONS = APP_ACTIONS;
     private destroy$ = new Subject<void>();
 
-    @ViewChild('categories') categories: ElementRef;
-    @ViewChild('walletTypes') walletTypes: ElementRef;
-    @ViewChild('iconsMng') iconsMng: ElementRef;
+    @ViewChild('categories') categories: CategoryComponent;
+    @ViewChild('walletTypes') walletTypes: WalletTypeComponent;
+    @ViewChild('iconsMng') iconsMng: IconManagementComponent;
 
     ngOnInit() {
         this.permissionChecked.pipe(takeUntil(this.destroy$)).subscribe((checked) => {
-            if(checked) this.getListIcons()
-        })
+            if(checked) this.getListIcons();
+        });
     }
 
     getListIcons() {
         if(this.authorService.isAuthorized(APP_ACTIONS.icon.list)) {
-            this.commonService.getListData("icon", {})
+            this.commonService.getListData('icon', {})
                 .subscribe((res: Icon[]) => {
                     this.icons = [...res];
                 });
@@ -97,20 +99,20 @@ export class MoneyCommonComponent implements OnInit {
                         this.toast.success(CONSTS.messages.insert_category_success);
                         // trigger reload list categories
                         if (this.searchCategoryKey.trim()) {
-                            this.searchCategoryKey = "";
+                            this.searchCategoryKey = '';
                             this.searchCategories();
                         }
                         else {
-                            let comp: any = this.categories;
+                            const comp: any = this.categories;
                             comp.getDataCategories();
                         }
                     }, error => {
                         this.toast.error(CONSTS.messages.insert_category_fail);
-                    })
+                    });
                 }, error => {
-                    this.toast.error(CONSTS.messages.icon_not_found)
-                })
-            })
+                    this.toast.error(CONSTS.messages.icon_not_found);
+                });
+            });
         } else this.toast.error(this.translate.instant('my-ml.category.message.not-allow-create-admin'));
     }
 
@@ -135,20 +137,20 @@ export class MoneyCommonComponent implements OnInit {
                         this.toast.success(CONSTS.messages.insert_walettype_success);
                         // trigger reload list categories
                         if (this.searchWalletTypeKey.trim()) {
-                            this.searchWalletTypeKey = "";
+                            this.searchWalletTypeKey = '';
                             this.searchWalletTypes();
                         }
                         else {
-                            let comp: any = this.walletTypes;
+                            const comp: WalletTypeComponent = this.walletTypes;
                             comp.getDataWalletTypes();
                         }
                     }, error => {
                         this.toast.error(CONSTS.messages.insert_walettype_fail);
-                    })
+                    });
                 }, error => {
-                    this.toast.error(CONSTS.messages.icon_not_found)
-                })
-            })
+                    this.toast.error(CONSTS.messages.icon_not_found);
+                });
+            });
         } else this.toast.error(this.translate.instant('my-ml.wallettype.message.not-allow-create'));
     }
 
@@ -161,7 +163,7 @@ export class MoneyCommonComponent implements OnInit {
                 if (data) {
                     this.getListIcons();
                 }
-            })
+            });
         } else this.toast.error(this.translate.instant('my-ml.icon.message.not-allow-upload'));
     }
 
@@ -171,37 +173,37 @@ export class MoneyCommonComponent implements OnInit {
 
     deleteCategories() {
         if(this.authorService.isAuthorized(APP_ACTIONS.category['delete-admin'])) {
-            let comp: any = this.categories;
-            let catesToDelete = comp.listCategoriesSaved.filter((cate, ind) => {
+            const comp: any = this.categories;
+            const catesToDelete = comp.listCategoriesSaved.filter((cate, ind) => {
                 return comp.listChecked[ind];
             });
             if (catesToDelete.length > 0) {
                 this.confirmDeletionDialog = this.dialog.open(ConfirmDeletionComponent, {
                     data: {
-                        title: "Xác nhận xóa chủng loại?",
+                        title: 'Xác nhận xóa chủng loại?',
                         message: `Xóa ${catesToDelete.length} chủng loại?`
                     }
-                })
+                });
                 this.confirmDeletionDialog.afterClosed().subscribe((isConfirmed: boolean | undefined) => {
                     if (isConfirmed) {
                         this.commonService.deleteCategories({ ids: catesToDelete.map((c: Category) => c._id), isAdmin: true }).subscribe(res => {
                             this.toast.success(CONSTS.messages.delete_category_success);
                             // trigger reload list categories
                             if (this.searchCategoryKey.trim()) {
-                                this.searchCategoryKey = "";
+                                this.searchCategoryKey = '';
                                 this.searchCategories();
                             }
                             else {
-                                let comp: any = this.categories;
+                                const comp: any = this.categories;
                                 comp.getDataCategories();
                             }
                         }, err => {
                             console.error(err);
                             this.toast.error(CONSTS.messages.delete_category_fail);
-                        })
+                        });
                     }
     
-                })
+                });
             }
             else {
                 this.toast.warning(CONSTS.select_to_delete_category);
@@ -215,37 +217,37 @@ export class MoneyCommonComponent implements OnInit {
 
     deleteWalletTypes() {
         if(this.authorService.isAuthorized(APP_ACTIONS.wallettype.delete)) {
-            let comp: any = this.walletTypes;
-            let typesToDelete = comp.listWalletTypesSaved.filter((cate, ind) => {
+            const comp: any = this.walletTypes;
+            const typesToDelete = comp.listWalletTypesSaved.filter((cate, ind) => {
                 return comp.listChecked[ind];
             });
             if (typesToDelete.length > 0) {
                 this.confirmDeletionDialog = this.dialog.open(ConfirmDeletionComponent, {
                     data: {
-                        title: "Xác nhận xóa loại ví?",
+                        title: 'Xác nhận xóa loại ví?',
                         message: `Xóa ${typesToDelete.length} loại ví?`
                     }
-                })
+                });
                 this.confirmDeletionDialog.afterClosed().subscribe((isConfirmed: boolean | undefined) => {
                     if (isConfirmed) {
                         this.commonService.deleteWalletTypes({ ids: typesToDelete.map((c: Category) => c._id) }).subscribe(res => {
                             this.toast.success(CONSTS.messages.delete_walettype_success);
                             // trigger reload list walletTypes
                             if (this.searchWalletTypeKey.trim()) {
-                                this.searchWalletTypeKey = "";
+                                this.searchWalletTypeKey = '';
                                 this.searchWalletTypes();
                             }
                             else {
-                                let comp: any = this.walletTypes;
+                                const comp: any = this.walletTypes;
                                 comp.getDataWalletTypes();
                             }
                         }, err => {
                             console.error(err);
                             this.toast.error(CONSTS.messages.delete_walettype_fail);
-                        })
+                        });
                     }
     
-                })
+                });
             }
             else {
                 this.toast.warning(CONSTS.select_to_delete_wallet_type);
@@ -255,17 +257,17 @@ export class MoneyCommonComponent implements OnInit {
 
     deleteIcon() {
         if(this.authorService.isAuthorized(APP_ACTIONS.icon.delete)) {
-            let comp: any = this.iconsMng;
-            let iconsToDelete = this.icons.filter((i, ind) => {
+            const comp: any = this.iconsMng;
+            const iconsToDelete = this.icons.filter((i, ind) => {
                 return comp.listChecked[ind];
-            })
+            });
             if (iconsToDelete.length > 0) {
                 this.confirmDeletionDialog = this.dialog.open(ConfirmDeletionComponent, {
                     data: {
-                        title: "Xác nhận xóa icons?",
+                        title: 'Xác nhận xóa icons?',
                         message: `Xóa ${iconsToDelete.length} ${iconsToDelete.length > 1 ? 'icons' : 'icon'}?`
                     }
-                })
+                });
                 this.confirmDeletionDialog.afterClosed().subscribe((isConfirmed: boolean | undefined) => {
                     if (isConfirmed) {
                         this.commonService.deleteIcon({ ids: iconsToDelete.map(i => i._id), paths: iconsToDelete.map(i => i.path) }).subscribe(res => {
@@ -273,14 +275,14 @@ export class MoneyCommonComponent implements OnInit {
                             this.getListIcons();
                             iconsToDelete.forEach(ic => {
                                 sessionStorage.removeItem(ic.path);
-                            })
+                            });
                         }, err => {
                             console.error(err);
                             this.toast.error(CONSTS.messages.delete_icon_fail);
-                        })
+                        });
                     }
     
-                })
+                });
             } else {
                 this.toast.warning(CONSTS.select_to_delete_icon);
             }

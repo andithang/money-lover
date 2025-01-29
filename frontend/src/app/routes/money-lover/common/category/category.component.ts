@@ -32,7 +32,7 @@ export class CategoryComponent implements OnInit, OnChanges, OnDestroy {
     listChecked: boolean[] = [];
     indexEditting: number = -1;
     indexHovering: number = -1;
-    nameEditting: string = "";
+    nameEditting: string = '';
     pageSize: number = CONSTS.page_size;
     pageSizeOptions: number[] = CONSTS.page_size_options;
     page: number = 0;
@@ -43,7 +43,7 @@ export class CategoryComponent implements OnInit, OnChanges, OnDestroy {
     readonly APP_ACTIONS = APP_ACTIONS;
     private destroy$ = new Subject<void>();
 
-    @ViewChild("editInput") editInput: ElementRef;
+    @ViewChild('editInput') editInput: ElementRef;
 
     @Input() icons: Icon[];
     /**
@@ -53,8 +53,8 @@ export class CategoryComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnInit() {
         this.permissionChecked.pipe(takeUntil(this.destroy$)).subscribe((checked) => {
-            if(checked) this.getDataCategories()
-        })
+            if(checked) this.getDataCategories();
+        });
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -82,7 +82,7 @@ export class CategoryComponent implements OnInit, OnChanges, OnDestroy {
     /* #region Logic handler */
     editName(index: number) {
         // set current category to the previous state
-        let tempList = JSON.parse(JSON.stringify(this.listCategories));
+        const tempList = JSON.parse(JSON.stringify(this.listCategories));
         tempList[this.indexEditting] = this.listCategoriesSaved[this.indexEditting];
         this.listCategories = [...tempList];
 
@@ -91,7 +91,7 @@ export class CategoryComponent implements OnInit, OnChanges, OnDestroy {
         this.indexHovering = -1;
         setTimeout(() => {
             this.editInput.nativeElement.focus();
-        })
+        });
     }
 
     cancelExitEditName() {
@@ -111,11 +111,11 @@ export class CategoryComponent implements OnInit, OnChanges, OnDestroy {
         }, error => {
             this.toast.error(CONSTS.messages.update_category_fail);
             console.error(error);
-        })
+        });
     }
 
     renewListChecked() {
-        let tempChecked: boolean[] = [];
+        const tempChecked: boolean[] = [];
         for (let i = 0; i < this.listCategories.length; i++) {
             tempChecked.push(false);
         }
@@ -136,7 +136,7 @@ export class CategoryComponent implements OnInit, OnChanges, OnDestroy {
             }, () => {
                 this.loading = false;
                 this.listCategories = [];
-            })
+            });
         } else {
             this.toast.error(this.translate.instant('my-ml.category.message.not-allow-get-list'));
             this.loading = false;
@@ -151,7 +151,7 @@ export class CategoryComponent implements OnInit, OnChanges, OnDestroy {
 
     editCategoryIcon(index: number) {
         if (this.indexEditting == index) {
-            let currentCategory = this.listCategories[index];
+            const currentCategory = this.listCategories[index];
             this.iconSelectionDialogRef = this.iconSelectDialog.open(IconSelectionComponent, {
                 data: {
                     icons: [...this.icons],
@@ -160,8 +160,8 @@ export class CategoryComponent implements OnInit, OnChanges, OnDestroy {
             });
             this.iconSelectionDialogRef.afterClosed().subscribe((data: string) => {
                 if (data) {
-                    let tempList = JSON.parse(JSON.stringify(this.listCategories));                    
-                    let icon = this.icons.filter(i => i.path === data)[0];
+                    const tempList = JSON.parse(JSON.stringify(this.listCategories));                    
+                    const icon = this.icons.filter(i => i.path === data)[0];
                     tempList[index].icon = icon;
                     this.listCategories = [...tempList];
                 }
@@ -174,7 +174,7 @@ export class CategoryComponent implements OnInit, OnChanges, OnDestroy {
      * store the state before the showing list is modified and restore after if needed
      */
     updatePreviousState() {
-        let temp = JSON.parse(JSON.stringify(this.listCategories));
+        const temp = JSON.parse(JSON.stringify(this.listCategories));
         this.listCategoriesSaved = [...temp];
     }
     /* #endregion */

@@ -5,6 +5,7 @@ const consts = require('../../../../config/consts');
 const { merge } = require('../../../../libs/utils');
 const ModuleAction = require('../models/module-action');
 const Permission = require('../models/permission');
+const { translate } = require('../../../../libs/translate');
 
 const listModules = (req, returnData, callback) => {
     const { search, status, page, size, is_delete } = req.params;
@@ -231,7 +232,10 @@ const checkDelete = (ids) => {
             if(err) {
                 if(err.moduleNames && err.permissionNames){
                     const {moduleNames, permissionNames} = err;
-                    reject(`Các module '${moduleNames.join(',')}' không thể xóa do đang được sử dụng bởi các quyền sau: ${permissionNames.join(',')}`);
+                    reject(translate('module.delete-module-permission-attached', process.env.SYSTEM_LANG, {
+                        moduleNames: moduleNames.join(', '),
+                        permissionNames: permissionNames.join(', ')
+                    }));
                 } else reject(err);
             } else {
                 resolve();

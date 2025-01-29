@@ -33,17 +33,17 @@ export class UserCategoryComponent implements OnInit {
     listChecked: boolean[] = [];
     indexEditting: number = -1;
     indexHovering: number = -1;
-    nameEditting: string = "";
+    nameEditting: string = '';
     pageSize: number = 20;
     pageSizeOptions: number[] = CONSTS.page_size_options;
     iconSelectionDialogRef: MatDialogRef<IconSelectionComponent>;
     newCategoryDialog: MatDialogRef<CategoryDialogComponent>;
     confirmDeletionDialog: MatDialogRef<ConfirmDeletionComponent>;
 
-    @ViewChild("editInput") editInput: ElementRef;
+    @ViewChild('editInput') editInput: ElementRef;
 
     icons: Icon[] = [];
-    search: string = "";
+    search: string = '';
     page: number = 0;
     total: number = 0;
     loading: boolean = true;
@@ -66,7 +66,7 @@ export class UserCategoryComponent implements OnInit {
     /* #region Logic handler */
     editName(index: number) {
         // set current category to the previous state
-        let tempList = JSON.parse(JSON.stringify(this.listCategories));
+        const tempList = JSON.parse(JSON.stringify(this.listCategories));
         tempList[this.indexEditting] = this.listCategoriesSaved[this.indexEditting];
         this.listCategories = [...tempList];
 
@@ -75,7 +75,7 @@ export class UserCategoryComponent implements OnInit {
         this.indexHovering = -1;
         setTimeout(() => {
             this.editInput.nativeElement.focus();
-        })
+        });
     }
 
     cancelExitEditName() {
@@ -95,11 +95,11 @@ export class UserCategoryComponent implements OnInit {
         }, error => {
             this.toastService.error(CONSTS.messages.update_category_fail);
             console.error(error);
-        })
+        });
     }
 
     renewListChecked() {
-        let tempChecked: boolean[] = [];
+        const tempChecked: boolean[] = [];
         for (let i = 0; i < this.listCategories.length; i++) {
             tempChecked.push(false);
         }
@@ -116,7 +116,7 @@ export class UserCategoryComponent implements OnInit {
                 this.renewListChecked();
                 this.updatePreviousState();
             });
-        }, () => this.loading = false)
+        }, () => this.loading = false);
     }
 
     onPageEvent(evt: PageEvent){
@@ -126,7 +126,7 @@ export class UserCategoryComponent implements OnInit {
     }
 
     getListIcons() {
-        this.commonService.getListData("icon", {})
+        this.commonService.getListData('icon', {})
             .subscribe((res: Icon[]) => {
                 this.icons = [...res];
             });
@@ -134,7 +134,7 @@ export class UserCategoryComponent implements OnInit {
 
     editCategoryIcon(index: number) {
         if (this.indexEditting == index) {
-            let currentCategory = this.listCategories[index];
+            const currentCategory = this.listCategories[index];
             this.iconSelectionDialogRef = this.iconSelectDialog.open(IconSelectionComponent, {
                 data: {
                     icons: [...this.icons],
@@ -143,8 +143,8 @@ export class UserCategoryComponent implements OnInit {
             });
             this.iconSelectionDialogRef.afterClosed().subscribe((data: string) => {
                 if (data) {
-                    let tempList = JSON.parse(JSON.stringify(this.listCategories));
-                    let icon = this.icons.filter(i => i.path === data)[0];
+                    const tempList = JSON.parse(JSON.stringify(this.listCategories));
+                    const icon = this.icons.filter(i => i.path === data)[0];
                     tempList[index].icon = icon;
                     this.listCategories = [...tempList];
                 }
@@ -176,25 +176,25 @@ export class UserCategoryComponent implements OnInit {
                         this.getDataCategories();
                     }, error => {
                         this.toastService.error(CONSTS.messages.insert_category_fail);
-                    })
+                    });
                 }, error => {
-                    this.toastService.error(CONSTS.messages.icon_not_found)
-                })
+                    this.toastService.error(CONSTS.messages.icon_not_found);
+                });
             }
-        })
+        });
     }
 
     deleteCategories() {
-        let catesToDelete = this.listCategoriesSaved.filter((cate, ind) => {
+        const catesToDelete = this.listCategoriesSaved.filter((cate, ind) => {
             return this.listChecked[ind];
         });
         if (catesToDelete.length > 0) {
             this.confirmDeletionDialog = this.dialog.open(ConfirmDeletionComponent, {
                 data: {
-                    title: "Xác nhận xóa chủng loại?",
+                    title: 'Xác nhận xóa chủng loại?',
                     message: `Xóa ${catesToDelete.length} chủng loại?`
                 }
-            })
+            });
             this.confirmDeletionDialog.afterClosed().subscribe((isConfirmed: boolean | undefined) => {
                 if (isConfirmed) {
                     this.commonService.deleteCategories({ ids: catesToDelete.map((c: Category) => c._id), isAdmin: false }).subscribe(res => {
@@ -203,10 +203,10 @@ export class UserCategoryComponent implements OnInit {
                     }, err => {
                         console.error(err);
                         this.toastService.error(CONSTS.messages.delete_category_fail);
-                    })
+                    });
                 }
 
-            })
+            });
         }
         else {
             this.toastService.warning(CONSTS.select_to_delete_category);
@@ -218,7 +218,7 @@ export class UserCategoryComponent implements OnInit {
      * store the state before the showing list is modified and restore after if needed
      */
     updatePreviousState() {
-        let temp = JSON.parse(JSON.stringify(this.listCategories));
+        const temp = JSON.parse(JSON.stringify(this.listCategories));
         this.listCategoriesSaved = [...temp];
     }
     /* #endregion */

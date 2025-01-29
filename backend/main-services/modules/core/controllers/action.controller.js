@@ -5,6 +5,7 @@ const consts = require('../../../../config/consts');
 const { merge } = require('../../../../libs/utils');
 const ModuleAction = require('../models/module-action');
 const Permission = require('../models/permission');
+const { translate } = require('../../../../libs/translate');
 
 const listActions = (req, returnData, callback) => {
     const { search, status, page, size, is_delete } = req.params;
@@ -231,7 +232,10 @@ const checkDelete = ids => {
             if(err) {
                 if(err.actionNames && err.permissionNames){
                     const {actionNames, permissionNames} = err;
-                    reject(`Các hành động '${actionNames.join(',')}' không thể xóa do đang được sử dụng bởi các quyền sau: ${permissionNames.join(',')}`);
+                    reject(translate('action.delete-action-permission-attached', process.env.SYSTEM_LANG, {
+                        actionNames: actionNames.join(', '),
+                        permissionNames: permissionNames.join(', ')
+                    }));
                 } else reject(err);
             } else {
                 resolve();

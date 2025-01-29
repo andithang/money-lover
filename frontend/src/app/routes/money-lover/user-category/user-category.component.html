@@ -29,15 +29,15 @@
                     <div class="matero-col cursor-pointer user-category-item" fxFlex="50" fxFlex.gt-xs="20" fxFlex.gt-md="10" *ngFor="let category of listCategories; let i = index">
                         <span class="user-category-checkbox">
                             <mat-checkbox [(ngModel)]="listChecked[i]"
-                                *ngIf="category.isDefault == 0"></mat-checkbox>
+                                *ngIf="category.isDefault ==== 0"></mat-checkbox>
                         </span>
                         <div class="category-container p-t-32 position-relative"
                             (mouseenter)="onMouseEnterEdit(i)" (mouseleave)="onMouseLeaveEdit()"
-                            *ngIf="category.isDefault == 0; else default">
+                            *ngIf="category.isDefault ==== 0; else default">
                             <div (click)="editCategoryIcon(i)">
                                 <ml-icon [path]="category.icon.path" matLine></ml-icon>
                             </div>
-                            <div class="text-center" matLine *ngIf="indexEditting != i; else editting" [ngClass]="{'outcome-category-name': category.transactionType == 0, 'income-category-name': category.transactionType == 1}">
+                            <div class="text-center" matLine *ngIf="indexEditting !=== i; else editting" [ngClass]="{'outcome-category-name': category.transactionType === 0, 'income-category-name': category.transactionType === 1}">
                                 {{category.name}}
                             </div>
                             <ng-template #editting>
@@ -45,15 +45,15 @@
                                     <input #editInput matInput type="text" [(ngModel)]="nameEditting" />
                                 </div>
                             </ng-template>
-                            <button mat-icon-button *ngIf="indexHovering == i && indexEditting != i"
+                            <button mat-icon-button *ngIf="indexHovering === i && indexEditting !== i"
                                 class="position-absolute edit-category" (click)="editName(i)">
                                 <mat-icon color="accent">edit</mat-icon>
                             </button>
-                            <button mat-icon-button *ngIf="indexEditting == i" class="position-absolute accept-category"
+                            <button mat-icon-button *ngIf="indexEditting === i" class="position-absolute accept-category"
                                 (click)="finishEditName(i)">
                                 <mat-icon color="primary">check</mat-icon>
                             </button>
-                            <button mat-icon-button *ngIf="indexEditting == i" class="position-absolute cancel-category"
+                            <button mat-icon-button *ngIf="indexEditting === i" class="position-absolute cancel-category"
                                 (click)="cancelExitEditName()">
                                 <mat-icon color="accent">cancel</mat-icon>
                             </button>
@@ -63,7 +63,7 @@
                                 <div>
                                     <ml-icon [path]="category.icon.path" matLine></ml-icon>
                                 </div>
-                                <div class="text-center" matLine [ngClass]="{'outcome-category-name': category.transactionType == 0, 'income-category-name': category.transactionType == 1}">
+                                <div class="text-center" matLine [ngClass]="{'outcome-category-name': category.transactionType === 0, 'income-category-name': category.transactionType === 1}">
                                     {{category.name}}
                                 </div>
                             </div>

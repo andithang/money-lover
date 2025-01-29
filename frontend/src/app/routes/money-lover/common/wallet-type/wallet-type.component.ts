@@ -32,7 +32,7 @@ export class WalletTypeComponent implements OnInit, OnChanges {
     listChecked: boolean[] = [];
     indexEditting: number = -1;
     indexHovering: number = -1;
-    nameEditting: string = "";
+    nameEditting: string = '';
     page: number = 0;
     total: number = 0;
     pageSize: number = CONSTS.page_size;
@@ -43,7 +43,7 @@ export class WalletTypeComponent implements OnInit, OnChanges {
     readonly APP_ACTIONS = APP_ACTIONS;
     private destroy$ = new Subject<void>();
 
-    @ViewChild("editInput") editInput: ElementRef;
+    @ViewChild('editInput') editInput: ElementRef;
 
     @Input() icons: Icon[];
     /**
@@ -53,8 +53,8 @@ export class WalletTypeComponent implements OnInit, OnChanges {
 
     ngOnInit() {
         this.permissionChecked.pipe(takeUntil(this.destroy$)).subscribe((checked) => {
-            if(checked) this.getDataWalletTypes()
-        })
+            if(checked) this.getDataWalletTypes();
+        });
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -76,7 +76,7 @@ export class WalletTypeComponent implements OnInit, OnChanges {
     /* #region Logic handler */
     editName(index: number) {
         // set current wallet-type to the previous state
-        let tempList = JSON.parse(JSON.stringify(this.listWalletTypes));
+        const tempList = JSON.parse(JSON.stringify(this.listWalletTypes));
         tempList[this.indexEditting] = this.listWalletTypesSaved[this.indexEditting];
         this.listWalletTypes = [...tempList];
 
@@ -85,7 +85,7 @@ export class WalletTypeComponent implements OnInit, OnChanges {
         this.indexHovering = -1;
         setTimeout(() => {
             this.editInput.nativeElement.focus();
-        })
+        });
     }
 
     cancelExitEditName() {
@@ -104,11 +104,11 @@ export class WalletTypeComponent implements OnInit, OnChanges {
         }, error => {
             this.toast.error(CONSTS.messages.update_walettype_fail);
             console.error(error);
-        })
+        });
     }
 
     renewListChecked() {
-        let tempChecked: boolean[] = [];
+        const tempChecked: boolean[] = [];
         for (let i = 0; i < this.listWalletTypes.length; i++) {
             tempChecked.push(false);
         }
@@ -116,7 +116,7 @@ export class WalletTypeComponent implements OnInit, OnChanges {
     }
 
     getDataWalletTypes() {
-        if(this.authorService.isAuthorized(APP_ACTIONS.wallettype['list'])) {
+        if(this.authorService.isAuthorized(APP_ACTIONS.wallettype.list)) {
             this.loading = true;
             this.commonService.getListWalletTypes({ search: this.search, page: this.page, size: this.pageSize }).subscribe(res => {
                 this.loading = false;
@@ -129,7 +129,7 @@ export class WalletTypeComponent implements OnInit, OnChanges {
             }, () => {
                 this.loading = false;
                 this.listWalletTypes = [];
-            })
+            });
         } else {
             this.toast.error(this.translate.instant('my-ml.wallettype.message.not-allow-get-list'));
             this.loading = false;
@@ -139,7 +139,7 @@ export class WalletTypeComponent implements OnInit, OnChanges {
     editWalletTypeIcon(index: number) {
         if(this.authorService.isAuthorized(APP_ACTIONS.wallettype.update)) {
             if (this.indexEditting == index) {
-                let currentWalletType = this.listWalletTypes[index];
+                const currentWalletType = this.listWalletTypes[index];
                 this.iconSelectionDialogRef = this.iconSelectDialog.open(IconSelectionComponent, {
                     data: {
                         icons: [...this.icons],
@@ -148,8 +148,8 @@ export class WalletTypeComponent implements OnInit, OnChanges {
                 });
                 this.iconSelectionDialogRef.afterClosed().subscribe((data: string) => {
                     if (data) {
-                        let tempList = JSON.parse(JSON.stringify(this.listWalletTypes));                    
-                        let icon = this.icons.filter(i => i.path === data)[0];
+                        const tempList = JSON.parse(JSON.stringify(this.listWalletTypes));                    
+                        const icon = this.icons.filter(i => i.path === data)[0];
                         tempList[index].icon = icon;
                         this.listWalletTypes = [...tempList];
                     }
@@ -169,7 +169,7 @@ export class WalletTypeComponent implements OnInit, OnChanges {
      * store the state before the showing list is modified and restore after if needed
      */
     updatePreviousState() {
-        let temp = JSON.parse(JSON.stringify(this.listWalletTypes));
+        const temp = JSON.parse(JSON.stringify(this.listWalletTypes));
         this.listWalletTypesSaved = [...temp];
     }
     /* #endregion */
