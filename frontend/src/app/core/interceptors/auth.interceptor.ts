@@ -1,10 +1,13 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpInterceptor, HttpEvent, HttpHandler, HttpRequest, HttpResponse, HttpErrorResponse } from '@angular/common/http';
-import { catchError, Observable, of, throwError } from 'rxjs';
+import { catchError, filter, Observable, of, take, throwError } from 'rxjs';
 import { LocalStorageService, getResponseErrorMessage } from '@shared';
 import { ToastrService } from 'ngx-toastr';
-import { CONSTS } from 'app/consts';
+import { CONSTS, UNKNOWN_ERROR_MESSAGE } from 'app/consts';
 import { Router } from '@angular/router';
+import { CustomHttpResponseError, ResponseError } from 'app/model/system/response-error.model';
+import { TranslateService } from '@ngx-translate/core';
+import { waitForTranslation } from '@shared/utils/translate';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -15,26 +18,28 @@ export class AuthInterceptor implements HttpInterceptor {
         if (req.url.includes('login') || req.url.includes('register')) {
             return next.handle(req);
         }
-        let authReq = req.clone({
-            headers: req.headers.set("Authorization", "Bearer " + this.localStorage.get("user").token)
+        const authReq = req.clone({
+            headers: req.headers.set('Authorization', 'Bearer ' + this.localStorage.get('user').token)
         });
-        return next.handle(authReq).pipe(catchError((event: HttpErrorResponse) => this.handleErrorResponse(event)));
+        return next.handle(authReq).pipe(catchError((event: CustomHttpResponseError) => this.handleErrorResponse(event)));
     }
 
-    private handleErrorResponse(event: HttpErrorResponse): Observable<any> {
+    private handleErrorResponse(event: CustomHttpResponseError): Observable<HttpEvent<ResponseError>> {
+        const translate = inject(TranslateService);        
         if ([401, 403].includes(event.status)) {
             this.localStorage.clear();
             this.toastService.error(CONSTS.messages.request_fail);
             setTimeout(() => {
-                window.location.href = "/"
+                window.location.href = '/';
             });
         }
         if(event.status == 400){
-            this.toastService.error(getResponseErrorMessage(event.error.message))
+            waitForTranslation(translate).subscribe(() => this.toastService.error(translate.instant(getResponseErrorMessage(event.error.message))));
         }
         if(event.status == 500){
-            this.toastService.error("Lỗi hệ thống")
+            waitForTranslation(translate).subscribe(() => this.toastService.error(translate.instant('system.error.internal-error')));
         }
+        event.error.message = UNKNOWN_ERROR_MESSAGE; // when the api hits the other error handlers, we throw the default message
         return throwError(event);
     }
 }

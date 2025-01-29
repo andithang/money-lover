@@ -14,7 +14,7 @@ import { SettingsService } from '@core';
 /**
  * information about browser and os
  */
-declare var platform: any;
+declare let platform: any;
 
 @Component({
   selector: 'app-login',
@@ -35,32 +35,32 @@ export class LoginComponent implements OnInit, OnDestroy {
     private wsLambda: WSLambdaService,
     private toastService: ToastrService) {
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      if(!params['reload']){
+      if(!params.reload){
         // reload the google script to show "Sign in with google" button
         window.location.href = location.href + '?reload=true';
         return;
       }
-    })
+    });
     this.reactiveForm = this.fb.group({
       username: ['', [Validators.required]],
       password: ['', [Validators.required]],
     });
   }
 
-  googleLoginUri: string = "";
+  googleLoginUri: string = '';
   private destroy$ = new Subject();
   /**
    * email received from username and password correct
    */
-  receivedEmail: string = "";
+  receivedEmail: string = '';
   /**
    * random key returned with receivedEmail
    */
-  rd: string = "";
+  rd: string = '';
 
   ngOnInit() {     
-    this.googleLoginUri = environment.GOOGLE_LOGIN_URI + '?redirect_fe_uri='+environment.MoneyLoverURL+'/redirect' + "&gatewayForward=true";
-    this.localStorage.clear()
+    this.googleLoginUri = environment.GOOGLE_LOGIN_URI + '?redirect_fe_uri='+environment.MoneyLoverURL+'/redirect' + '&gatewayForward=true';
+    this.localStorage.clear();
     this.wsLambda.endConnection();
   }
 
@@ -70,7 +70,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   login() {
-    let { username, password } = this.reactiveForm.value;
+    const { username, password } = this.reactiveForm.value;
     this.authService.login(username, password, platform).subscribe(res => {
       if (res && Object.keys(res).includes('_id')) {
         this.localStorage.set('user', res);
@@ -85,13 +85,13 @@ export class LoginComponent implements OnInit, OnDestroy {
       else {
         if(Object.keys(res).includes('email') && Object.keys(res).includes('rd')){
           this.receivedEmail = res.email;
-          this.rd = (<{email: String, rd: string}>res).rd;
+          this.rd = (<{email: string, rd: string}>res).rd;
         }
         else {
-          this.toastService.error("Đăng nhập thất bại. Vui lòng thử lại");
+          this.toastService.error('Đăng nhập thất bại. Vui lòng thử lại');
         }
       }
-    })
+    });
   }
 
   loginWith(appName: string) {

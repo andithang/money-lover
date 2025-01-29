@@ -34,13 +34,13 @@ export class PermissionMngComponent implements OnInit, OnDestroy {
         this.authorService.getAllowActionsOnModule(location.pathname).subscribe(({actions}) => {
             this.authorService.allowActionsChange$.next(actions);
             this.permissionChecked.next(true);
-        }, () => this.permissionChecked.next(true))
+        }, () => this.permissionChecked.next(true));
     }
 
     ngOnInit() {       
         this.permissionChecked.pipe(takeUntil(this.destroy$)).subscribe((checked) => {
-            if(checked) this.searchPermissions()
-        })
+            if(checked) this.searchPermissions();
+        });
     }
 
     ngOnDestroy(): void {
@@ -50,7 +50,7 @@ export class PermissionMngComponent implements OnInit, OnDestroy {
     }
 
     listPermissions: Partial<Permission>[] = [];
-    searchKey: string = "";
+    searchKey: string = '';
     loading: boolean = false;
     listChecked: Map<string, Partial<Permission>> = new Map<string, Partial<Permission>>();
     total: number = 0;
@@ -81,7 +81,7 @@ export class PermissionMngComponent implements OnInit, OnDestroy {
                 if(!this.listPermissions.length) this.isAllChecked = false;
             }, err => {
                 this.loading = false;
-            })
+            });
         } else {
             this.toast.error(this.translate.instant('my-ml.permission.message.not-allow-get-list'));
             this.loading = false;
@@ -97,8 +97,8 @@ export class PermissionMngComponent implements OnInit, OnDestroy {
                 total: ma.actions.length,
                 module: ma.module,
                 displayList: ma.actions.filter((act, ind) => ind >= 0 && ind < CONSTS.page_size)
-            })
-        })
+            });
+        });
     }
 
     onChangePageActions(key: string, evt: PageEvent){
@@ -108,7 +108,7 @@ export class PermissionMngComponent implements OnInit, OnDestroy {
 
     onChangePageModuleActions(key: string, evt: PageEvent){
         const curr = this.mapOfModuleActions.get(key);
-        this.mapOfModuleActions.set(key, {...curr, page: evt.pageIndex, displayList: curr.list.filter((_, ind) => ind >= evt.pageIndex*curr.size && ind < (evt.pageIndex+1)*curr.size)})
+        this.mapOfModuleActions.set(key, {...curr, page: evt.pageIndex, displayList: curr.list.filter((_, ind) => ind >= evt.pageIndex*curr.size && ind < (evt.pageIndex+1)*curr.size)});
     }
 
     resetListChecked(){
@@ -117,7 +117,7 @@ export class PermissionMngComponent implements OnInit, OnDestroy {
 
     searchPermissions(){
         this.loading = true;
-        this.getListPermissions()
+        this.getListPermissions();
     }
 
     open(permission?: Partial<Permission>, evt?: Event){
@@ -130,9 +130,9 @@ export class PermissionMngComponent implements OnInit, OnDestroy {
             if(res){
                 this.searchPermissions();
             }
-        })
+        });
         if(evt){
-            evt.stopPropagation()
+            evt.stopPropagation();
         }
     }
 
@@ -144,7 +144,7 @@ export class PermissionMngComponent implements OnInit, OnDestroy {
         if(this.authorService.isAuthorized(APP_ACTIONS.permission['delete-many'])) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: "Xác nhận xóa quyền?",
+                    title: 'Xác nhận xóa quyền?',
                     message: `Xóa vĩnh viễn ${this.getNumOfSelected()} quyền?`
                 }
             })
@@ -155,14 +155,14 @@ export class PermissionMngComponent implements OnInit, OnDestroy {
                     .subscribe(res => {
                         this.loading = false;
                         this.resetListChecked();
-                        this.toast.success("Xóa vĩnh viễn quyền thành công");
+                        this.toast.success('Xóa vĩnh viễn quyền thành công');
                         this.searchPermissions();
                     }, err => {
                         this.loading = false;
-                        this.toast.error("Xóa vĩnh viễn quyền thất bại")
-                    })                
+                        this.toast.error('Xóa vĩnh viễn quyền thất bại');
+                    });                
                 }
-            })
+            });
         } else {
             this.toast.error(this.translate.instant('my-ml.permission.message.not-allow-delete'));
             this.loading = false;
@@ -186,7 +186,7 @@ export class PermissionMngComponent implements OnInit, OnDestroy {
     isShowDeleteButton(){
         if(this.listChecked.size){
             const checkedItems = Array.from(this.listChecked.values());
-            return checkedItems.length && checkedItems.map(u => u.is_delete).find(s => s) == null;
+            return checkedItems.length && !checkedItems.map(u => u.is_delete).find(s => s);
         }
         else return false;
     }
@@ -213,7 +213,7 @@ export class PermissionMngComponent implements OnInit, OnDestroy {
         if(val){
             this.listPermissions.forEach(permission => {
                 if(!this.listChecked.has(permission._id)) this.listChecked.set(permission._id, permission);
-            })
+            });
         } else this.resetListChecked();
     }
 
@@ -237,9 +237,9 @@ export class PermissionMngComponent implements OnInit, OnDestroy {
                         this.loading = false;
                         this.searchPermissions();
                         if(this.listChecked.has(permission._id)) this.listChecked.delete(permission._id);
-                    }, () => this.loading = false)
+                    }, () => this.loading = false);
                 }
-            })
+            });
         } else {
             this.toast.error(this.translate.instant('my-ml.permission.message.not-allow-delete'));
             this.loading = false;
@@ -252,9 +252,9 @@ export class PermissionMngComponent implements OnInit, OnDestroy {
                 this.listChecked.set(id, {
                     ...this.listChecked.get(id),
                     status
-                })
+                });
             }
-        })
+        });
     }
 
     changeStatus(permission: Partial<Permission>){
@@ -274,12 +274,12 @@ export class PermissionMngComponent implements OnInit, OnDestroy {
                         this.loading = false;
                         this.toast.success(`${permission.status ? 'Khóa': 'Mở khóa'} quyền thành công`);
                         this.searchPermissions();
-                        this.updateListCheckedAfterStatusChanged([permission._id], newStatus)
+                        this.updateListCheckedAfterStatusChanged([permission._id], newStatus);
                     }, err => {
                         this.loading = false;
-                    })                
+                    });                
                 }
-            })
+            });
         } else {
             this.toast.error(this.translate.instant('my-ml.permission.message.not-allow-update-status'));
             this.loading = false;
@@ -306,9 +306,9 @@ export class PermissionMngComponent implements OnInit, OnDestroy {
                         this.resetListChecked(); 
                     }, err => {
                         this.loading = false;
-                    })                
+                    });                
                 }
-            }) 
+            }); 
         } else {
             this.toast.error(this.translate.instant('my-ml.permission.message.not-allow-update-status'));
             this.loading = false;
@@ -321,10 +321,10 @@ export class PermissionMngComponent implements OnInit, OnDestroy {
             this.permissionService.getPermission(permission._id!).subscribe(per => {
                 this.mapOfExpandedPermission.set(permission._id, {data: per, loading: false});
                 this.mapOfModuleActions.set(permission._id, {loading: true, page: 0, size: CONSTS.page_size});
-                this.getListModuleActions(permission._id)
+                this.getListModuleActions(permission._id);
             }, () => {
                 this.mapOfExpandedPermission.set(permission._id, {loading: false});
-            })
+            });
         } else {
             this.toast.error(this.translate.instant('my-ml.permission.message.not-allow-get-one'));
             this.loading = false;
@@ -339,7 +339,7 @@ export class PermissionMngComponent implements OnInit, OnDestroy {
                 this.setMapOfActions(id, data.results);
             }, () => {
                 this.mapOfModuleActions.set(id, {...curr, loading: false}); // only set loading, keep current data
-            })        
+            });        
         }  else {
             this.toast.error(this.translate.instant('my-ml.permission.message.not-allow-get-moduleactions-by-permission'));
             this.loading = false;
@@ -354,7 +354,7 @@ export class PermissionMngComponent implements OnInit, OnDestroy {
             if(permissionKeys.includes(key)){
                 this.mapOfActions.delete(key);
             }
-        })
+        });
     }
 
     stopPropagation(event: MouseEvent){

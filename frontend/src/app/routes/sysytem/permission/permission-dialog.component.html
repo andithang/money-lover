@@ -99,10 +99,10 @@
                                                 <div [ngSwitch]="column">
                                                     <div *ngSwitchCase="'status'">
                                                         <ng-container *ngIf="element[column]; else notActive">
-                                                            <mat-icon class="active" matTooltip="Đang hoạt động">lock_open</mat-icon>
+                                                            <mat-icon class="active" matTooltip="{{ 'system.common.active' | translate }}">lock_open</mat-icon>
                                                         </ng-container>
                                                         <ng-template #notActive>
-                                                            <mat-icon class="inactive" matTooltip="Bị khóa">block</mat-icon>
+                                                            <mat-icon class="inactive" matTooltip="{{ 'system.common.locked' | translate }}">block</mat-icon>
                                                         </ng-template>
                                                     </div>
                                                     <div *ngSwitchCase="'checkbox'">

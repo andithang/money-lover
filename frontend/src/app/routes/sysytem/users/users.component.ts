@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { User } from 'app/model/user.model';
 import { UsersService } from './users.service';
-import { CONSTS } from 'app/consts';
+import { CONSTS, UNKNOWN_ERROR_MESSAGE } from 'app/consts';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDeletionComponent } from '@shared/components/confirm-deletion/confirm-deletion.component';
 import { ToastrService } from 'ngx-toastr';
@@ -13,6 +13,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { AuthorizationService } from '@shared/services/authorization.service';
 import { APP_ACTIONS } from 'app/actions';
 import { Subject, takeUntil } from 'rxjs';
+import { CustomHttpResponseError } from 'app/model/system/response-error.model';
 
 @Component({
     selector: 'users-list',
@@ -31,13 +32,13 @@ export class UsersListComponent implements OnInit, OnDestroy {
         this.authorService.getAllowActionsOnModule(location.pathname).subscribe(({actions}) => {
             this.authorService.allowActionsChange$.next(actions);
             this.permissionChecked.next(true);
-        }, () => this.permissionChecked.next(true))
+        }, () => this.permissionChecked.next(true));
     }
 
     ngOnInit() {       
         this.permissionChecked.pipe(takeUntil(this.destroy$)).subscribe((checked) => {
-            if(checked) this.searchUsers()
-        })
+            if(checked) this.searchUsers();
+        });
     }
 
     ngOnDestroy(): void {
@@ -46,9 +47,9 @@ export class UsersListComponent implements OnInit, OnDestroy {
         this.authorService.allowActionsReady$.next(false);
     }
 
-    searchKey: string = "";
+    searchKey: string = '';
     userList: Partial<User>[] = [];
-    displayedColumns: string[] = ['checkbox', 'Username', 'Họ Tên', 'Email', 'Vai trò', 'Ngày tạo', 'Trạng thái', 'Thao tác'];
+    displayedColumns: string[] = ['checkbox', 'system.user.username', 'system.user.fullname', 'system.user.email', 'system.user.role', 'system.common.date-created', 'system.common.status', 'system.common.actions'];
     columnProps: string[] = ['checkbox', 'username','fullname', 'email', 'level', 'dateCreated', 'status', 'actions'];
     total: number = 0;
     pageSize: number = CONSTS.page_size;
@@ -71,17 +72,17 @@ export class UsersListComponent implements OnInit, OnDestroy {
                 this.listChecked.set(id, {
                     ...this.listChecked.get(id),
                     [key]: value
-                })
+                });
             }
-        })
+        });
     }
 
     deactivate(){
         if(this.authorService.isAuthorized(APP_ACTIONS.users.deactivate)) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: "Xác nhận vô hiệu hóa tài khoản?",
-                    message: `Vô hiệu ${this.listChecked.size} tài khoản?`
+                    title: this.translate.instant('system.user.deactivate-title'),
+                    message: this.translate.instant('system.user.deactivate-content', { size: this.listChecked.size })
                 }
             })
             .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
@@ -90,15 +91,15 @@ export class UsersListComponent implements OnInit, OnDestroy {
                     this.usersService.deactivateUsers(Array.from(this.listChecked.keys()))
                     .subscribe(res => {
                         this.loading = false;
-                        this.toast.success("Vô hiệu hóa tài khoản thành công");
+                        this.toast.success(this.translate.instant('system.user.deactivate-success'));
                         this.searchUsers();
                         this.resetListChecked(); 
-                    }, err => {
+                    }, (err: CustomHttpResponseError) => {
                         this.loading = false;
-                        this.toast.error("Vô hiệu hóa tài khoản thất bại")
-                    })                
+                        if(err.error.message === UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.deactivate-failed'));
+                    });                
                 }
-            })
+            });
         } else {
             this.toast.error(this.translate.instant('my-ml.user.message.not-allow-deactivate'));
             this.loading = false;
@@ -109,8 +110,8 @@ export class UsersListComponent implements OnInit, OnDestroy {
         if(this.authorService.isAuthorized(APP_ACTIONS.users['delete-temp-many'])) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: "Xác nhận xóa tài khoản?",
-                    message: `Xóa vĩnh viễn ${this.listChecked.size} tài khoản?`
+                    title: this.translate.instant('system.user.delete-title-many'),
+                    message: this.translate.instant('system.user.delete-content-many', { size: this.listChecked.size })
                 }
             })
             .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
@@ -118,16 +119,16 @@ export class UsersListComponent implements OnInit, OnDestroy {
                     this.loading = true;
                     this.usersService.deleteUsers(Array.from(this.listChecked.keys()))
                     .subscribe(res => {
-                        this.toast.success("Xóa vĩnh viễn tài khoản thành công");
+                        this.toast.success(this.translate.instant('system.user.delete-many-success'));
                         this.loading = false;
                         this.searchUsers();
                         this.resetListChecked();
-                    }, err => {
+                    }, (err: CustomHttpResponseError) => {
                         this.loading = false;
-                        this.toast.error("Xóa vĩnh viễn tài khoản thất bại")
-                    })                
+                        if(err.error.message !== UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.delete-many-failed'));
+                    });                
                 }
-            })
+            });
         }  else {
             this.toast.error(this.translate.instant('my-ml.user.message.not-allow-delete-temp-many'));
             this.loading = false;
@@ -146,7 +147,7 @@ export class UsersListComponent implements OnInit, OnDestroy {
                 this.updateCheckAll();
             }, err => {
                 this.loading = false;
-            })
+            });
         }  else {
             this.toast.error(this.translate.instant('my-ml.user.message.not-allow-get-list'));
             this.loading = false;
@@ -171,7 +172,7 @@ export class UsersListComponent implements OnInit, OnDestroy {
         if(val){
             this.userList.forEach(user => {
                 if(!this.listChecked.has(user._id)) this.listChecked.set(user._id, user);
-            })
+            });
         } else this.resetListChecked();
     }
 
@@ -179,8 +180,8 @@ export class UsersListComponent implements OnInit, OnDestroy {
         if(this.authorService.isAuthorized(APP_ACTIONS.users.unlock)) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: "Xác nhận mở khóa tài khoản?",
-                    message: `Mở khóa ${this.listChecked.size} tài khoản?`
+                    title: this.translate.instant('system.user.unlock-title-many'),
+                    message: this.translate.instant('system.user.unlock-content-many', { size: this.listChecked.size })
                 }
             })
             .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
@@ -189,15 +190,15 @@ export class UsersListComponent implements OnInit, OnDestroy {
                     this.usersService.unlockUsers(Array.from(this.listChecked.keys()))
                     .subscribe(res => {
                         this.loading = false;
-                        this.toast.success("Mở khóa tài khoản thành công");
+                        this.toast.success(this.translate.instant('system.user.unlock-many-success'));
                         this.searchUsers();
                         this.resetListChecked(); 
                     }, err => {
                         this.loading = false;
-                        this.toast.error("Mở khóa tài khoản thất bại")
-                    })                
+                        this.toast.error(this.translate.instant('system.user.unlock-many-failed'));
+                    });                
                 }
-            })
+            });
         }  else {
             this.toast.error(this.translate.instant('my-ml.user.message.not-allow-unlock'));
             this.loading = false;
@@ -254,21 +255,24 @@ export class UsersListComponent implements OnInit, OnDestroy {
         if(this.authorService.isAuthorized(APP_ACTIONS.users['delete-temp-one'])) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: `Xác nhận xóa tài khoản '${user.username}'?`,
-                    message: `Xóa tài khoản với username '${user.username}'?`
+                    title: this.translate.instant('system.user.delete-title-one'),
+                    message: this.translate.instant('system.user.delete-content-one', { username: user.username })
                 }
             })
             .afterClosed().subscribe((isConfirmed?: boolean) => {
                 if(isConfirmed){
                     this.loading = true;
                     this.usersService.deleteSingleUser(user._id).subscribe(() => {
-                        this.toast.success(`Xóa tài khoản thành công`);
+                        this.toast.success(this.translate.instant('system.user.delete-one-success'));
                         this.loading = false;
                         this.searchUsers();
                         if(this.listChecked.has(user._id)) this.listChecked.delete(user._id);
-                    }, () => this.loading = false)
+                    }, (err: CustomHttpResponseError) => {
+                        this.loading = false;
+                        if(err.error.message !== UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.delete-one-failed'));
+                    });
                 }
-            })
+            });
         }  else {
             this.toast.error(this.translate.instant('my-ml.user.message.not-allow-delete-temp-one'));
             this.loading = false;
@@ -279,22 +283,25 @@ export class UsersListComponent implements OnInit, OnDestroy {
         if(this.authorService.isAuthorized(APP_ACTIONS.users['restore-many'])) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: `Xác nhận khôi phục tài khoản`,
-                    message: user ? `Khôi phục tài khoản với username '${user.username}'?`: `Khôi phục ${this.listChecked.size} tài khoản?`
+                    title: this.translate.instant('system.user.restore-title'),
+                    message: user ? this.translate.instant('system.user.restore-content-one', { username: user.username }): this.translate.instant('system.user.restore-content-many', { size: this.listChecked.size })
                 }
             })
             .afterClosed().subscribe((isConfirmed?: boolean) => {
                 if(isConfirmed){
                     this.loading = true;
                     this.usersService.restoreUsers(user ? [user._id]: Array.from(this.listChecked.keys())).subscribe(() => {
-                        this.toast.success(`Khôi phục ${user ? '1': this.listChecked.size} tài khoản thành công`);
+                        this.toast.success(this.translate.instant('system.user.restore-success'));
                         this.loading = false;
                         this.searchUsers();
                         if(user && this.listChecked.has(user._id)) this.listChecked.delete(user._id);
                         else if(!user) this.resetListChecked();
-                    }, () => this.loading = false)
+                    }, (err: CustomHttpResponseError) => {
+                        this.loading = false;
+                        if(err.error.message !== UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.restore-failed'));
+                    });
                 }
-            })
+            });
         }  else {
             this.toast.error(this.translate.instant('my-ml.user.message.not-allow-restore-many'));
             this.loading = false;
@@ -305,22 +312,25 @@ export class UsersListComponent implements OnInit, OnDestroy {
         if(this.authorService.isAuthorized(APP_ACTIONS.users['delete-many-forever'])) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: `Xác nhận xóa vĩnh viễn`,
-                    message: user ? `Hành động này không thể hoàn tác. Xóa vĩnh viễn tài khoản '${user.username}'?`: `Hành động này không thể hoàn tác. Xóa vĩnh viễn ${this.listChecked.size} tài khoản?`
+                    title: this.translate.instant(`system.user.delete-perm-title`),
+                    message: this.translate.instant(user ? `system.user.delete-one-perm-content`: `system.user.delete-many-perm-content`, { size: this.listChecked.size, username: user.username })
                 }
             })
             .afterClosed().subscribe((isConfirmed?: boolean) => {
                 if(isConfirmed){
                     this.loading = true;
                     this.usersService.deletePermanently(user? [user._id]: Array.from(this.listChecked.keys())).subscribe(() => {
-                        this.toast.success(`Xóa vĩnh viễn ${user ? '1': this.listChecked.size} tài khoản thành công`);
+                        this.toast.success(this.translate.instant('system.user.delete-perm-success'));
                         this.loading = false;
                         this.searchUsers();
                         if(user && this.listChecked.has(user._id)) this.listChecked.delete(user._id);
                         else if(!user) this.listChecked.clear();
-                    }, () => this.loading = false)
+                    }, (err: CustomHttpResponseError) => {
+                        this.loading = false;
+                        if(err.error.message !== UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.delete-perm-failed'));
+                    });
                 }
-            })
+            });
         }  else {
             this.toast.error(this.translate.instant('my-ml.user.message.not-allow-delete-many-forever'));
             this.loading = false;
@@ -331,20 +341,23 @@ export class UsersListComponent implements OnInit, OnDestroy {
         if(this.authorService.isAuthorized(APP_ACTIONS.users['reset-password'])) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: `Cài lại mật khẩu`,
-                    message: `Cài lại mật khẩu cho tài khoản '${user.username}'? Mật khẩu mới sẽ được gửi về email '${user.email}'`
+                    title: this.translate.instant(`system.error.reset-password-title`),
+                    message: this.translate.instant(`system.error.reset-password-content`, { username: user.username, email: user.email })
                 }
             })
             .afterClosed().subscribe((isConfirmed?: boolean) => {
                 if(isConfirmed){
                     this.loading = true;
                     this.usersService.resetPassword(user._id).subscribe(() => {
-                        this.toast.success(`Cài lại mật khẩu cho tài khoản thành công`);
+                        this.toast.success(this.translate.instant(`system.user.reset-password-success`));
                         this.loading = false;
                         this.searchUsers();
-                    }, () => this.loading = false)
+                    }, (err: CustomHttpResponseError) => {
+                        this.loading = false;
+                        if(err.error.message !== UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.reset-password-failed'));
+                    });
                 }
-            })
+            });
         }  else {
             this.toast.error(this.translate.instant('my-ml.user.message.not-allow-reset-password'));
             this.loading = false;
@@ -360,11 +373,14 @@ export class UsersListComponent implements OnInit, OnDestroy {
             }).afterClosed().subscribe((newRole: Partial<Role>) => {
                 if(newRole){
                     this.usersService.updateUserRole(user._id, newRole._id).subscribe(() => {
-                        this.toast.success('Cập nhật vai trò người dùng thành công');
+                        this.toast.success(this.translate.instant('system.user.update-role-success'));
                         this.searchUsers();
-                    })
+                    }, (err: CustomHttpResponseError) => {
+                        this.loading = false;
+                        if(err.error.message !== UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.update-role-failed'));
+                    });
                 }
-            })
+            });
         }  else {
             this.toast.error(this.translate.instant('my-ml.user.message.not-allow-update-user-role'));
             this.loading = false;

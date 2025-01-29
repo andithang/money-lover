@@ -182,6 +182,62 @@
             "not-allow-delete": "Bạn không có quyền xóa người dùng trên trang này"
           }
         }
+    },
+    "system": {
+      "user": {
+        "deactivate-title": "Xác nhận vô hiệu hóa tài khoản",
+        "deactivate-content": "Vô hiệu {{size}} tài khoản?",
+        "deactivate-success": "Vô hiệu hóa tài khoản thành công",
+        "deactivate-failed": "Vô hiệu hóa tài khoản thất bại",
+        "delete-title-many": "Xác nhận xóa tài khoản",
+        "delete-content-many": "Xóa vĩnh viễn {{size}} tài khoản?",
+        "delete-many-success": "Xóa vĩnh viễn tài khoản thành công",
+        "delete-many-failed": "Xóa vĩnh viễn tài khoản thất bại",
+        "unlock-title-many": "Xác nhận mở khóa tài khoản",
+        "unlock-content-many": "Xác nhận mở khóa {{size}} tài khoản?",
+        "unlock-many-success": "Mở khóa tài khoản thành công",
+        "unlock-many-failed": "Mở khóa tài khoản thất bại",
+        "delete-title-one": "Xác nhận xóa tạm thời tài khoản",
+        "delete-content-one": "Xóa tạm thời tài khoản với username '{{username}}'?",
+        "delete-one-success": "Xóa tạm thời tài khoản thành công",
+        "delete-one-failed": "Xóa tạm thời tài khoản thất bại",
+        "restore-title": "Xác nhận khôi phục tài khoản",
+        "restore-content-one": "Xác nhận khôi phục tài khoản với username '{{username}}'?",
+        "restore-content-many": "Xác nhận khôi phục {{size}} tài khoản?",
+        "restore-success": "Khôi phục tài khoản thành công",
+        "restore-failed": "Khôi phục tài khoản thất bại",
+        "delete-perm-title": "Xác nhận xóa tài khoản vĩnh viễn",
+        "delete-one-perm-content": "Hành động này không thể hoàn tác. Xóa vĩnh viễn tài khoản '{{username}}'?",
+        "delete-many-perm-content": "Hành động này không thể hoàn tác. Xóa vĩnh viễn {{size}} tài khoản?",
+        "delete-perm-success": "Xóa vĩnh viễn tài khoản thành công",
+        "delete-perm-failed": "Xóa vĩnh viễn tài khoản thất bại",
+        "reset-password-title": "Xác nhận cài lại mật khẩu",
+        "reset-password-content": "Cài lại mật khẩu cho tài khoản '{{username}}'? Mật khẩu mới sẽ được gửi về email '{{email}}'",
+        "reset-password-success": "Cài lại mật khẩu cho tài khoản thành công",
+        "reset-password-failed": "Cài lại mật khẩu cho tài khoản thất bại",
+        "update-role-success": "Cập nhật vai trò người dùng thành công",
+        "update-role-failed": "Cập nhật vai trò người dùng thất bại",
+        "username": "Username",
+        "fullname": "Họ Tên",
+        "email": "Email",
+        "role": "Vai trò",
+        "reset-password": "Cài lại mật khẩu",
+        "configure-role": "Cấu hình vai trò",
+        "restore": "Khôi phục",
+        "delete-temp": "Xóa",
+        "delete-perm": "Xóa vĩnh viễn"
+      },
+      "error": {
+        "internal-error": "Lỗi hệ thống"
+      },
+      "common": {
+        "date-created": "Ngày tạo",
+        "status": "Trạng thái",
+        "actions": "Thao tác",
+        "active": "Đang hoạt động",
+        "locked": "Bị khóa",
+        "deleted-temp": "Đã xóa tạm thời"
+      }
     }
   }
   

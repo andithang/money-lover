@@ -46,7 +46,7 @@ export function TranslateHttpLoaderFactory(http: HttpClient) {
         useFactory: TranslateHttpLoaderFactory,
         deps: [HttpClient],
       },
-      defaultLanguage: "en-US"
+      defaultLanguage: 'vi-VN'
     })
   ],
   providers: [
