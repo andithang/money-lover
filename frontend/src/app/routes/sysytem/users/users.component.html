@@ -1,7 +1,7 @@
 <mat-card>
-    <mat-card-title>Người dùng hệ thống</mat-card-title>
+    <mat-card-title>{{ 'system.user.user-mng-title' | translate }}</mat-card-title>
     <mat-card-subtitle>
-        Danh sách người dùng hệ thống
+        {{ 'system.user.user-mng-description' | translate }}
     </mat-card-subtitle>
     <mat-card-content>
         <div class="p-y-4">
@@ -16,37 +16,37 @@
                 <span>
                     <button mat-button color="primary" (click)="addUser()" *accessCheck="APP_ACTIONS.users['create']">
                         <mat-icon>add</mat-icon>
-                        Thêm mới
+                        {{ 'system.common.create' | translate }}
                     </button>
                 </span>
                 <span *accessCheck="APP_ACTIONS.users['deactivate']">
                     <button mat-button *ngIf="isShowLockButton()" color="accent" (click)="deactivate()">
                         <mat-icon>block</mat-icon>
-                        Khóa
+                        {{ 'system.common.lock' | translate }}
                     </button>
                 </span>
                 <span *accessCheck="APP_ACTIONS.users['unlock']">
                     <button mat-button *ngIf="isShowUnlockButton()" color="success" class="mat-success-outlined" (click)="openLock()">
                         <mat-icon>lock_open</mat-icon>
-                        Mở khóa
+                        {{ 'system.common.unlock' | translate }}
                     </button>
                 </span>
                 <span *accessCheck="APP_ACTIONS.users['delete-temp-many']">
                     <button mat-button *ngIf="isShowDeleteTempButton()" color="warn" (click)="delete()">
                         <mat-icon>delete</mat-icon>
-                        Xóa
+                        {{ 'system.common.delete' | translate }}
                     </button>
                 </span>
                 <span *accessCheck="APP_ACTIONS.users['restore-many']">
                     <button mat-button *ngIf="isShowRestoreButton()" (click)="restoreUser()">
                         <mat-icon>refresh</mat-icon>
-                        Khôi phục
+                        {{ 'system.common.restore' | translate }}
                     </button>
                 </span>
                 <span *accessCheck="APP_ACTIONS.users['delete-many-forever']">
                     <button mat-button *ngIf="isShowDeletePermanentButton()" color="warn" (click)="deletePermanently()">
                         <mat-icon>delete_forever</mat-icon>
-                        Xóa vĩnh viễn
+                        {{ 'system.common.delete-perm' | translate }}
                     </button>
                 </span>
             </mat-card-actions>
@@ -99,11 +99,31 @@
                                     <div *ngSwitchCase="'actions'">
                                         <button mat-icon-button [matMenuTriggerFor]="menuActions"><mat-icon>more_vert</mat-icon></button>
                                         <mat-menu #menuActions="matMenu">
-                                            <span *accessCheck="APP_ACTIONS.users['reset-password']"><button mat-menu-item *ngIf="element.status" (click)="resetPassword(element)"><mat-icon>repeat</mat-icon>{{ 'system.user.reset-password' | translate }}</button></span>
-                                            <span *accessCheck="APP_ACTIONS.users['update-user-role']"><button mat-menu-item *ngIf="element.status" (click)="chooseUserRole(element)"><mat-icon>book</mat-icon>{{ 'system.user.configure-role' | translate }}</button></span>
-                                            <span *accessCheck="APP_ACTIONS.users['restore-many']"><button mat-menu-item *ngIf="element.is_delete" (click)="restoreUser(element)"><mat-icon>refresh</mat-icon>{{ 'system.user.restore' | translate }}</button></span>
-                                            <span *accessCheck="APP_ACTIONS.users['delete-temp-one']"><button mat-menu-item *ngIf="!element.is_delete" class="dropdown-item dropdown-item-accent" (click)="deleteSingleUser(element)"><mat-icon color="accent">delete</mat-icon>{{ 'system.user.delete-temp' | translate }}</button></span>
-                                            <span *accessCheck="APP_ACTIONS.users['delete-many-forever']"><button mat-menu-item *ngIf="element.is_delete" class="dropdown-item dropdown-item-warn" (click)="deletePermanently(element)"><mat-icon color="warn">delete_forever</mat-icon>{{ 'system.user.delete-perm' | translate }}</button></span>
+                                            <span *accessCheck="APP_ACTIONS.users['reset-password']">
+                                                <button mat-menu-item *ngIf="element.status" (click)="resetPassword(element)">
+                                                    <mat-icon>repeat</mat-icon>{{ 'system.user.reset-password' | translate }}
+                                                </button>
+                                            </span>
+                                            <span *accessCheck="APP_ACTIONS.users['update-user-role']">
+                                                <button mat-menu-item *ngIf="element.status" (click)="chooseUserRole(element)">
+                                                    <mat-icon>book</mat-icon>{{ 'system.user.configure-role' | translate }}
+                                                </button>
+                                            </span>
+                                            <span *accessCheck="APP_ACTIONS.users['restore-many']">
+                                                <button mat-menu-item *ngIf="element.is_delete" (click)="restoreUser(element)">
+                                                    <mat-icon>refresh</mat-icon>{{ 'system.user.restore' | translate }}
+                                                </button>
+                                            </span>
+                                            <span *accessCheck="APP_ACTIONS.users['delete-temp-one']">
+                                                <button mat-menu-item *ngIf="!element.is_delete" class="dropdown-item dropdown-item-accent" (click)="deleteSingleUser(element)">
+                                                    <mat-icon color="accent">delete</mat-icon>{{ 'system.user.delete-temp' | translate }}
+                                                </button>
+                                            </span>
+                                            <span *accessCheck="APP_ACTIONS.users['delete-many-forever']">
+                                                <button mat-menu-item *ngIf="element.is_delete" class="dropdown-item dropdown-item-warn" (click)="deletePermanently(element)">
+                                                    <mat-icon color="warn">delete_forever</mat-icon>{{ 'system.user.delete-perm' | translate }}
+                                                </button>
+                                            </span>
                                         </mat-menu>
                                     </div>
                                     <div *ngSwitchDefault>

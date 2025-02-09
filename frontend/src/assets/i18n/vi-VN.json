@@ -225,7 +225,30 @@
         "configure-role": "Cấu hình vai trò",
         "restore": "Khôi phục",
         "delete-temp": "Xóa",
-        "delete-perm": "Xóa vĩnh viễn"
+        "delete-perm": "Xóa vĩnh viễn",
+        "user-mng-title": "Người dùng hệ thống",
+        "user-mng-description": "Danh sách người dùng hệ thống"
+      },
+      "role": {
+        "role-name": "Tên vai trò",
+        "role-code": "Mã vai trò",
+        "delete-title": "Xác nhận xóa vai trò",
+        "delete-many-content": "Xóa vĩnh viễn {{count}} vai trò?",
+        "delete-success": "Xóa vĩnh viễn vai trò thành công",
+        "delete-failed": "Xóa vĩnh viễn vai trò thất bại",
+        "delete-one-content": "Xóa vĩnh viễn vai trò '{{name}}'?",
+        "lock-title": "Xác nhận khóa vai trò",
+        "unlock-title": "Xác nhận mở khóa vai trò",
+        "lock-content": "Khóa vai trò '{{name}}'?",
+        "lock-many-content": "Khóa {{count}} vai trò?",
+        "unlock-many-content": "Mở khóa {{count}} vai trò?",
+        "unlock-content": "Mở khóa vai trò'{{name}}'?",
+        "lock-failed": "Khoá vai trò thất bại",
+        "lock-success": "Khoá vai trò thành công",
+        "unlock-failed": "Mở khoá vai trò thất bại",
+        "unlock-success": "Mở khoá vai trò thành công",
+        "role-mng-title": "Vai trò hệ thống",
+        "role-mng-description": "Danh sách vai trò hệ thống"
       },
       "error": {
         "internal-error": "Lỗi hệ thống"
@@ -236,7 +259,15 @@
         "actions": "Thao tác",
         "active": "Đang hoạt động",
         "locked": "Bị khóa",
-        "deleted-temp": "Đã xóa tạm thời"
+        "deleted-temp": "Đã xóa tạm thời",
+        "description": "Mô tả",
+        "update": "Cập nhật",
+        "lock": "Khóa",
+        "unlock": "Mở khóa",
+        "delete": "Xóa",
+        "create": "Thêm mới",
+        "restore": "Khôi phục",
+        "delete-perm": "Xóa vĩnh viễn"
       }
     }
   }

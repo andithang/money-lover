@@ -97,6 +97,7 @@ export class UsersListComponent implements OnInit, OnDestroy {
                     }, (err: CustomHttpResponseError) => {
                         this.loading = false;
                         if(err.error.message === UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.deactivate-failed'));
+                        else this.toast.error(this.translate.instant(err.error.message));
                     });                
                 }
             });
@@ -125,7 +126,8 @@ export class UsersListComponent implements OnInit, OnDestroy {
                         this.resetListChecked();
                     }, (err: CustomHttpResponseError) => {
                         this.loading = false;
-                        if(err.error.message !== UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.delete-many-failed'));
+                        if(err.error.message === UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.delete-many-failed'));
+                        else this.toast.error(this.translate.instant(err.error.message));
                     });                
                 }
             });
@@ -269,7 +271,8 @@ export class UsersListComponent implements OnInit, OnDestroy {
                         if(this.listChecked.has(user._id)) this.listChecked.delete(user._id);
                     }, (err: CustomHttpResponseError) => {
                         this.loading = false;
-                        if(err.error.message !== UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.delete-one-failed'));
+                        if(err.error.message === UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.delete-one-failed'));
+                        else this.toast.error(this.translate.instant(err.error.message));
                     });
                 }
             });
@@ -298,7 +301,8 @@ export class UsersListComponent implements OnInit, OnDestroy {
                         else if(!user) this.resetListChecked();
                     }, (err: CustomHttpResponseError) => {
                         this.loading = false;
-                        if(err.error.message !== UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.restore-failed'));
+                        if(err.error.message === UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.restore-failed'));
+                        else this.toast.error(this.translate.instant(err.error.message));
                     });
                 }
             });
@@ -327,7 +331,8 @@ export class UsersListComponent implements OnInit, OnDestroy {
                         else if(!user) this.listChecked.clear();
                     }, (err: CustomHttpResponseError) => {
                         this.loading = false;
-                        if(err.error.message !== UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.delete-perm-failed'));
+                        if(err.error.message === UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.delete-perm-failed'));
+                        else this.toast.error(this.translate.instant(err.error.message));
                     });
                 }
             });
@@ -354,7 +359,8 @@ export class UsersListComponent implements OnInit, OnDestroy {
                         this.searchUsers();
                     }, (err: CustomHttpResponseError) => {
                         this.loading = false;
-                        if(err.error.message !== UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.reset-password-failed'));
+                        if(err.error.message === UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.reset-password-failed'));
+                        else this.toast.error(this.translate.instant(err.error.message));
                     });
                 }
             });
@@ -377,7 +383,8 @@ export class UsersListComponent implements OnInit, OnDestroy {
                         this.searchUsers();
                     }, (err: CustomHttpResponseError) => {
                         this.loading = false;
-                        if(err.error.message !== UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.update-role-failed'));
+                        if(err.error.message === UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.user.update-role-failed'));
+                        else this.toast.error(this.translate.instant(err.error.message));
                     });
                 }
             });

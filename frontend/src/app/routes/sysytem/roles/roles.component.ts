@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Role } from 'app/model/role.model';
-import { CONSTS } from 'app/consts';
+import { CONSTS, UNKNOWN_ERROR_MESSAGE } from 'app/consts';
 import { ConfirmDeletionComponent } from '@shared/components/confirm-deletion/confirm-deletion.component';
 import { ToastrService } from 'ngx-toastr';
 import { PageEvent } from '@angular/material/paginator';
@@ -12,6 +12,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { AuthorizationService } from '@shared/services/authorization.service';
 import { APP_ACTIONS } from 'app/actions';
 import { takeUntil, Subject } from 'rxjs';
+import { CustomHttpResponseError } from 'app/model/system/response-error.model';
 
 @Component({
     selector: 'roles',
@@ -30,13 +31,13 @@ export class RoleMngComponent implements OnInit, OnDestroy {
         this.authorService.getAllowActionsOnModule(location.pathname).subscribe(({actions}) => {
             this.authorService.allowActionsChange$.next(actions);
             this.permissionChecked.next(true);
-        }, () => this.permissionChecked.next(true))
+        }, () => this.permissionChecked.next(true));
     }
 
     ngOnInit() {         
         this.permissionChecked.pipe(takeUntil(this.destroy$)).subscribe((checked) => {
-            if(checked) this.searchRoles()
-        })
+            if(checked) this.searchRoles();
+        });
     }
 
     ngOnDestroy(): void {
@@ -46,8 +47,8 @@ export class RoleMngComponent implements OnInit, OnDestroy {
     }
 
     listRoles: Partial<Role>[] = [];
-    searchKey: string = "";
-    displayedColumns: string[] = ['checkbox', 'Tên vai trò', 'Mã vai trò', 'Mô tả', 'Ngày tạo', 'Trạng thái', 'Thao tác'];
+    searchKey: string = '';
+    displayedColumns: string[] = ['checkbox', 'system.role.role-name', 'system.role.role-code', 'system.common.description', 'system.common.date-created', 'system.common.status', 'system.common.actions'];
     columnProps: string[] = ['checkbox', 'title','code', 'description', 'dateCreated', 'status', 'actions'];
     loading: boolean = false;
     listChecked: Map<string, Partial<Role>> = new Map<string, Partial<Role>>();
@@ -70,7 +71,7 @@ export class RoleMngComponent implements OnInit, OnDestroy {
                 if(!this.listRoles.length) this.isAllChecked = false;
             }, err => {
                 this.loading = false;
-            })
+            });
         } else {
             this.toast.error(this.translate.instant('my-ml.role.message.not-allow-get-list'));
             this.loading = false;
@@ -83,7 +84,7 @@ export class RoleMngComponent implements OnInit, OnDestroy {
 
     searchRoles(){
         this.loading = true;
-        this.getListRoles()
+        this.getListRoles();
     }
 
     open(role?: Partial<Role>, evt?: Event){
@@ -97,9 +98,9 @@ export class RoleMngComponent implements OnInit, OnDestroy {
             if(res){
                 this.searchRoles();
             }
-        })
+        });
         if(evt){
-            evt.stopPropagation()
+            evt.stopPropagation();
         }
     }
 
@@ -111,8 +112,8 @@ export class RoleMngComponent implements OnInit, OnDestroy {
         if(this.authorService.isAuthorized(APP_ACTIONS.role['delete-many'])) { 
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: "Xác nhận xóa vai trò?",
-                    message: `Xóa vĩnh viễn ${this.getNumOfSelected()} vai trò?`
+                    title: this.translate.instant('system.role.delete-title'),
+                    message: this.translate.instant('system.role.delete-many-content', { count: this.getNumOfSelected() })
                 }
             })
             .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
@@ -122,14 +123,15 @@ export class RoleMngComponent implements OnInit, OnDestroy {
                     .subscribe(res => {
                         this.loading = false;
                         this.resetListChecked();
-                        this.toast.success("Xóa vĩnh viễn vai trò thành công");
+                        this.toast.success(this.translate.instant('system.role.delete-success'));
                         this.searchRoles();
-                    }, err => {
+                    }, (err: CustomHttpResponseError) => {
                         this.loading = false;
-                        this.toast.error("Xóa vĩnh viễn vai trò thất bại")
-                    })                
+                        if(err.error.message === UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.role.delete-failed'));
+                        else this.toast.error(this.translate.instant(err.error.message));
+                    });                
                 }
-            })
+            });
         } else this.toast.error(this.translate.instant('my-ml.role.message.not-allow-delete'));
     }
 
@@ -177,7 +179,7 @@ export class RoleMngComponent implements OnInit, OnDestroy {
         if(val){
             this.listRoles.forEach(role => {
                 if(!this.listChecked.has(role._id)) this.listChecked.set(role._id, role);
-            })
+            });
         } else this.resetListChecked();
     }
 
@@ -189,21 +191,25 @@ export class RoleMngComponent implements OnInit, OnDestroy {
         if(this.authorService.isAuthorized(APP_ACTIONS.role['delete-one'])) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: `Xác nhận xóa vai trò`,
-                    message: `Xóa vai trò '${role.title}'?`
+                    title: this.translate.instant('system.role.delete-title'),
+                    message: this.translate.instant('system.role.delete-one-content', { name: role.title }),
                 }
             })
             .afterClosed().subscribe((isConfirmed?: boolean) => {
                 if(isConfirmed){
                     this.loading = true;
                     this.roleService.deleteRole([role._id]).subscribe(() => {
-                        this.toast.success(`Xóa vai trò thành công`);
+                        this.toast.success(this.translate.instant('system.role.delete-success'));
                         this.loading = false;
                         this.searchRoles();
                         if(this.listChecked.has(role._id)) this.listChecked.delete(role._id);
-                    }, () => this.loading = false)
+                    }, (err: CustomHttpResponseError) => {
+                        this.loading = false;
+                        if(err.error.message === UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.role.delete-failed'));
+                        else this.toast.error(this.translate.instant(err.error.message));
+                    });
                 }
-            })
+            });
         } else this.toast.error(this.translate.instant('my-ml.role.message.not-allow-delete'));
     }
 
@@ -213,17 +219,17 @@ export class RoleMngComponent implements OnInit, OnDestroy {
                 this.listChecked.set(id, {
                     ...this.listChecked.get(id),
                     status
-                })
+                });
             }
-        })
+        });
     }
 
     changeStatus(role: Partial<Role>){
         if(this.authorService.isAuthorized(APP_ACTIONS.role['update-status'])) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: `Xác nhận ${role.status ? '': 'mở'} khóa vai trò?`,
-                    message: `${role.status ? 'Khóa': 'Mở khóa'} vai trò ${role.title}?`
+                    title: this.translate.instant(role.status ? 'system.role.lock-title': 'system.role.unlock-title'),
+                    message: this.translate.instant(role.status ? 'system.role.lock-content': 'system.role.unlock-content', { name: role.title }),
                 }
             })
             .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
@@ -233,14 +239,16 @@ export class RoleMngComponent implements OnInit, OnDestroy {
                     this.roleService.changeStatusRole([role._id], newStatus)
                     .subscribe(res => {
                         this.loading = false;
-                        this.toast.success(`${role.status ? 'Khóa': 'Mở khóa'} vai trò thành công`);
+                        this.toast.success(this.translate.instant(role.status ? 'system.role.lock-success': 'system.role.unlock-success'));
                         this.searchRoles();
-                        this.updateListCheckedAfterStatusChanged([role._id], newStatus)
-                    }, err => {
+                        this.updateListCheckedAfterStatusChanged([role._id], newStatus);
+                    }, (err: CustomHttpResponseError) => {
                         this.loading = false;
-                    })                
+                        if(err.error.message === UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant(role.status ? 'system.role.lock-failed': 'system.role.unlock-failed'));
+                        else this.toast.error(this.translate.instant(err.error.message));
+                    });                
                 }
-            })
+            });
         } else this.toast.error(this.translate.instant('my-ml.role.message.not-allow-update-status'));
     }
 
@@ -248,8 +256,8 @@ export class RoleMngComponent implements OnInit, OnDestroy {
         if(this.authorService.isAuthorized(APP_ACTIONS.role['update-status'])) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: `Xác nhận ${currStatus ? '': 'mở'} khóa vai trò?`,
-                    message: `${currStatus ? 'Khóa': 'Mở khóa'} ${this.getNumOfSelected()} vai trò?`
+                    title: this.translate.instant(currStatus ? 'system.role.lock-title': 'system.role.unlock-title'),
+                    message: this.translate.instant(currStatus ? 'system.role.lock-many-content': 'system.role.unlock-many-content', { count: this.getNumOfSelected() }),
                 }
             })
             .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
@@ -259,14 +267,16 @@ export class RoleMngComponent implements OnInit, OnDestroy {
                     this.roleService.changeStatusRole(Array.from(this.listChecked.keys()), newStatus)
                     .subscribe(res => {
                         this.loading = false;
-                        this.toast.success(`${currStatus ? 'Khóa': 'Mở khóa'} vai trò thành công`);
+                        this.toast.success(this.translate.instant(currStatus ? 'system.role.lock-success': 'system.role.unlock-success'));
                         this.searchRoles();       
                         this.resetListChecked();             
-                    }, err => {
+                    }, (err: CustomHttpResponseError) => {
                         this.loading = false;
-                    })                
+                        if(err.error.message === UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant(currStatus ? 'system.role.lock-failed': 'system.role.unlock-failed'));
+                        else this.toast.error(this.translate.instant(err.error.message));
+                    });                
                 }
-            })            
+            });            
         } else this.toast.error(this.translate.instant('my-ml.role.message.not-allow-update-status'));
     }
 }
