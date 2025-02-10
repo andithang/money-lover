@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Action } from 'app/model/action.model';
-import { CONSTS } from 'app/consts';
+import { CONSTS, UNKNOWN_ERROR_MESSAGE } from 'app/consts';
 import { ConfirmDeletionComponent } from '@shared/components/confirm-deletion/confirm-deletion.component';
 import { ToastrService } from 'ngx-toastr';
 import { PageEvent } from '@angular/material/paginator';
@@ -12,6 +12,7 @@ import { AuthorizationService } from '@shared/services/authorization.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { APP_ACTIONS } from 'app/actions';
+import { CustomHttpResponseError } from 'app/model/system/response-error.model';
 
 @Component({
     selector: 'actions',
@@ -30,13 +31,13 @@ export class ActionMngComponent implements OnInit, OnDestroy {
         this.authorService.getAllowActionsOnModule(location.pathname).subscribe(({actions}) => {
             this.authorService.allowActionsChange$.next(actions);
             this.permissionChecked.next(true);
-        }, () => this.permissionChecked.next(true))
+        }, () => this.permissionChecked.next(true));
     }
 
     ngOnInit() { 
         this.permissionChecked.pipe(takeUntil(this.destroy$)).subscribe((checked) => {
-            if(checked) this.searchActions()
-        })
+            if(checked) this.searchActions();
+        });
     }
 
     ngOnDestroy(): void {
@@ -46,8 +47,8 @@ export class ActionMngComponent implements OnInit, OnDestroy {
     }
 
     listActions: Partial<Action>[] = [];
-    searchKey: string = "";
-    displayedColumns: string[] = ['checkbox', 'Tên hành động', 'Mã hành động', 'Mô tả', 'Ngày tạo', 'Trạng thái', 'Thao tác'];
+    searchKey: string = '';
+    displayedColumns: string[] = ['checkbox', 'system.action.action-name', 'system.action.action-code', 'system.common.description', 'system.common.date-created', 'system.common.status', 'system.common.actions'];
     columnProps: string[] = ['checkbox', 'title','code', 'description', 'dateCreated', 'status', 'actions'];
     loading: boolean = false;
     listChecked: Map<string, Partial<Action>> = new Map<string, Partial<Action>>();
@@ -70,7 +71,7 @@ export class ActionMngComponent implements OnInit, OnDestroy {
                 if(!this.listActions.length) this.isAllChecked = false;
             }, err => {
                 this.loading = false;
-            })
+            });
         } else {
             this.toast.error(this.translate.instant('my-ml.actions.message.not-allow-get-list'));
             this.loading = false;
@@ -83,7 +84,7 @@ export class ActionMngComponent implements OnInit, OnDestroy {
 
     searchActions(){
         this.loading = true;
-        this.getListActions()
+        this.getListActions();
     }
 
     open(action?: Partial<Action>, evt?: Event){
@@ -97,9 +98,9 @@ export class ActionMngComponent implements OnInit, OnDestroy {
             if(res){
                 this.searchActions();
             }
-        })
+        });
         if(evt){
-            evt.stopPropagation()
+            evt.stopPropagation();
         }
     }
 
@@ -108,11 +109,11 @@ export class ActionMngComponent implements OnInit, OnDestroy {
     }
 
     delete(){   
-        if(this.authorService.isAuthorized(APP_ACTIONS.action['delete'])) {
+        if(this.authorService.isAuthorized(APP_ACTIONS.action.delete)) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: "Xác nhận xóa hành động?",
-                    message: `Xóa vĩnh viễn ${this.getNumOfSelected()} hành động?`
+                    title: this.translate.instant('system.action.delete-title'),
+                    message: this.translate.instant('system.action.delete-many-content', { count: this.getNumOfSelected() })
                 }
             })
             .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
@@ -122,13 +123,15 @@ export class ActionMngComponent implements OnInit, OnDestroy {
                     .subscribe(res => {
                         this.loading = false;
                         this.resetListChecked();
-                        this.toast.success("Xóa vĩnh viễn hành động thành công");
+                        this.toast.success(this.translate.instant('system.action.delete-success'));
                         this.searchActions();
-                    }, err => {
+                    }, (err: CustomHttpResponseError) => {
                         this.loading = false;
-                    })                
+                        if(err.error.message === UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.action.delete-failed'));
+                        else this.toast.error(this.translate.instant(err.error.message));
+                    });                
                 }
-            })
+            });
         } else this.toast.error(this.translate.instant('my-ml.actions.message.not-allow-delete'));
     }
 
@@ -176,7 +179,7 @@ export class ActionMngComponent implements OnInit, OnDestroy {
         if(val){
             this.listActions.forEach(action => {
                 if(!this.listChecked.has(action._id)) this.listChecked.set(action._id, action);
-            })
+            });
         } else this.resetListChecked();
     }
 
@@ -185,24 +188,24 @@ export class ActionMngComponent implements OnInit, OnDestroy {
     }
 
     deleteSingle(action: Partial<Action>){
-        if(this.authorService.isAuthorized(APP_ACTIONS.action['delete'])) {
+        if(this.authorService.isAuthorized(APP_ACTIONS.action.delete)) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: `Xác nhận xóa hành động`,
-                    message: `Xóa hành động '${action.title}'?`
+                    title: this.translate.instant('system.action.delete-title'),
+                    message: this.translate.instant('system.action.delete-one-content', { name: action.title }),
                 }
             })
             .afterClosed().subscribe((isConfirmed?: boolean) => {
                 if(isConfirmed){
                     this.loading = true;
                     this.actionService.deleteAction([action._id]).subscribe(() => {
-                        this.toast.success(`Xóa hành động thành công`);
+                        this.toast.success(this.translate.instant('system.action.delete-success'));
                         this.loading = false;
                         this.searchActions();
                         if(this.listChecked.has(action._id)) this.listChecked.delete(action._id);
-                    }, () => this.loading = false)
+                    }, () => this.loading = false);
                 }
-            })
+            });
         } else this.toast.error(this.translate.instant('my-ml.actions.message.not-allow-delete'));
     }
 
@@ -212,17 +215,17 @@ export class ActionMngComponent implements OnInit, OnDestroy {
                 this.listChecked.set(id, {
                     ...this.listChecked.get(id),
                     status
-                })
+                });
             }
-        })
+        });
     }
 
     changeStatus(action: Partial<Action>){
         if(this.authorService.isAuthorized(APP_ACTIONS.action['update-status'])) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: `Xác nhận ${action.status ? '': 'mở'} khóa hành động?`,
-                    message: `${action.status ? 'Khóa': 'Mở khóa'} hành động ${action.title}?`
+                    title: this.translate.instant(action.status ? 'system.action.lock-title': 'system.action.unlock-title'),
+                    message: this.translate.instant(action.status ? 'system.action.lock-content': 'system.action.unlock-content', { name: action.title }),
                 }
             })
             .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
@@ -232,14 +235,16 @@ export class ActionMngComponent implements OnInit, OnDestroy {
                     this.actionService.changeStatusAction([action._id], newStatus)
                     .subscribe(res => {
                         this.loading = false;
-                        this.toast.success(`${action.status ? 'Khóa': 'Mở khóa'} hành động thành công`);
+                        this.toast.success(this.translate.instant(action.status ? 'system.action.lock-success': 'system.action.unlock-success'));
                         this.searchActions();
-                        this.updateListCheckedAfterStatusChanged([action._id], newStatus)
-                    }, err => {
+                        this.updateListCheckedAfterStatusChanged([action._id], newStatus);
+                    }, (err: CustomHttpResponseError) => {
                         this.loading = false;
-                    })                
+                        if(err.error.message === UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant(action.status ? 'system.action.lock-failed': 'system.action.unlock-failed'));
+                        else this.toast.error(this.translate.instant(err.error.message));
+                    });                
                 }
-            })
+            });
         } else this.toast.error(this.translate.instant('my-ml.actions.message.not-allow-update-status'));
     }
 
@@ -247,8 +252,8 @@ export class ActionMngComponent implements OnInit, OnDestroy {
         if(this.authorService.isAuthorized(APP_ACTIONS.action['update-status'])) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: `Xác nhận ${currStatus ? '': 'mở'} khóa hành động?`,
-                    message: `${currStatus ? 'Khóa': 'Mở khóa'} ${this.getNumOfSelected()} hành động?`
+                    title: this.translate.instant(currStatus ? 'system.action.lock-title': 'system.action.unlock-title'),
+                    message: this.translate.instant(currStatus ? 'system.action.lock-many-content': 'system.action.unlock-many-content', { count: this.getNumOfSelected() }),
                 }
             })
             .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
@@ -258,14 +263,16 @@ export class ActionMngComponent implements OnInit, OnDestroy {
                     this.actionService.changeStatusAction(Array.from(this.listChecked.keys()), newStatus)
                     .subscribe(res => {
                         this.loading = false;
-                        this.toast.success(`${currStatus ? 'Khóa': 'Mở khóa'} hành động thành công`);
+                        this.toast.success(this.translate.instant(currStatus ? 'system.action.lock-success': 'system.action.unlock-success'));
                         this.searchActions();   
                         this.resetListChecked();             
-                    }, err => {
+                    }, (err: CustomHttpResponseError) => {
                         this.loading = false;
-                    })                
+                        if(err.error.message === UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant(currStatus ? 'system.action.lock-failed': 'system.action.unlock-failed'));
+                        else this.toast.error(this.translate.instant(err.error.message));
+                    });                
                 }
-            })
+            });
         } else this.toast.error(this.translate.instant('my-ml.actions.message.not-allow-update-status'));
     }
 }

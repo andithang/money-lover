@@ -250,6 +250,27 @@
         "role-mng-title": "Vai trò hệ thống",
         "role-mng-description": "Danh sách vai trò hệ thống"
       },
+      "action": {
+        "action-name": "Tên hành động",
+        "action-code": "Mã hành động",
+        "delete-title": "Xác nhận xóa hành động",
+        "delete-many-content": "Xóa vĩnh viễn {{count}} hành động?",
+        "delete-success": "Xóa vĩnh viễn hành động thành công",
+        "delete-failed": "Xóa vĩnh viễn hành động thất bại",
+        "delete-one-content": "Xóa vĩnh viễn hành động '{{name}}'?",
+        "lock-title": "Xác nhận khóa hành động",
+        "unlock-title": "Xác nhận mở khóa hành động",
+        "lock-content": "Khóa hành động '{{name}}'?",
+        "lock-many-content": "Khóa {{count}} hành động?",
+        "unlock-many-content": "Mở khóa {{count}} hành động?",
+        "unlock-content": "Mở khóa hành động'{{name}}'?",
+        "lock-failed": "Khoá hành động thất bại",
+        "lock-success": "Khoá hành động thành công",
+        "unlock-failed": "Mở khoá hành động thất bại",
+        "unlock-success": "Mở khoá hành động thành công",
+        "role-mng-title": "hành động hệ thống",
+        "role-mng-description": "Danh sách hành động hệ thống"
+      },
       "error": {
         "internal-error": "Lỗi hệ thống"
       },

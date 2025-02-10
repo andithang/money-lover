@@ -215,13 +215,15 @@ const checkDelete = ids => {
                     }).exec((errFindPermission, permissions) => {
                         if(errFindPermission) cb(errFindPermission);
                         else {
-                            const attachedActionIds = ids.filter(id => moduleActions.find(ma => ma.actions.includes(id)));
-                            Action.find({_id: {$in: attachedActionIds}}).exec((errFindAction, actions) => {
-                                if(errFindAction) cb(errFindAction);
-                                else {
-                                    cb({actionNames: actions.map(m => m.title), permissionNames: permissions.map(p => p.title)});
-                                }
-                            })
+                            if(permissions.length) {
+                                const attachedActionIds = ids.filter(id => moduleActions.find(ma => ma.actions.includes(id)));
+                                Action.find({_id: {$in: attachedActionIds}}).exec((errFindAction, actions) => {
+                                    if(errFindAction) cb(errFindAction);
+                                    else {
+                                        cb({actionNames: actions.map(m => m.title), permissionNames: permissions.map(p => p.title)});
+                                    }
+                                })
+                            } else cb();
                         }
                     })
                 } else {

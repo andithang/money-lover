@@ -39,7 +39,9 @@ export function TranslateHttpLoaderFactory(http: HttpClient) {
     ThemeModule,
     RoutesModule,
     FormlyModule.forRoot(),
-    ToastrModule.forRoot(),
+    ToastrModule.forRoot({
+      positionClass: 'toast-top-center'
+    }),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

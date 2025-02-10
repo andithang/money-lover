@@ -208,8 +208,8 @@ const checkDelete = (ids) => {
                         const usersWithDelRoles = users.filter(u => u.role && u.role._id);
                         const listRolesAttached = usersWithDelRoles.map(u => u.role);
                         const message = translate('role.delete-roles-user-attached', process.env.SYSTEM_LANG, {
-                            roleNames: `${listRolesAttached.map(r => r.title).join(',')}`,
-                            userNames: `${usersWithDelRoles.map(u => u.username).join(',')}`
+                            roleNames: `${listRolesAttached.map(r => r.title).join(', ')}`,
+                            userNames: `${usersWithDelRoles.map(u => u.username).join(', ')}`
                         })
                         cb(message);
                     } else {
