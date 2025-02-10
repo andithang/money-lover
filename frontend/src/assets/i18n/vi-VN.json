@@ -268,8 +268,29 @@
         "lock-success": "Khoá hành động thành công",
         "unlock-failed": "Mở khoá hành động thất bại",
         "unlock-success": "Mở khoá hành động thành công",
-        "role-mng-title": "hành động hệ thống",
-        "role-mng-description": "Danh sách hành động hệ thống"
+        "action-mng-title": "hành động hệ thống",
+        "action-mng-description": "Danh sách hành động hệ thống"
+      },
+      "module": {
+        "module-name": "Tên module",
+        "module-code": "Mã module",
+        "delete-title": "Xác nhận xóa module",
+        "delete-many-content": "Xóa vĩnh viễn {{count}} module?",
+        "delete-success": "Xóa vĩnh viễn module thành công",
+        "delete-failed": "Xóa vĩnh viễn module thất bại",
+        "delete-one-content": "Xóa vĩnh viễn module '{{name}}'?",
+        "lock-title": "Xác nhận khóa module",
+        "unlock-title": "Xác nhận mở khóa module",
+        "lock-content": "Khóa module '{{name}}'?",
+        "lock-many-content": "Khóa {{count}} module?",
+        "unlock-many-content": "Mở khóa {{count}} module?",
+        "unlock-content": "Mở khóa module'{{name}}'?",
+        "lock-failed": "Khoá module thất bại",
+        "lock-success": "Khoá module thành công",
+        "unlock-failed": "Mở khoá module thất bại",
+        "unlock-success": "Mở khoá module thành công",
+        "module-mng-title": "Module hệ thống",
+        "module-mng-description": "Danh sách module hệ thống"
       },
       "error": {
         "internal-error": "Lỗi hệ thống"

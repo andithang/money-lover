@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Module } from 'app/model/module.model';
-import { CONSTS } from 'app/consts';
+import { CONSTS, UNKNOWN_ERROR_MESSAGE } from 'app/consts';
 import { ConfirmDeletionComponent } from '@shared/components/confirm-deletion/confirm-deletion.component';
 import { ToastrService } from 'ngx-toastr';
 import { PageEvent } from '@angular/material/paginator';
@@ -12,6 +12,7 @@ import { AuthorizationService } from '@shared/services/authorization.service';
 import { APP_ACTIONS } from 'app/actions';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
+import { CustomHttpResponseError } from 'app/model/system/response-error.model';
 
 @Component({
     selector: 'modules',
@@ -47,7 +48,7 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
 
     listModules: Partial<Module>[] = [];
     searchKey: string = '';
-    displayedColumns: string[] = ['checkbox', 'Tên module', 'Mã module', 'Mô tả', 'Ngày tạo', 'Trạng thái', 'Thao tác'];
+    displayedColumns: string[] = ['checkbox', 'system.module.module-name', 'system.module.module-code', 'system.common.description', 'system.common.date-created', 'system.common.status', 'system.common.actions'];
     columnProps: string[] = ['checkbox', 'title','code', 'description', 'dateCreated', 'status', 'actions'];
     loading: boolean = false;
     listChecked: Map<string, Partial<Module>> = new Map<string, Partial<Module>>();
@@ -111,8 +112,8 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
         if(this.authorService.isAuthorized(APP_ACTIONS.module['delete-many'])) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: 'Xác nhận xóa module?',
-                    message: `Xóa vĩnh viễn ${this.getNumOfSelected()} module?`
+                    title: this.translate.instant('system.module.delete-title'),
+                    message: this.translate.instant('system.module.delete-many-content', { count: this.getNumOfSelected() })
                 }
             })
             .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
@@ -122,10 +123,12 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
                     .subscribe(res => {
                         this.loading = false;
                         this.resetListChecked();
-                        this.toast.success('Xóa vĩnh viễn module thành công');
+                        this.toast.success(this.translate.instant('system.module.delete-success'));
                         this.searchModules();
-                    }, err => {
+                    }, (err: CustomHttpResponseError) => {
                         this.loading = false;
+                        if(err.error.message === UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant('system.module.delete-failed'));
+                        else this.toast.error(this.translate.instant(err.error.message));
                     });                
                 }
             });
@@ -188,15 +191,15 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
         if(this.authorService.isAuthorized(APP_ACTIONS.module['delete-one'])) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: `Xác nhận xóa module`,
-                    message: `Xóa module '${module.title}'?`
+                    title: this.translate.instant('system.module.delete-title'),
+                    message: this.translate.instant('system.module.delete-one-content', { name: module.title }),
                 }
             })
             .afterClosed().subscribe((isConfirmed?: boolean) => {
                 if(isConfirmed){
                     this.loading = true;
                     this.moduleService.deleteModule([module._id]).subscribe(() => {
-                        this.toast.success(`Xóa module thành công`);
+                        this.toast.success(this.translate.instant('system.module.delete-success'));
                         this.loading = false;
                         this.searchModules();
                         if(this.listChecked.has(module._id)) this.listChecked.delete(module._id);
@@ -221,8 +224,8 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
         if(this.authorService.isAuthorized(APP_ACTIONS.module['update-status'])) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: `Xác nhận ${module.status ? '': 'mở'} khóa module?`,
-                    message: `${module.status ? 'Khóa': 'Mở khóa'} module ${module.title}?`
+                    title: this.translate.instant(module.status ? 'system.module.lock-title': 'system.module.unlock-title'),
+                    message: this.translate.instant(module.status ? 'system.module.lock-content': 'system.module.unlock-content', { name: module.title }),
                 }
             })
             .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
@@ -232,11 +235,13 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
                     this.moduleService.changeStatusModule([module._id], newStatus)
                     .subscribe(res => {
                         this.loading = false;
-                        this.toast.success(`${module.status ? 'Khóa': 'Mở khóa'} module thành công`);
+                        this.toast.success(this.translate.instant(module.status ? 'system.module.lock-success': 'system.module.unlock-success'));
                         this.searchModules();
                         this.updateListCheckedAfterStatusChanged([module._id], newStatus);
-                    }, err => {
+                    }, (err: CustomHttpResponseError) => {
                         this.loading = false;
+                        if(err.error.message === UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant(module.status ? 'system.module.lock-failed': 'system.module.unlock-failed'));
+                        else this.toast.error(this.translate.instant(err.error.message));
                     });                
                 }
             });
@@ -247,8 +252,8 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
         if(this.authorService.isAuthorized(APP_ACTIONS.module['update-status'])) {
             this.dialogService.open(ConfirmDeletionComponent, {
                 data: {
-                    title: `Xác nhận ${currStatus ? '': 'mở'} khóa module?`,
-                    message: `${currStatus ? 'Khóa': 'Mở khóa'} ${this.getNumOfSelected()} module?`
+                    title: this.translate.instant(currStatus ? 'system.module.lock-title': 'system.module.unlock-title'),
+                    message: this.translate.instant(currStatus ? 'system.module.lock-many-content': 'system.module.unlock-many-content', { count: this.getNumOfSelected() }),
                 }
             })
             .afterClosed().subscribe((isConfirmed: boolean | undefined) => {
@@ -258,11 +263,13 @@ export class ModuleMngComponent implements OnInit, OnDestroy {
                     this.moduleService.changeStatusModule(Array.from(this.listChecked.keys()), newStatus)
                     .subscribe(res => {
                         this.loading = false;
-                        this.toast.success(`${currStatus ? 'Khóa': 'Mở khóa'} module thành công`);
+                        this.toast.success(this.translate.instant(currStatus ? 'system.module.lock-success': 'system.module.unlock-success'));
                         this.searchModules(); 
                         this.resetListChecked();    
-                    }, err => {
+                    }, (err: CustomHttpResponseError) => {
                         this.loading = false;
+                        if(err.error.message === UNKNOWN_ERROR_MESSAGE) this.toast.error(this.translate.instant(currStatus ? 'system.module.lock-failed': 'system.module.unlock-failed'));
+                        else this.toast.error(this.translate.instant(err.error.message));
                     });                
                 }
             });

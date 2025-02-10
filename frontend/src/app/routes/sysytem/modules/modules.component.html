@@ -1,7 +1,7 @@
 <mat-card>
-    <mat-card-title>Module hệ thống</mat-card-title>
+    <mat-card-title>{{ 'system.module.module-mng-title' | translate }}</mat-card-title>
     <mat-card-subtitle>
-        Danh sách module hệ thống
+        {{ 'system.module.module-mng-description' | translate }}
     </mat-card-subtitle>
     <mat-card-content>
         <div class="p-y-4">
@@ -16,25 +16,25 @@
                 <span>
                     <button mat-button color="primary" (click)="open()" *accessCheck="APP_ACTIONS.module['create']">
                         <mat-icon>add</mat-icon>
-                        Thêm mới
+                        {{ 'system.common.create' | translate }}
                     </button>
                 </span>
                 <span *accessCheck="APP_ACTIONS.module['update-status']">
                     <button mat-button *ngIf="isShowLockButton()" color="accent" (click)="changeStatusSelected(1)">
                         <mat-icon>block</mat-icon>
-                        Khóa
+                        {{ 'system.common.lock' | translate }}
                     </button>
                 </span>
                 <span *accessCheck="APP_ACTIONS.module['update-status']">
                     <button mat-button *ngIf="isShowUnlockButton()" color="success" class="mat-success-outlined" (click)="changeStatusSelected(0)">
                         <mat-icon>lock_open</mat-icon>
-                        Mở khóa
+                        {{ 'system.common.unlock' | translate }}
                     </button>
                 </span>
                 <span *accessCheck="APP_ACTIONS.module['delete-many']">
                     <button mat-button *ngIf="isShowDeleteButton()" color="warn" (click)="delete()">
                         <mat-icon>delete</mat-icon>
-                        Xóa
+                        {{ 'system.common.delete' | translate }}
                     </button>
                 </span>
             </mat-card-actions>
@@ -53,7 +53,7 @@
                                         (ngModelChange)="toggleCheckAllItems($event)"></mat-checkbox>
                                 </ng-container>
                                 <ng-template #notAction>
-                                    {{displayedColumns[i]}}
+                                    {{ displayedColumns[i] | translate }}
                                 </ng-template>
                             </th>
                             <td mat-cell *matCellDef="let element">
@@ -76,9 +76,15 @@
                                     <div *ngSwitchCase="'actions'">
                                         <button mat-icon-button [matMenuTriggerFor]="menuActions"><mat-icon>more_vert</mat-icon></button>
                                         <mat-menu #menuActions="matMenu">
-                                            <button mat-menu-item (click)="open(element)" *accessCheck="APP_ACTIONS.module['update']"><mat-icon>edit</mat-icon>Cập nhật</button>
-                                            <button mat-menu-item (click)="changeStatus(element)" *accessCheck="APP_ACTIONS.module['update-status']"><mat-icon>{{ element.status ? 'block': 'lock_open' }}</mat-icon>{{ element.status ? 'Khóa': 'Mở khóa' }}</button>
-                                            <button mat-menu-item class="dropdown-item dropdown-item-accent" (click)="deleteSingle(element)" *accessCheck="APP_ACTIONS.module['delete-one']"><mat-icon color="accent">delete</mat-icon>Xóa</button>
+                                            <button mat-menu-item (click)="open(element)" *accessCheck="APP_ACTIONS.module['update']">
+                                                <mat-icon>edit</mat-icon>{{ 'system.common.update' | translate }}
+                                            </button>
+                                            <button mat-menu-item (click)="changeStatus(element)" *accessCheck="APP_ACTIONS.module['update-status']">
+                                                <mat-icon>{{ element.status ? 'block': 'lock_open' }}</mat-icon>{{ (element.status ? 'system.common.lock': 'system.common.lock') | translate }}
+                                            </button>
+                                            <button mat-menu-item class="dropdown-item dropdown-item-accent" (click)="deleteSingle(element)" *accessCheck="APP_ACTIONS.module['delete-one']">
+                                                <mat-icon color="accent">delete</mat-icon>{{ 'system.common.delete' | translate }}
+                                            </button>
                                         </mat-menu>
                                     </div>
                                     <div *ngSwitchDefault>
